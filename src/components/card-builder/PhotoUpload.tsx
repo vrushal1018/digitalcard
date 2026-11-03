@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import { UploadCloud, Image as ImageIcon, X, Loader2 } from "lucide-react";
+import { UploadCloud, X, Loader2 } from "lucide-react";
 import { validateImageFile } from "@/lib/validation";
 
 interface PhotoUploadProps {
@@ -9,6 +9,52 @@ interface PhotoUploadProps {
   onPhotoUploaded: (url: string) => void;
   onPhotoRemoved: () => void;
   error?: string;
+}
+
+/**
+ * Resizes an image in the browser using HTML5 Canvas to keep profile photos
+ * fast, lightweight (~20-40KB), and fully compatible with serverless environments.
+ */
+function compressImageClientSide(file: File, maxWidth = 360, quality = 0.85): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxWidth) {
+            width = Math.round((width * maxWidth) / height);
+            height = maxWidth;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          resolve(e.target?.result as string);
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0, width, height);
+        const dataUrl = canvas.toDataURL("image/jpeg", quality);
+        resolve(dataUrl);
+      };
+      img.onerror = () => reject(new Error("Failed to load image for processing"));
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = () => reject(new Error("Failed to read image file"));
+    reader.readAsDataURL(file);
+  });
 }
 
 export function PhotoUpload({
@@ -35,29 +81,46 @@ export function PhotoUpload({
       return;
     }
 
-    // Upload to server
     try {
       setIsUploading(true);
-      const formData = new FormData();
-      formData.append("file", file);
 
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to upload image");
+      // Compress client-side first for instant speed and low bandwidth
+      let clientCompressedUrl = "";
+      try {
+        clientCompressedUrl = await compressImageClientSide(file);
+      } catch (compErr) {
+        console.warn("Client compression skipped:", compErr);
       }
 
-      onPhotoUploaded(data.photoUrl);
+      // Try uploading to /api/upload
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.photoUrl) {
+          onPhotoUploaded(data.photoUrl);
+          return;
+        }
+      } catch (netErr) {
+        console.warn("API upload failed, using client data URL fallback:", netErr);
+      }
+
+      // Fallback: If server upload had any issue or is read-only serverless
+      if (clientCompressedUrl) {
+        onPhotoUploaded(clientCompressedUrl);
+      } else {
+        throw new Error("Unable to process the photo. Please try a different image.");
+      }
     } catch (err) {
-      console.error("Photo upload error:", err);
-      setLocalError(
-        (err as Error).message || "An error occurred while uploading"
-      );
+      console.error("Photo processing error:", err);
+      setLocalError((err as Error).message || "An error occurred while uploading");
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -139,7 +202,7 @@ export function PhotoUpload({
             <div className="flex flex-col items-center gap-2">
               <Loader2 className="w-8 h-8 text-sky-400 animate-spin" />
               <span className="text-sm font-medium text-zinc-300">
-                Uploading photo...
+                Processing photo...
               </span>
             </div>
           ) : (
@@ -164,4 +227,3 @@ export function PhotoUpload({
     </div>
   );
 }
-

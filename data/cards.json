@@ -58,5 +58,17 @@
     "photoUrl": "/uploads/2b6597f6-9018-4ba8-b1fb-d22d85e2d0e9.jpg",
     "createdAt": "2026-11-03T11:43:04.555Z",
     "updatedAt": "2026-11-03T11:43:04.555Z"
+  },
+  {
+    "id": "4dde5b7a-c99c-43cd-8a7a-d4c5609204d8",
+    "slug": "jane-doe-d9ad5de7",
+    "name": "Jane Doe",
+    "designation": "Lead Architect",
+    "companyName": "Modern Studio",
+    "phoneNumber": "+15551234567",
+    "officeLocation": "Seattle, WA",
+    "photoUrl": "/uploads/jane.jpg",
+    "createdAt": "2026-11-03T12:02:58.653Z",
+    "updatedAt": "2026-11-03T12:02:58.653Z"
   }
 ]

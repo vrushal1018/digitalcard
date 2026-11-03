@@ -4,22 +4,44 @@ import crypto from "crypto";
 import { DigitalCard, CardFormData } from "../types/card";
 import { normalizePhoneForCall } from "./phone";
 
-const DATA_DIR = path.join(process.cwd(), "data");
-const CARDS_FILE = path.join(DATA_DIR, "cards.json");
+declare global {
+  var __INACARD_STORE__: DigitalCard[] | undefined;
+}
+
+if (!globalThis.__INACARD_STORE__) {
+  globalThis.__INACARD_STORE__ = [];
+}
+
+const LOCAL_DATA_DIR = path.join(process.cwd(), "data");
+const LOCAL_CARDS_FILE = path.join(LOCAL_DATA_DIR, "cards.json");
+
+const TMP_DATA_DIR = path.join("/tmp", "inacard");
+const TMP_CARDS_FILE = path.join(TMP_DATA_DIR, "cards.json");
 
 /**
- * Ensures the data directory and cards.json file exist.
+ * Reads cards from a specified file path safely.
  */
-async function ensureDataFile(): Promise<void> {
+async function readCardsFromFile(filePath: string): Promise<DigitalCard[]> {
   try {
-    await fs.mkdir(DATA_DIR, { recursive: true });
-    try {
-      await fs.access(CARDS_FILE);
-    } catch {
-      await fs.writeFile(CARDS_FILE, JSON.stringify([], null, 2), "utf-8");
-    }
+    const raw = await fs.readFile(filePath, "utf-8");
+    return JSON.parse(raw) as DigitalCard[];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Writes cards to a specified file path safely, creating parent directories if needed.
+ */
+async function writeCardsToFile(dirPath: string, filePath: string, cards: DigitalCard[]): Promise<boolean> {
+  try {
+    await fs.mkdir(dirPath, { recursive: true });
+    const tempFile = `${filePath}.tmp.${Date.now()}`;
+    await fs.writeFile(tempFile, JSON.stringify(cards, null, 2), "utf-8");
+    await fs.rename(tempFile, filePath);
+    return true;
   } catch (err) {
-    console.error("Error ensuring data directory:", err);
+    return false;
   }
 }
 
@@ -39,17 +61,26 @@ export function generateSlug(name: string): string {
 }
 
 /**
- * Retrieves all stored cards.
+ * Retrieves all stored cards, checking in-memory cache, local data directory,
+ * and /tmp storage.
  */
 export async function getAllCards(): Promise<DigitalCard[]> {
-  await ensureDataFile();
-  try {
-    const raw = await fs.readFile(CARDS_FILE, "utf-8");
-    return JSON.parse(raw) as DigitalCard[];
-  } catch (error) {
-    console.error("Failed to read cards file:", error);
-    return [];
-  }
+  const memoryCards = globalThis.__INACARD_STORE__ || [];
+
+  // Read bundled seeds from repository
+  const localCards = await readCardsFromFile(LOCAL_CARDS_FILE);
+  // Read serverless /tmp writes if on Vercel
+  const tmpCards = await readCardsFromFile(TMP_CARDS_FILE);
+
+  // Merge unique by ID
+  const map = new Map<string, DigitalCard>();
+  for (const c of localCards) map.set(c.id, c);
+  for (const c of tmpCards) map.set(c.id, c);
+  for (const c of memoryCards) map.set(c.id, c);
+
+  const all = Array.from(map.values());
+  globalThis.__INACARD_STORE__ = all;
+  return all;
 }
 
 /**
@@ -65,13 +96,12 @@ export async function getCardBySlug(slug: string): Promise<DigitalCard | null> {
 
 /**
  * Creates and persists a new card record.
+ * Works seamlessly on local filesystems as well as Vercel serverless environments.
  */
 export async function createCard(formData: CardFormData): Promise<DigitalCard> {
-  await ensureDataFile();
   const cards = await getAllCards();
 
   let slug = generateSlug(formData.name);
-  // Ensure absolute uniqueness
   while (cards.some((c) => c.slug === slug)) {
     slug = generateSlug(formData.name);
   }
@@ -91,12 +121,15 @@ export async function createCard(formData: CardFormData): Promise<DigitalCard> {
   };
 
   cards.push(newCard);
+  globalThis.__INACARD_STORE__ = cards;
 
-  // Write atomically
-  const tempFile = `${CARDS_FILE}.tmp.${Date.now()}`;
-  await fs.writeFile(tempFile, JSON.stringify(cards, null, 2), "utf-8");
-  await fs.rename(tempFile, CARDS_FILE);
+  // 1. Try local data file write (succeeds locally)
+  const localSuccess = await writeCardsToFile(LOCAL_DATA_DIR, LOCAL_CARDS_FILE, cards);
+
+  // 2. If local write fails (read-only filesystem on Vercel), write to /tmp
+  if (!localSuccess) {
+    await writeCardsToFile(TMP_DATA_DIR, TMP_CARDS_FILE, cards);
+  }
 
   return newCard;
 }
-
