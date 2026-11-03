@@ -15,6 +15,8 @@ export default function HomePage() {
     photoUrl: "",
   });
 
+  const [createdSlug, setCreatedSlug] = useState<string | null>(null);
+
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
       {/* Intro hero text */}
@@ -34,12 +36,16 @@ export default function HomePage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
         {/* Left Column: Form */}
         <div className="lg:col-span-7">
-          <CardForm formData={formData} onChange={setFormData} />
+          <CardForm
+            formData={formData}
+            onChange={setFormData}
+            onCardCreated={(slug) => setCreatedSlug(slug)}
+          />
         </div>
 
         {/* Right Column: Sticky Live Preview */}
         <div className="lg:col-span-5 lg:sticky lg:top-24">
-          <CardPreview formData={formData} />
+          <CardPreview formData={formData} createdSlug={createdSlug} />
         </div>
       </div>
     </div>

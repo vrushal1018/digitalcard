@@ -24,3 +24,4 @@ export function getCardUrl(slug: string, baseUrl?: string): string {
   }
   return `/card/${slug}`;
 }
+

@@ -29,3 +29,4 @@ export interface FormErrors {
   photo?: string;
   general?: string;
 }
+

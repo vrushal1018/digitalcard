@@ -39,3 +39,4 @@ describe("Card storage and slug generation", () => {
     expect(result).toBeNull();
   });
 });
+

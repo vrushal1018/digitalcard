@@ -31,3 +31,4 @@ describe("Link generation helpers", () => {
     );
   });
 });
+

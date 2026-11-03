@@ -3,24 +3,40 @@
 import React from "react";
 import { DigitalCard } from "../digital-card/DigitalCard";
 import { CardFormData } from "@/types/card";
-import { Sparkles } from "lucide-react";
+import { Sparkles, CheckCircle2 } from "lucide-react";
 
 interface CardPreviewProps {
   formData: CardFormData;
+  createdSlug?: string | null;
 }
 
-export function CardPreview({ formData }: CardPreviewProps) {
+export function CardPreview({ formData, createdSlug }: CardPreviewProps) {
+  const isLive = Boolean(createdSlug);
+  const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+  const shareUrl = createdSlug ? `${origin}/card/${createdSlug}` : undefined;
+
   return (
     <div className="w-full flex flex-col items-center">
       <div className="w-full flex items-center justify-between mb-4 px-1">
         <div className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-sky-400" />
-          <h2 className="text-sm font-semibold tracking-wide text-zinc-300 uppercase">
-            Live Preview
-          </h2>
+          {isLive ? (
+            <>
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+              <h2 className="text-sm font-semibold tracking-wide text-emerald-400 uppercase">
+                Active Card Preview
+              </h2>
+            </>
+          ) : (
+            <>
+              <Sparkles className="w-4 h-4 text-sky-400" />
+              <h2 className="text-sm font-semibold tracking-wide text-zinc-300 uppercase">
+                Live Preview
+              </h2>
+            </>
+          )}
         </div>
         <span className="text-xs text-zinc-500">
-          Updates in real-time
+          {isLive ? "Published & Live" : "Updates in real-time"}
         </span>
       </div>
 
@@ -32,7 +48,9 @@ export function CardPreview({ formData }: CardPreviewProps) {
           phoneNumber={formData.phoneNumber}
           officeLocation={formData.officeLocation}
           photoUrl={formData.photoUrl}
-          isPreview={true}
+          slug={createdSlug || undefined}
+          shareUrl={shareUrl}
+          isPreview={!isLive}
         />
       </div>
     </div>

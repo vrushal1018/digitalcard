@@ -5,19 +5,33 @@ import { useRouter } from "next/navigation";
 import { CardFormData, FormErrors } from "@/types/card";
 import { PhotoUpload } from "./PhotoUpload";
 import { validateCardForm } from "@/lib/validation";
-import { Sparkles, Loader2, ArrowRight, Check, Copy, ExternalLink, AlertCircle } from "lucide-react";
+import {
+  Sparkles,
+  Loader2,
+  ArrowRight,
+  Check,
+  Copy,
+  ExternalLink,
+  AlertCircle,
+  QrCode,
+  MessageCircle,
+  Eye,
+  Share2,
+} from "lucide-react";
 
 interface CardFormProps {
   formData: CardFormData;
   onChange: (newData: CardFormData) => void;
+  onCardCreated?: (slug: string) => void;
 }
 
-export function CardForm({ formData, onChange }: CardFormProps) {
+export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
   const router = useRouter();
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [createdSlug, setCreatedSlug] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [showQr, setShowQr] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -26,7 +40,6 @@ export function CardForm({ formData, onChange }: CardFormProps) {
       [name]: value,
     });
 
-    // Clear specific field error when typing
     if (errors[name as keyof FormErrors]) {
       setErrors((prev) => {
         const next = { ...prev };
@@ -61,7 +74,6 @@ export function CardForm({ formData, onChange }: CardFormProps) {
     e.preventDefault();
     setErrors({});
 
-    // Client-side validation
     const validation = validateCardForm(formData);
     if (!validation.isValid) {
       setErrors(validation.errors);
@@ -88,6 +100,9 @@ export function CardForm({ formData, onChange }: CardFormProps) {
       }
 
       setCreatedSlug(data.slug);
+      if (onCardCreated) {
+        onCardCreated(data.slug);
+      }
     } catch (err) {
       console.error("Submission failed:", err);
       setErrors({
@@ -98,12 +113,15 @@ export function CardForm({ formData, onChange }: CardFormProps) {
     }
   };
 
-  const cardFullUrl =
-    createdSlug && typeof window !== "undefined"
-      ? `${window.location.origin}/card/${createdSlug}`
-      : createdSlug
-      ? `/card/${createdSlug}`
-      : "";
+  const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+  const cardPath = createdSlug ? `/card/${createdSlug}` : "";
+  const cardFullUrl = createdSlug ? `${origin}${cardPath}` : "";
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
+    cardFullUrl
+  )}`;
+  const whatsappShareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(
+    `Check out ${formData.name}'s digital business card: ${cardFullUrl}`
+  )}`;
 
   const handleCopyLink = async () => {
     if (!cardFullUrl) return;
@@ -135,56 +153,140 @@ export function CardForm({ formData, onChange }: CardFormProps) {
       )}
 
       {createdSlug ? (
-        <div className="p-6 bg-zinc-900/90 border border-emerald-500/30 rounded-2xl space-y-4 animate-fade-in">
-          <div className="flex items-center gap-2 text-emerald-400 font-semibold text-base">
-            <Check className="w-5 h-5" />
-            <span>Card Created Successfully!</span>
-          </div>
-          <p className="text-sm text-zinc-300">
-            Your interactive digital business card is live and accessible at:
-          </p>
+        <div className="space-y-6 animate-fade-in">
+          {/* Success Banner */}
+          <div className="p-5 bg-zinc-900/90 border border-emerald-500/30 rounded-2xl space-y-3">
+            <div className="flex items-center gap-2 text-emerald-400 font-semibold text-base">
+              <Check className="w-5 h-5" />
+              <span>Card Created & Ready to Share!</span>
+            </div>
+            <p className="text-sm text-zinc-300">
+              Your digital card is live at:
+            </p>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-zinc-950 p-2.5 rounded-xl border border-zinc-800">
-            <input
-              type="text"
-              readOnly
-              value={cardFullUrl}
-              className="flex-1 bg-transparent text-sm text-zinc-300 px-2 py-1 outline-none truncate"
-            />
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-zinc-950 p-2.5 rounded-xl border border-zinc-800">
+              <input
+                type="text"
+                readOnly
+                value={cardFullUrl}
+                className="flex-1 bg-transparent text-sm text-zinc-300 px-2 py-1 outline-none truncate"
+              />
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleCopyLink}
+                  className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium rounded-lg transition-colors border border-zinc-700"
+                >
+                  {copiedLink ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>Copy</span>
+                    </>
+                  )}
+                </button>
+                <a
+                  href={cardPath}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-1.5 px-3.5 py-1.5 bg-sky-500 hover:bg-sky-400 text-zinc-950 text-xs font-semibold rounded-lg transition-colors"
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>Preview Card</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            </div>
+
+            {/* Quick Share Buttons */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+              <a
+                href={whatsappShareUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 text-xs font-medium border border-emerald-500/30 transition-colors"
+              >
+                <MessageCircle className="w-4 h-4" />
+                <span>Share via WhatsApp</span>
+              </a>
+
               <button
                 type="button"
-                onClick={handleCopyLink}
-                className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium rounded-lg transition-colors border border-zinc-700"
+                onClick={() => setShowQr(!showQr)}
+                className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium border border-zinc-700 transition-colors"
               >
-                {copiedLink ? (
-                  <>
-                    <Check className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Copied!</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-3.5 h-3.5" />
-                    <span>Copy</span>
-                  </>
-                )}
-              </button>
-              <button
-                type="button"
-                onClick={() => router.push(`/card/${createdSlug}`)}
-                className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-sky-500 hover:bg-sky-400 text-zinc-950 text-xs font-semibold rounded-lg transition-colors"
-              >
-                <span>View Card</span>
-                <ExternalLink className="w-3.5 h-3.5" />
+                <QrCode className="w-4 h-4 text-sky-400" />
+                <span>{showQr ? "Hide QR Code" : "Preview Mobile QR"}</span>
               </button>
             </div>
+
+            {showQr && (
+              <div className="p-4 bg-zinc-950 rounded-xl border border-zinc-800 text-center animate-fade-in">
+                <p className="text-xs text-zinc-400 mb-2">
+                  Scan with your phone camera to preview the live card directly:
+                </p>
+                <div className="inline-block p-2 bg-white rounded-xl shadow-lg">
+                  <img
+                    src={qrCodeUrl}
+                    alt="Card QR Code"
+                    className="w-36 h-36 block"
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
-          <div className="pt-2 flex gap-3">
+          {/* Social Link Preview Card Mockup */}
+          <div className="p-5 bg-zinc-900/60 border border-zinc-800/80 rounded-2xl space-y-3">
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">
+              <Share2 className="w-3.5 h-3.5 text-sky-400" />
+              <span>Link Preview When Shared</span>
+            </div>
+            <p className="text-xs text-zinc-400">
+              This is how your link appears when sent via WhatsApp, iMessage, Slack, or LinkedIn:
+            </p>
+
+            {/* Social card unfurl mockup */}
+            <a
+              href={cardPath}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block group rounded-xl overflow-hidden border border-zinc-700/60 bg-zinc-950/80 hover:border-sky-500/50 transition-colors"
+            >
+              {formData.photoUrl && (
+                <div className="w-full h-36 bg-zinc-900 relative overflow-hidden">
+                  <img
+                    src={formData.photoUrl}
+                    alt={formData.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+              )}
+              <div className="p-3.5 space-y-1">
+                <p className="text-[11px] font-medium text-sky-400 uppercase tracking-wider">
+                  inacard.com
+                </p>
+                <h4 className="text-sm font-semibold text-white group-hover:text-sky-300 transition-colors">
+                  {formData.name} — {formData.companyName}
+                </h4>
+                <p className="text-xs text-zinc-400 line-clamp-2">
+                  {formData.name}, {formData.designation} at {formData.companyName}. Connect via Call, WhatsApp, Location, and Share.
+                </p>
+              </div>
+            </a>
+          </div>
+
+          {/* Reset Action */}
+          <div className="pt-2 flex justify-between items-center text-xs text-zinc-400">
             <button
               type="button"
               onClick={() => {
                 setCreatedSlug(null);
+                setShowQr(false);
                 onChange({
                   name: "",
                   designation: "",
@@ -194,10 +296,20 @@ export function CardForm({ formData, onChange }: CardFormProps) {
                   photoUrl: "",
                 });
               }}
-              className="text-xs text-zinc-400 hover:text-white underline underline-offset-4"
+              className="text-zinc-400 hover:text-white underline underline-offset-4"
             >
-              Create another card
+              Create another digital card
             </button>
+
+            <a
+              href={cardPath}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sky-400 hover:underline flex items-center gap-1 font-medium"
+            >
+              <span>Go to live card</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </a>
           </div>
         </div>
       ) : (

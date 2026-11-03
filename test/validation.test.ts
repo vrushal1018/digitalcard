@@ -40,3 +40,4 @@ describe("Validation helpers", () => {
     expect(validateImageFile(invalidTypeFile).isValid).toBe(false);
   });
 });
+

@@ -22,13 +22,41 @@ export async function generateMetadata({
     };
   }
 
+  const appUrl =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+
+  const cardUrl = `${appUrl}/card/${card.slug}`;
+  const resolvedPhoto = card.photoUrl.startsWith("http")
+    ? card.photoUrl
+    : `${appUrl}${card.photoUrl.startsWith("/") ? "" : "/"}${card.photoUrl}`;
+
   return {
     title: `${card.name} — ${card.companyName} | Digital Business Card`,
     description: `${card.name}, ${card.designation} at ${card.companyName}. Connect via Call, WhatsApp, Location, and Share.`,
+    alternates: {
+      canonical: cardUrl,
+    },
     openGraph: {
       title: `${card.name} — ${card.companyName}`,
-      description: `${card.designation} at ${card.companyName}`,
-      images: card.photoUrl ? [{ url: card.photoUrl }] : [],
+      description: `${card.name}, ${card.designation} at ${card.companyName}`,
+      url: cardUrl,
+      siteName: "InaCard Digital Business Card",
+      images: [
+        {
+          url: resolvedPhoto,
+          width: 800,
+          height: 800,
+          alt: `${card.name} profile photo`,
+        },
+      ],
+      type: "profile",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${card.name} — ${card.companyName}`,
+      description: `${card.name}, ${card.designation} at ${card.companyName}`,
+      images: [resolvedPhoto],
     },
   };
 }
@@ -39,6 +67,11 @@ export default async function PublicCardPage({ params }: CardPageProps) {
   if (!card) {
     notFound();
   }
+
+  const appUrl =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+  const shareUrl = `${appUrl}/card/${card.slug}`;
 
   return (
     <div className="min-h-[80vh] flex flex-col justify-center items-center px-4 py-12">
@@ -52,6 +85,7 @@ export default async function PublicCardPage({ params }: CardPageProps) {
           officeLocation={card.officeLocation}
           photoUrl={card.photoUrl}
           slug={card.slug}
+          shareUrl={shareUrl}
           isPreview={false}
         />
 
@@ -62,7 +96,7 @@ export default async function PublicCardPage({ params }: CardPageProps) {
             className="inline-flex items-center gap-1.5 hover:text-zinc-300 transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Create your card</span>
+            <span>Create your own card</span>
           </Link>
 
           <span className="inline-flex items-center gap-1 text-zinc-600">

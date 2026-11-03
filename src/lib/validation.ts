@@ -64,3 +64,4 @@ export function validateImageFile(file: File): { isValid: boolean; error?: strin
 
   return { isValid: true };
 }
+
