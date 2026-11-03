@@ -18,6 +18,51 @@ const LOCAL_CARDS_FILE = path.join(LOCAL_DATA_DIR, "cards.json");
 const TMP_DATA_DIR = path.join("/tmp", "inacard");
 const TMP_CARDS_FILE = path.join(TMP_DATA_DIR, "cards.json");
 
+export interface CompactCardData {
+  n: string; // name
+  d: string; // designation
+  c: string; // companyName
+  p: string; // phoneNumber
+  l: string; // officeLocation
+  u: string; // photoUrl
+  s: string; // slug
+}
+
+export function encodeCardToken(card: DigitalCard): string {
+  const compact: CompactCardData = {
+    n: card.name,
+    d: card.designation,
+    c: card.companyName,
+    p: card.phoneNumber,
+    l: card.officeLocation,
+    u: card.photoUrl,
+    s: card.slug,
+  };
+  return Buffer.from(JSON.stringify(compact)).toString("base64url");
+}
+
+export function decodeCardToken(token: string): DigitalCard | null {
+  try {
+    const raw = Buffer.from(token, "base64url").toString("utf-8");
+    const parsed = JSON.parse(raw) as CompactCardData;
+    if (!parsed.n || !parsed.s) return null;
+    return {
+      id: crypto.randomUUID(),
+      slug: parsed.s,
+      name: parsed.n,
+      designation: parsed.d || "",
+      companyName: parsed.c || "",
+      phoneNumber: parsed.p || "",
+      officeLocation: parsed.l || "",
+      photoUrl: parsed.u || "",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Reads cards from a specified file path safely.
  */
@@ -40,14 +85,11 @@ async function writeCardsToFile(dirPath: string, filePath: string, cards: Digita
     await fs.writeFile(tempFile, JSON.stringify(cards, null, 2), "utf-8");
     await fs.rename(tempFile, filePath);
     return true;
-  } catch (err) {
+  } catch {
     return false;
   }
 }
 
-/**
- * Generates an unguessable slug based on name and a random unique suffix.
- */
 export function generateSlug(name: string): string {
   const baseName = name
     .toLowerCase()
@@ -60,19 +102,11 @@ export function generateSlug(name: string): string {
   return baseName ? `${baseName}-${randomSuffix}` : `card-${randomSuffix}`;
 }
 
-/**
- * Retrieves all stored cards, checking in-memory cache, local data directory,
- * and /tmp storage.
- */
 export async function getAllCards(): Promise<DigitalCard[]> {
   const memoryCards = globalThis.__INACARD_STORE__ || [];
-
-  // Read bundled seeds from repository
   const localCards = await readCardsFromFile(LOCAL_CARDS_FILE);
-  // Read serverless /tmp writes if on Vercel
   const tmpCards = await readCardsFromFile(TMP_CARDS_FILE);
 
-  // Merge unique by ID
   const map = new Map<string, DigitalCard>();
   for (const c of localCards) map.set(c.id, c);
   for (const c of tmpCards) map.set(c.id, c);
@@ -83,9 +117,6 @@ export async function getAllCards(): Promise<DigitalCard[]> {
   return all;
 }
 
-/**
- * Finds a card by its unique slug.
- */
 export async function getCardBySlug(slug: string): Promise<DigitalCard | null> {
   if (!slug) return null;
   const cards = await getAllCards();
@@ -94,10 +125,18 @@ export async function getCardBySlug(slug: string): Promise<DigitalCard | null> {
   return found || null;
 }
 
-/**
- * Creates and persists a new card record.
- * Works seamlessly on local filesystems as well as Vercel serverless environments.
- */
+export async function saveCardToStorage(card: DigitalCard): Promise<void> {
+  const cards = await getAllCards();
+  if (!cards.some((c) => c.slug === card.slug)) {
+    cards.push(card);
+    globalThis.__INACARD_STORE__ = cards;
+    const localSuccess = await writeCardsToFile(LOCAL_DATA_DIR, LOCAL_CARDS_FILE, cards);
+    if (!localSuccess) {
+      await writeCardsToFile(TMP_DATA_DIR, TMP_CARDS_FILE, cards);
+    }
+  }
+}
+
 export async function createCard(formData: CardFormData): Promise<DigitalCard> {
   const cards = await getAllCards();
 
@@ -123,10 +162,7 @@ export async function createCard(formData: CardFormData): Promise<DigitalCard> {
   cards.push(newCard);
   globalThis.__INACARD_STORE__ = cards;
 
-  // 1. Try local data file write (succeeds locally)
   const localSuccess = await writeCardsToFile(LOCAL_DATA_DIR, LOCAL_CARDS_FILE, cards);
-
-  // 2. If local write fails (read-only filesystem on Vercel), write to /tmp
   if (!localSuccess) {
     await writeCardsToFile(TMP_DATA_DIR, TMP_CARDS_FILE, cards);
   }

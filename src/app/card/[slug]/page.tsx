@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getCardBySlug } from "@/lib/cards";
+import { getCardBySlug, decodeCardToken, saveCardToStorage } from "@/lib/cards";
 import { DigitalCard } from "@/components/digital-card/DigitalCard";
 import { Sparkles, ArrowLeft } from "lucide-react";
 
@@ -9,12 +9,31 @@ interface CardPageProps {
   params: {
     slug: string;
   };
+  searchParams?: {
+    d?: string;
+  };
+}
+
+async function resolveCard(slug: string, token?: string) {
+  let card = await getCardBySlug(slug);
+
+  if (!card && token) {
+    const decoded = decodeCardToken(token);
+    if (decoded && decoded.slug.toLowerCase() === slug.toLowerCase()) {
+      card = decoded;
+      // Persist into memory and /tmp for current container
+      await saveCardToStorage(decoded);
+    }
+  }
+
+  return card;
 }
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: CardPageProps): Promise<Metadata> {
-  const card = await getCardBySlug(params.slug);
+  const card = await resolveCard(params.slug, searchParams?.d);
   if (!card) {
     return {
       title: "Card Not Found | Digital Business Card",
@@ -26,7 +45,8 @@ export async function generateMetadata({
     process.env.NEXT_PUBLIC_APP_URL ||
     (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
 
-  const cardUrl = `${appUrl}/card/${card.slug}`;
+  const querySuffix = searchParams?.d ? `?d=${searchParams.d}` : "";
+  const cardUrl = `${appUrl}/card/${card.slug}${querySuffix}`;
   const resolvedPhoto = card.photoUrl.startsWith("http")
     ? card.photoUrl
     : `${appUrl}${card.photoUrl.startsWith("/") ? "" : "/"}${card.photoUrl}`;
@@ -61,8 +81,8 @@ export async function generateMetadata({
   };
 }
 
-export default async function PublicCardPage({ params }: CardPageProps) {
-  const card = await getCardBySlug(params.slug);
+export default async function PublicCardPage({ params, searchParams }: CardPageProps) {
+  const card = await resolveCard(params.slug, searchParams?.d);
 
   if (!card) {
     notFound();
@@ -71,7 +91,8 @@ export default async function PublicCardPage({ params }: CardPageProps) {
   const appUrl =
     process.env.NEXT_PUBLIC_APP_URL ||
     (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
-  const shareUrl = `${appUrl}/card/${card.slug}`;
+  const querySuffix = searchParams?.d ? `?d=${searchParams.d}` : "";
+  const shareUrl = `${appUrl}/card/${card.slug}${querySuffix}`;
 
   return (
     <div className="min-h-[80vh] flex flex-col justify-center items-center px-4 py-12">

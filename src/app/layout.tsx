@@ -36,7 +36,7 @@ export default function RootLayout({
               <span className="w-7 h-7 rounded-lg bg-sky-500/20 border border-sky-500/40 text-sky-400 flex items-center justify-center text-xs group-hover:scale-105 transition-transform">
                 🪪
               </span>
-              <span className="text-sm sm:text-base">InaCard</span>
+              <span className="text-sm sm:text-base">DigiCard</span>
             </a>
             <span className="text-xs text-zinc-400">Digital Business Card Builder</span>
           </div>

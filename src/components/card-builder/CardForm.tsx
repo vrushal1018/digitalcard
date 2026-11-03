@@ -30,6 +30,7 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [createdSlug, setCreatedSlug] = useState<string | null>(null);
+  const [cardToken, setCardToken] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
   const [showQr, setShowQr] = useState(false);
 
@@ -100,6 +101,9 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
       }
 
       setCreatedSlug(data.slug);
+      if (data.token) {
+        setCardToken(data.token);
+      }
       if (onCardCreated) {
         onCardCreated(data.slug);
       }
@@ -114,7 +118,8 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
   };
 
   const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
-  const cardPath = createdSlug ? `/card/${createdSlug}` : "";
+  const queryPart = cardToken ? `?d=${cardToken}` : "";
+  const cardPath = createdSlug ? `/card/${createdSlug}${queryPart}` : "";
   const cardFullUrl = createdSlug ? `${origin}${cardPath}` : "";
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
     cardFullUrl
@@ -286,6 +291,7 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
               type="button"
               onClick={() => {
                 setCreatedSlug(null);
+                setCardToken(null);
                 setShowQr(false);
                 onChange({
                   name: "",
