@@ -1,0 +1,26 @@
+[
+  {
+    "id": "c1a2b3c4-0000-4000-8000-000000000001",
+    "slug": "alex-jordan-sample",
+    "name": "Alex Jordan",
+    "designation": "Creative Director",
+    "companyName": "Innovative Spaces",
+    "phoneNumber": "+919876543210",
+    "officeLocation": "BKC, Mumbai, Maharashtra",
+    "photoUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+    "createdAt": "2026-11-03T11:00:00.000Z",
+    "updatedAt": "2026-11-03T11:00:00.000Z"
+  },
+  {
+    "id": "afc1f319-74bc-40ca-8d8f-3f4063de4746",
+    "slug": "jane-doe-92395f95",
+    "name": "Jane Doe",
+    "designation": "Lead Architect",
+    "companyName": "Modern Studio",
+    "phoneNumber": "+15551234567",
+    "officeLocation": "Seattle, WA",
+    "photoUrl": "/uploads/jane.jpg",
+    "createdAt": "2026-11-03T11:26:06.368Z",
+    "updatedAt": "2026-11-03T11:26:06.368Z"
+  }
+]
