@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validateCardForm } from "@/lib/validation";
-import { createCard, getAllCards, getCardBySlug, encodeCardToken, isDatabaseConfigured } from "@/lib/cards";
+import { createCard, getAllCards, getCardBySlug, encodeCardToken } from "@/lib/cards";
 import { CardFormData } from "@/types/card";
 
 export async function GET(request: NextRequest) {
@@ -38,15 +38,12 @@ export async function POST(request: NextRequest) {
 
     const newCard = await createCard(body);
     const token = encodeCardToken(newCard);
-    const hasDatabase = isDatabaseConfigured();
-
     return NextResponse.json(
       {
         success: true,
         card: newCard,
         slug: newCard.slug,
         token,
-        hasDatabase,
       },
       { status: 201 }
     );

@@ -3,15 +3,17 @@ import fs from "fs/promises";
 import path from "path";
 import crypto from "crypto";
 import { validateImageFile } from "@/lib/validation";
-import { getMongoDb, isMongoConfigured } from "@/lib/mongodb";
-import { put } from "@vercel/blob";
 
 const UPLOADS_DIR = path.join(process.cwd(), "public", "uploads");
+
+// Default fallback key or read from environment variable
+const DEFAULT_IMGBB_KEY = process.env.IMGBB_API_KEY || "";
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
+    const clientKey = (formData.get("imgbbKey") as string) || request.headers.get("x-imgbb-key") || DEFAULT_IMGBB_KEY;
 
     if (!file) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
@@ -24,61 +26,54 @@ export async function POST(request: NextRequest) {
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    const mimeType = file.type || "image/jpeg";
+    const base64Image = buffer.toString("base64");
 
-    let extension = "jpg";
-    if (file.type === "image/png") extension = "png";
-    if (file.type === "image/webp") extension = "webp";
-
-    const uniqueId = crypto.randomUUID();
-    const uniqueName = `${uniqueId}.${extension}`;
-
-    // 1. If MongoDB Atlas is connected, store directly in MongoDB!
-    if (isMongoConfigured()) {
+    // 1. If ImgBB API key is provided, upload directly to ImgBB!
+    if (clientKey && clientKey.trim()) {
       try {
-        const db = await getMongoDb();
-        if (db) {
-          await db.collection("photos").insertOne({
-            _id: uniqueId as any,
-            filename: uniqueName,
-            contentType: mimeType,
-            data: buffer,
-            createdAt: new Date(),
-          });
+        const imgbbForm = new FormData();
+        imgbbForm.append("image", base64Image);
 
-          const photoUrl = `/api/images/${uniqueName}`;
-          return NextResponse.json({ photoUrl, success: true }, { status: 201 });
-        }
-      } catch (mongoErr) {
-        console.error("MongoDB photo save error, falling back:", mongoErr);
-      }
-    }
-
-    // 2. If Vercel Blob is connected
-    if (process.env.BLOB_READ_WRITE_TOKEN) {
-      try {
-        const blob = await put(`avatars/${uniqueName}`, buffer, {
-          access: "public",
-          contentType: mimeType,
+        const imgbbRes = await fetch(`https://api.imgbb.com/1/upload?key=${clientKey.trim()}`, {
+          method: "POST",
+          body: imgbbForm,
         });
-        return NextResponse.json({ photoUrl: blob.url, success: true }, { status: 201 });
-      } catch (blobErr) {
-        console.warn("Vercel Blob upload failed:", blobErr);
+
+        const imgbbData = await imgbbRes.json();
+
+        if (imgbbRes.ok && imgbbData.success && imgbbData.data) {
+          // Direct permanent CDN image link (e.g. https://i.ibb.co/...)
+          const photoUrl = imgbbData.data.display_url || imgbbData.data.url;
+          return NextResponse.json({ photoUrl, success: true }, { status: 201 });
+        } else {
+          const errMsg = imgbbData?.error?.message || "ImgBB upload failed";
+          console.error("ImgBB error:", errMsg);
+          return NextResponse.json({ error: `ImgBB error: ${errMsg}` }, { status: 400 });
+        }
+      } catch (imgbbErr) {
+        console.error("ImgBB network error:", imgbbErr);
+        return NextResponse.json({ error: "Failed to connect to ImgBB service" }, { status: 502 });
       }
     }
 
-    // 3. Try local filesystem (for local development)
+    // 2. Local filesystem fallback (works when running locally on PC)
     try {
       await fs.mkdir(UPLOADS_DIR, { recursive: true });
+      let extension = "jpg";
+      if (file.type === "image/png") extension = "png";
+      if (file.type === "image/webp") extension = "webp";
+      const uniqueName = `${crypto.randomUUID()}.${extension}`;
       const filePath = path.join(UPLOADS_DIR, uniqueName);
       await fs.writeFile(filePath, buffer);
       return NextResponse.json({ photoUrl: `/uploads/${uniqueName}`, success: true }, { status: 201 });
     } catch {
-      // 4. Serverless fallback: Base64 data URL
-      const base64Data = buffer.toString("base64");
+      // 3. On Vercel without ImgBB key: prompt for ImgBB key
       return NextResponse.json(
-        { photoUrl: `data:${mimeType};base64,${base64Data}`, success: true },
-        { status: 201 }
+        {
+          error: "ImgBB API Key required on Vercel to store and host photos.",
+          needsImgbbKey: true,
+        },
+        { status: 400 }
       );
     }
   } catch (error) {
