@@ -243,3 +243,4 @@ export async function GET(request: NextRequest) {
     return new Response("Failed to generate OG image", { status: 500 });
   }
 }
+
