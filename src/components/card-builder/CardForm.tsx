@@ -120,7 +120,9 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
     }
   };
 
-  const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+  const origin =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    (typeof window !== "undefined" ? window.location.origin : "http://localhost:3000");
   const queryPart = cardToken ? `?d=${cardToken}` : "";
   const cardPath = createdSlug ? `/card/${createdSlug}${queryPart}` : "";
   const cardFullUrl = createdSlug ? `${origin}${cardPath}` : "";
