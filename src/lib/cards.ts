@@ -3,9 +3,10 @@ import path from "path";
 import crypto from "crypto";
 import { DigitalCard, CardFormData } from "../types/card";
 import { normalizePhoneForCall } from "./phone";
+import { getMongoDb, isMongoConfigured } from "./mongodb";
 import { Redis } from "@upstash/redis";
 
-// Initialize Upstash Redis if environment variables are provided
+// Optional Upstash Redis fallback
 let redisClient: Redis | null = null;
 const redisUrl = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
 const redisToken = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -41,14 +42,10 @@ export interface CompactCardData {
   c: string; // companyName
   p: string; // phoneNumber
   l: string; // officeLocation
-  u?: string; // photoUrl (only if clean short URL)
+  u?: string; // photoUrl
   s: string; // slug
 }
 
-/**
- * Encodes card data into a lightweight token (under 120 bytes)
- * without inflating the URL with raw base64 data.
- */
 export function encodeCardToken(card: DigitalCard): string {
   const compact: CompactCardData = {
     n: card.name,
@@ -58,8 +55,7 @@ export function encodeCardToken(card: DigitalCard): string {
     l: card.officeLocation,
     s: card.slug,
   };
-  // Only include photoUrl if it's a short external URL (not a massive base64 string)
-  if (card.photoUrl && card.photoUrl.startsWith("http") && card.photoUrl.length < 250) {
+  if (card.photoUrl && card.photoUrl.length < 250) {
     compact.u = card.photoUrl;
   }
   return Buffer.from(JSON.stringify(compact)).toString("base64url");
@@ -121,6 +117,24 @@ export function generateSlug(name: string): string {
 }
 
 export async function getAllCards(): Promise<DigitalCard[]> {
+  // 1. If MongoDB Atlas is connected
+  if (isMongoConfigured()) {
+    try {
+      const db = await getMongoDb();
+      if (db) {
+        const mongoCards = await db
+          .collection<DigitalCard>("cards")
+          .find({})
+          .project<DigitalCard>({ _id: 0 })
+          .toArray();
+        return mongoCards;
+      }
+    } catch (err) {
+      console.error("MongoDB getAllCards failed:", err);
+    }
+  }
+
+  // 2. Fallback to memory and local files
   const memoryCards = globalThis.__INACARD_STORE__ || [];
   const localCards = await readCardsFromFile(LOCAL_CARDS_FILE);
   const tmpCards = await readCardsFromFile(TMP_CARDS_FILE);
@@ -139,7 +153,22 @@ export async function getCardBySlug(slug: string): Promise<DigitalCard | null> {
   if (!slug) return null;
   const normalizedSlug = slug.toLowerCase().trim();
 
-  // 1. Try Redis / KV if configured
+  // 1. Try MongoDB Atlas first
+  if (isMongoConfigured()) {
+    try {
+      const db = await getMongoDb();
+      if (db) {
+        const card = await db
+          .collection<DigitalCard>("cards")
+          .findOne({ slug: normalizedSlug }, { projection: { _id: 0 } });
+        if (card) return card;
+      }
+    } catch (err) {
+      console.error("MongoDB getCardBySlug failed:", err);
+    }
+  }
+
+  // 2. Try Redis if configured
   if (redisClient) {
     try {
       const card = await redisClient.get<DigitalCard>(`card:${normalizedSlug}`);
@@ -149,14 +178,31 @@ export async function getCardBySlug(slug: string): Promise<DigitalCard | null> {
     }
   }
 
-  // 2. Try in-memory and local/tmp files
+  // 3. Fallback to in-memory and local files
   const cards = await getAllCards();
   const found = cards.find((c) => c.slug.toLowerCase() === normalizedSlug);
   return found || null;
 }
 
 export async function saveCardToStorage(card: DigitalCard): Promise<void> {
-  // Save to Redis if available
+  // 1. Save to MongoDB Atlas
+  if (isMongoConfigured()) {
+    try {
+      const db = await getMongoDb();
+      if (db) {
+        await db.collection("cards").updateOne(
+          { slug: card.slug.toLowerCase() },
+          { $set: card },
+          { upsert: true }
+        );
+        return;
+      }
+    } catch (err) {
+      console.error("MongoDB saveCardToStorage failed:", err);
+    }
+  }
+
+  // 2. Save to Redis if available
   if (redisClient) {
     try {
       await redisClient.set(`card:${card.slug.toLowerCase()}`, card);
@@ -165,6 +211,7 @@ export async function saveCardToStorage(card: DigitalCard): Promise<void> {
     }
   }
 
+  // 3. Save to memory & files
   const cards = await getAllCards();
   if (!cards.some((c) => c.slug === card.slug)) {
     cards.push(card);
@@ -177,14 +224,9 @@ export async function saveCardToStorage(card: DigitalCard): Promise<void> {
 }
 
 export async function createCard(formData: CardFormData): Promise<DigitalCard> {
-  const cards = await getAllCards();
-
   let slug = generateSlug(formData.name);
-  while (cards.some((c) => c.slug === slug)) {
-    slug = generateSlug(formData.name);
-  }
-
   const now = new Date().toISOString();
+
   const newCard: DigitalCard = {
     id: crypto.randomUUID(),
     slug,
@@ -198,7 +240,27 @@ export async function createCard(formData: CardFormData): Promise<DigitalCard> {
     updatedAt: now,
   };
 
-  // 1. Save to Redis / KV if available
+  // 1. Save directly to MongoDB Atlas
+  if (isMongoConfigured()) {
+    try {
+      const db = await getMongoDb();
+      if (db) {
+        // Ensure slug uniqueness in MongoDB
+        let existing = await db.collection("cards").findOne({ slug: newCard.slug });
+        while (existing) {
+          newCard.slug = generateSlug(formData.name);
+          existing = await db.collection("cards").findOne({ slug: newCard.slug });
+        }
+
+        await db.collection("cards").insertOne({ ...newCard });
+        return newCard;
+      }
+    } catch (err) {
+      console.error("MongoDB createCard failed, falling back to local:", err);
+    }
+  }
+
+  // 2. Save to Redis if available
   if (redisClient) {
     try {
       await redisClient.set(`card:${newCard.slug.toLowerCase()}`, newCard);
@@ -207,7 +269,8 @@ export async function createCard(formData: CardFormData): Promise<DigitalCard> {
     }
   }
 
-  // 2. Save to memory & files
+  // 3. Save to local/tmp files
+  const cards = await getAllCards();
   cards.push(newCard);
   globalThis.__INACARD_STORE__ = cards;
 
@@ -220,5 +283,5 @@ export async function createCard(formData: CardFormData): Promise<DigitalCard> {
 }
 
 export function isDatabaseConfigured(): boolean {
-  return Boolean(redisClient);
+  return isMongoConfigured() || Boolean(redisClient);
 }

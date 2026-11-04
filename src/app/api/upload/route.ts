@@ -3,6 +3,7 @@ import fs from "fs/promises";
 import path from "path";
 import crypto from "crypto";
 import { validateImageFile } from "@/lib/validation";
+import { getMongoDb, isMongoConfigured } from "@/lib/mongodb";
 import { put } from "@vercel/blob";
 
 const UPLOADS_DIR = path.join(process.cwd(), "public", "uploads");
@@ -28,9 +29,32 @@ export async function POST(request: NextRequest) {
     let extension = "jpg";
     if (file.type === "image/png") extension = "png";
     if (file.type === "image/webp") extension = "webp";
-    const uniqueName = `${crypto.randomUUID()}.${extension}`;
 
-    // 1. If Vercel Blob Storage is connected (BLOB_READ_WRITE_TOKEN is set)
+    const uniqueId = crypto.randomUUID();
+    const uniqueName = `${uniqueId}.${extension}`;
+
+    // 1. If MongoDB Atlas is connected, store directly in MongoDB!
+    if (isMongoConfigured()) {
+      try {
+        const db = await getMongoDb();
+        if (db) {
+          await db.collection("photos").insertOne({
+            _id: uniqueId as any,
+            filename: uniqueName,
+            contentType: mimeType,
+            data: buffer,
+            createdAt: new Date(),
+          });
+
+          const photoUrl = `/api/images/${uniqueName}`;
+          return NextResponse.json({ photoUrl, success: true }, { status: 201 });
+        }
+      } catch (mongoErr) {
+        console.error("MongoDB photo save error, falling back:", mongoErr);
+      }
+    }
+
+    // 2. If Vercel Blob is connected
     if (process.env.BLOB_READ_WRITE_TOKEN) {
       try {
         const blob = await put(`avatars/${uniqueName}`, buffer, {
@@ -39,19 +63,18 @@ export async function POST(request: NextRequest) {
         });
         return NextResponse.json({ photoUrl: blob.url, success: true }, { status: 201 });
       } catch (blobErr) {
-        console.warn("Vercel Blob upload failed, falling back:", blobErr);
+        console.warn("Vercel Blob upload failed:", blobErr);
       }
     }
 
-    // 2. Try local filesystem (development environment or persistent container)
+    // 3. Try local filesystem (for local development)
     try {
       await fs.mkdir(UPLOADS_DIR, { recursive: true });
       const filePath = path.join(UPLOADS_DIR, uniqueName);
       await fs.writeFile(filePath, buffer);
       return NextResponse.json({ photoUrl: `/uploads/${uniqueName}`, success: true }, { status: 201 });
     } catch {
-      // 3. Vercel Serverless without Blob storage:
-      // Return clean, self-contained Base64 Data URL (renders natively in <img> without external storage)
+      // 4. Serverless fallback: Base64 data URL
       const base64Data = buffer.toString("base64");
       return NextResponse.json(
         { photoUrl: `data:${mimeType};base64,${base64Data}`, success: true },
