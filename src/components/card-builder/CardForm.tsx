@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { CardFormData, FormErrors } from "@/types/card";
 import { PhotoUpload } from "./PhotoUpload";
+import { ThemeBackgroundUpload } from "./ThemeBackgroundUpload";
 import { validateCardForm } from "@/lib/validation";
 import {
   Sparkles,
@@ -265,10 +266,22 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
               href={cardPath}
               target="_blank"
               rel="noopener noreferrer"
-              className="block group rounded-xl overflow-hidden border border-zinc-700/60 bg-zinc-950/80 hover:border-sky-500/50 transition-colors"
+              className="relative block group rounded-xl overflow-hidden border border-zinc-700/60 bg-zinc-950/80 hover:border-sky-500/50 transition-colors"
             >
+              {/* Theme background behind content if selected */}
+              {formData.bgUrl && (
+                <div className="absolute inset-0 z-0 pointer-events-none">
+                  <img
+                    src={formData.bgUrl}
+                    alt="Theme background"
+                    className="w-full h-full object-cover opacity-25"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/70 to-transparent" />
+                </div>
+              )}
+
               {formData.photoUrl && (
-                <div className="w-full h-36 bg-zinc-900 relative overflow-hidden">
+                <div className="w-full h-36 bg-zinc-900 relative overflow-hidden z-10">
                   <img
                     src={formData.photoUrl}
                     alt={formData.name}
@@ -276,7 +289,7 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
                   />
                 </div>
               )}
-              <div className="p-3.5 space-y-1">
+              <div className="p-3.5 space-y-1 relative z-10">
                 <p className="text-[11px] font-medium text-sky-400 uppercase tracking-wider">
                   inacard.com
                 </p>
@@ -305,6 +318,7 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
                   phoneNumber: "",
                   officeLocation: "",
                   photoUrl: "",
+                  bgUrl: "",
                 });
               }}
               className="text-zinc-400 hover:text-white underline underline-offset-4"
@@ -463,6 +477,13 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
             onPhotoUploaded={handlePhotoUploaded}
             onPhotoRemoved={handlePhotoRemoved}
             error={errors.photo}
+          />
+
+          {/* Theme & Background Upload Component */}
+          <ThemeBackgroundUpload
+            currentBgUrl={formData.bgUrl}
+            onBgUploaded={(bgUrl) => onChange({ ...formData, bgUrl })}
+            onBgRemoved={() => onChange({ ...formData, bgUrl: "" })}
           />
 
           {/* Submit Button */}

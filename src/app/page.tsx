@@ -13,6 +13,7 @@ export default function HomePage() {
     phoneNumber: "",
     officeLocation: "",
     photoUrl: "",
+    bgUrl: "",
   });
 
   const [createdSlug, setCreatedSlug] = useState<string | null>(null);

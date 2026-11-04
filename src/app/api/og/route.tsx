@@ -11,6 +11,7 @@ export async function GET(request: NextRequest) {
     const designation = searchParams.get("designation") || "Professional";
     const company = searchParams.get("company") || "";
     const photo = searchParams.get("photo");
+    const bg = searchParams.get("bg");
 
     return new ImageResponse(
       (
@@ -33,6 +34,7 @@ export async function GET(request: NextRequest) {
           {/* Card Outer Container */}
           <div
             style={{
+              position: "relative",
               width: "100%",
               maxWidth: "900px",
               display: "flex",
@@ -42,8 +44,25 @@ export async function GET(request: NextRequest) {
               border: "2px solid #27272a",
               padding: "48px",
               boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.9)",
+              overflow: "hidden",
             }}
           >
+            {/* Theme Background if provided */}
+            {bg && bg.startsWith("http") && (
+              <img
+                src={bg}
+                alt="theme-bg"
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  opacity: 0.35,
+                }}
+              />
+            )}
             {/* Header / Identity */}
             <div style={{ display: "flex", alignItems: "center", gap: "36px" }}>
               {/* Profile Photo */}

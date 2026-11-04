@@ -14,6 +14,7 @@ export interface DigitalCardProps {
   phoneNumber: string;
   officeLocation: string;
   photoUrl?: string;
+  bgUrl?: string;
   slug?: string;
   shareUrl?: string;
   isPreview?: boolean;
@@ -26,6 +27,7 @@ export function DigitalCard({
   phoneNumber,
   officeLocation,
   photoUrl,
+  bgUrl,
   shareUrl,
   isPreview = false,
 }: DigitalCardProps) {
@@ -43,6 +45,19 @@ export function DigitalCard({
     <div className="w-full max-w-md mx-auto">
       {/* Outer Card Container */}
       <div className="relative overflow-hidden rounded-[28px] sm:rounded-[32px] bg-[#0d0f14] border border-zinc-800/90 shadow-[0_20px_50px_rgba(0,0,0,0.85)] p-5 sm:p-7 backdrop-blur-sm transition-all duration-300">
+        {/* Custom Theme Background Image */}
+        {bgUrl && (
+          <>
+            <img
+              src={bgUrl}
+              alt="Card Theme"
+              className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none transition-opacity duration-300"
+            />
+            {/* Elegant dark gradient overlay ensuring 100% legibility */}
+            <div className="absolute inset-0 bg-gradient-to-b from-[#0d0f14]/80 via-[#0d0f14]/75 to-[#0d0f14]/92 backdrop-blur-[1px] pointer-events-none" />
+          </>
+        )}
+
         {/* Subtle decorative top glow */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-24 bg-sky-500/10 blur-3xl pointer-events-none rounded-full" />
 

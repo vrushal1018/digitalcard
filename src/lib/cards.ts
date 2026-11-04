@@ -25,6 +25,7 @@ export interface CompactCardData {
   p: string; // phoneNumber
   l: string; // officeLocation
   u?: string; // photoUrl (ImgBB permanent CDN link)
+  b?: string; // bgUrl (theme background image)
   s: string; // slug
 }
 
@@ -44,6 +45,9 @@ export function encodeCardToken(card: DigitalCard): string {
   if (card.photoUrl && card.photoUrl.startsWith("http")) {
     compact.u = card.photoUrl;
   }
+  if (card.bgUrl && (card.bgUrl.startsWith("http") || card.bgUrl.startsWith("/"))) {
+    compact.b = card.bgUrl;
+  }
   return Buffer.from(JSON.stringify(compact)).toString("base64url");
 }
 
@@ -61,6 +65,7 @@ export function decodeCardToken(token: string): DigitalCard | null {
       phoneNumber: parsed.p || "",
       officeLocation: parsed.l || "",
       photoUrl: parsed.u || "",
+      bgUrl: parsed.b || "",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -151,6 +156,7 @@ export async function createCard(formData: CardFormData): Promise<DigitalCard> {
     phoneNumber: normalizePhoneForCall(formData.phoneNumber.trim()),
     officeLocation: formData.officeLocation.trim(),
     photoUrl: formData.photoUrl.trim(),
+    bgUrl: (formData.bgUrl || "").trim(),
     createdAt: now,
     updatedAt: now,
   };

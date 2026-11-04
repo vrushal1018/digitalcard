@@ -7,6 +7,7 @@ export interface DigitalCard {
   phoneNumber: string;
   officeLocation: string;
   photoUrl: string;
+  bgUrl?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -18,6 +19,7 @@ export interface CardFormData {
   phoneNumber: string;
   officeLocation: string;
   photoUrl: string;
+  bgUrl?: string;
 }
 
 export interface FormErrors {

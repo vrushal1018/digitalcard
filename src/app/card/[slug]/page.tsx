@@ -60,6 +60,9 @@ export async function generateMetadata({
   if (card.photoUrl && card.photoUrl.startsWith("http")) {
     ogParams.set("photo", card.photoUrl);
   }
+  if (card.bgUrl && card.bgUrl.startsWith("http")) {
+    ogParams.set("bg", card.bgUrl);
+  }
   const ogImageUrl = `${appUrl}/api/og?${ogParams.toString()}`;
   const hasDirectPhoto = Boolean(card.photoUrl && card.photoUrl.startsWith("http"));
 
@@ -134,6 +137,7 @@ export default async function PublicCardPage({ params, searchParams }: CardPageP
           phoneNumber={card.phoneNumber}
           officeLocation={card.officeLocation}
           photoUrl={card.photoUrl}
+          bgUrl={card.bgUrl}
           slug={card.slug}
           shareUrl={shareUrl}
           isPreview={false}
