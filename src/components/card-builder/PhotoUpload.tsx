@@ -12,10 +12,10 @@ interface PhotoUploadProps {
 }
 
 /**
- * Resizes an image in the browser using HTML5 Canvas to keep profile photos
- * fast, lightweight (~20-40KB), and fully compatible with serverless environments.
+ * Compresses and scales down the avatar image in the browser using HTML5 Canvas.
+ * Creates a lightweight ~10-25KB avatar that renders instantly without lag or server dependencies.
  */
-function compressImageClientSide(file: File, maxWidth = 360, quality = 0.85): Promise<string> {
+function compressAvatar(file: File, maxDimension = 240, quality = 0.8): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
@@ -26,14 +26,14 @@ function compressImageClientSide(file: File, maxWidth = 360, quality = 0.85): Pr
         let height = img.height;
 
         if (width > height) {
-          if (width > maxWidth) {
-            height = Math.round((height * maxWidth) / width);
-            width = maxWidth;
+          if (width > maxDimension) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
           }
         } else {
-          if (height > maxWidth) {
-            width = Math.round((width * maxWidth) / height);
-            height = maxWidth;
+          if (height > maxDimension) {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
           }
         }
 
@@ -49,7 +49,7 @@ function compressImageClientSide(file: File, maxWidth = 360, quality = 0.85): Pr
         const dataUrl = canvas.toDataURL("image/jpeg", quality);
         resolve(dataUrl);
       };
-      img.onerror = () => reject(new Error("Failed to load image for processing"));
+      img.onerror = () => reject(new Error("Unable to read image"));
       img.src = e.target?.result as string;
     };
     reader.onerror = () => reject(new Error("Failed to read image file"));
@@ -64,7 +64,7 @@ export function PhotoUpload({
   error,
 }: PhotoUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isUploading, setIsUploading] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,7 +73,7 @@ export function PhotoUpload({
 
     setLocalError(null);
 
-    // Client-side validation
+    // Validate size and file type
     const validation = validateImageFile(file);
     if (!validation.isValid) {
       setLocalError(validation.error || "Invalid image");
@@ -82,17 +82,13 @@ export function PhotoUpload({
     }
 
     try {
-      setIsUploading(true);
+      setIsProcessing(true);
 
-      // Compress client-side first for instant speed and low bandwidth
-      let clientCompressedUrl = "";
-      try {
-        clientCompressedUrl = await compressImageClientSide(file);
-      } catch (compErr) {
-        console.warn("Client compression skipped:", compErr);
-      }
+      // 1. Instantly compress avatar client-side and set photo URL for immediate visual feedback
+      const localAvatarUrl = await compressAvatar(file);
+      onPhotoUploaded(localAvatarUrl);
 
-      // Try uploading to /api/upload
+      // 2. Upload to server in background (for Vercel Blob or local storage if available)
       try {
         const formData = new FormData();
         formData.append("file", file);
@@ -102,27 +98,22 @@ export function PhotoUpload({
           body: formData,
         });
 
-        const data = await response.json();
-
-        if (response.ok && data.photoUrl) {
-          onPhotoUploaded(data.photoUrl);
-          return;
+        if (response.ok) {
+          const data = await response.json();
+          // If server returned a persistent CDN/Blob URL, upgrade to it
+          if (data.photoUrl && !data.photoUrl.startsWith("data:")) {
+            onPhotoUploaded(data.photoUrl);
+          }
         }
-      } catch (netErr) {
-        console.warn("API upload failed, using client data URL fallback:", netErr);
-      }
-
-      // Fallback: If server upload had any issue or is read-only serverless
-      if (clientCompressedUrl) {
-        onPhotoUploaded(clientCompressedUrl);
-      } else {
-        throw new Error("Unable to process the photo. Please try a different image.");
+      } catch (uploadErr) {
+        // Safe to ignore: localAvatarUrl is already active and displayed
+        console.warn("Background upload sync skipped, using local avatar:", uploadErr);
       }
     } catch (err) {
       console.error("Photo processing error:", err);
-      setLocalError((err as Error).message || "An error occurred while uploading");
+      setLocalError((err as Error).message || "An error occurred while loading photo");
     } finally {
-      setIsUploading(false);
+      setIsProcessing(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
@@ -174,7 +165,7 @@ export function PhotoUpload({
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading}
+              disabled={isProcessing}
               className="text-xs px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded-lg transition-colors border border-zinc-700 font-medium"
             >
               Change
@@ -191,14 +182,14 @@ export function PhotoUpload({
         </div>
       ) : (
         <div
-          onClick={() => !isUploading && fileInputRef.current?.click()}
+          onClick={() => !isProcessing && fileInputRef.current?.click()}
           className={`flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
             displayError
               ? "border-rose-500/50 bg-rose-500/5 hover:border-rose-500"
               : "border-zinc-800 hover:border-sky-500/50 hover:bg-zinc-900/50 bg-zinc-900/30"
           }`}
         >
-          {isUploading ? (
+          {isProcessing ? (
             <div className="flex flex-col items-center gap-2">
               <Loader2 className="w-8 h-8 text-sky-400 animate-spin" />
               <span className="text-sm font-medium text-zinc-300">

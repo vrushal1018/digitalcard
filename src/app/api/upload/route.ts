@@ -3,36 +3,9 @@ import fs from "fs/promises";
 import path from "path";
 import crypto from "crypto";
 import { validateImageFile } from "@/lib/validation";
+import { put } from "@vercel/blob";
 
 const UPLOADS_DIR = path.join(process.cwd(), "public", "uploads");
-
-/**
- * Uploads an image to public temporary cloud storage if running on serverless (Vercel),
- * returning a direct public HTTPS URL.
- */
-async function uploadToCloudStorage(buffer: Buffer, filename: string, mimeType: string): Promise<string | null> {
-  try {
-    const formData = new FormData();
-    const blob = new Blob([new Uint8Array(buffer)], { type: mimeType });
-    formData.append("file", blob, filename);
-
-    const res = await fetch("https://tmpfiles.org/api/v1/upload", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!res.ok) return null;
-    const json = await res.json();
-    if (json.status === "success" && json.data?.url) {
-      // tmpfiles URL format: https://tmpfiles.org/12345/file.jpg
-      // Direct raw download URL format: https://tmpfiles.org/dl/12345/file.jpg
-      return json.data.url.replace("tmpfiles.org/", "tmpfiles.org/dl/");
-    }
-  } catch (err) {
-    console.warn("Cloud upload fallback failed:", err);
-  }
-  return null;
-}
 
 export async function POST(request: NextRequest) {
   try {
@@ -57,21 +30,28 @@ export async function POST(request: NextRequest) {
     if (file.type === "image/webp") extension = "webp";
     const uniqueName = `${crypto.randomUUID()}.${extension}`;
 
-    // 1. Try local filesystem (succeeds in development / traditional servers)
+    // 1. If Vercel Blob Storage is connected (BLOB_READ_WRITE_TOKEN is set)
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+      try {
+        const blob = await put(`avatars/${uniqueName}`, buffer, {
+          access: "public",
+          contentType: mimeType,
+        });
+        return NextResponse.json({ photoUrl: blob.url, success: true }, { status: 201 });
+      } catch (blobErr) {
+        console.warn("Vercel Blob upload failed, falling back:", blobErr);
+      }
+    }
+
+    // 2. Try local filesystem (development environment or persistent container)
     try {
       await fs.mkdir(UPLOADS_DIR, { recursive: true });
       const filePath = path.join(UPLOADS_DIR, uniqueName);
       await fs.writeFile(filePath, buffer);
       return NextResponse.json({ photoUrl: `/uploads/${uniqueName}`, success: true }, { status: 201 });
     } catch {
-      // 2. Read-only filesystem (Vercel Serverless)
-      // Upload to public storage for a persistent shareable public URL
-      const cloudUrl = await uploadToCloudStorage(buffer, uniqueName, mimeType);
-      if (cloudUrl) {
-        return NextResponse.json({ photoUrl: cloudUrl, success: true }, { status: 201 });
-      }
-
-      // 3. Fallback to optimized Base64 Data URL if external upload fails
+      // 3. Vercel Serverless without Blob storage:
+      // Return clean, self-contained Base64 Data URL (renders natively in <img> without external storage)
       const base64Data = buffer.toString("base64");
       return NextResponse.json(
         { photoUrl: `data:${mimeType};base64,${base64Data}`, success: true },
