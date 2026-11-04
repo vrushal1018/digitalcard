@@ -128,7 +128,7 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
     cardFullUrl
   )}`;
   const whatsappShareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(
-    `Check out ${formData.name}'s digital business card: ${cardFullUrl}`
+    `${cardFullUrl}\n\nCheck out ${formData.name}'s digital business card!`
   )}`;
 
   const handleCopyLink = async () => {

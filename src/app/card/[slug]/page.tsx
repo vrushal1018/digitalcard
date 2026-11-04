@@ -42,12 +42,16 @@ export async function generateMetadata({
 
   const appUrl =
     process.env.NEXT_PUBLIC_APP_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000");
 
   const querySuffix = searchParams?.d ? `?d=${searchParams.d}` : "";
   const cardUrl = `${appUrl}/card/${card.slug}${querySuffix}`;
 
-  // Generate dynamic 1200x630 OpenGraph card image via /api/og
+  // Generate dynamic 1200x630 OpenGraph card image via /api/og as fallback
   const ogParams = new URLSearchParams({
     name: card.name,
     designation: card.designation,
@@ -57,6 +61,10 @@ export async function generateMetadata({
     ogParams.set("photo", card.photoUrl);
   }
   const ogImageUrl = `${appUrl}/api/og?${ogParams.toString()}`;
+
+  // Use direct ImgBB CDN photo when available for instant, 100% reliable WhatsApp previews (<100ms fetch)
+  const hasDirectPhoto = Boolean(card.photoUrl && card.photoUrl.startsWith("http"));
+  const primaryImageUrl = hasDirectPhoto ? (card.photoUrl as string) : ogImageUrl;
 
   return {
     title: `${card.name} — ${card.companyName} | Digital Business Card`,
@@ -71,20 +79,18 @@ export async function generateMetadata({
       siteName: "InaCard Digital Business Card",
       images: [
         {
-          url: ogImageUrl,
-          width: 1200,
-          height: 630,
+          url: primaryImageUrl,
+          secureUrl: primaryImageUrl,
           alt: `${card.name} - Digital Business Card`,
-          type: "image/png",
         },
       ],
-      type: "profile",
+      type: "website",
     },
     twitter: {
       card: "summary_large_image",
       title: `${card.name} — ${card.companyName}`,
       description: `${card.name}, ${card.designation} at ${card.companyName}`,
-      images: [ogImageUrl],
+      images: [primaryImageUrl],
     },
   };
 }
@@ -98,7 +104,11 @@ export default async function PublicCardPage({ params, searchParams }: CardPageP
 
   const appUrl =
     process.env.NEXT_PUBLIC_APP_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000");
   const querySuffix = searchParams?.d ? `?d=${searchParams.d}` : "";
   const shareUrl = `${appUrl}/card/${card.slug}${querySuffix}`;
 
