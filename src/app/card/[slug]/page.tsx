@@ -51,7 +51,7 @@ export async function generateMetadata({
   const querySuffix = searchParams?.d ? `?d=${searchParams.d}` : "";
   const cardUrl = `${appUrl}/card/${card.slug}${querySuffix}`;
 
-  // Generate dynamic 1200x630 OpenGraph card image via /api/og as fallback
+  // Generate dynamic 1200x630 OpenGraph card image via /api/og
   const ogParams = new URLSearchParams({
     name: card.name,
     designation: card.designation,
@@ -61,14 +61,11 @@ export async function generateMetadata({
     ogParams.set("photo", card.photoUrl);
   }
   const ogImageUrl = `${appUrl}/api/og?${ogParams.toString()}`;
-
-  // Use direct ImgBB CDN photo when available for instant, 100% reliable WhatsApp previews (<100ms fetch)
   const hasDirectPhoto = Boolean(card.photoUrl && card.photoUrl.startsWith("http"));
-  const primaryImageUrl = hasDirectPhoto ? (card.photoUrl as string) : ogImageUrl;
 
   return {
     title: `${card.name} — ${card.companyName} | Digital Business Card`,
-    description: `${card.name}, ${card.designation} at ${card.companyName}. Tap to call, message on WhatsApp, view office location, or save contact.`,
+    description: `${card.name}, ${card.designation} at ${card.companyName}. Connect via Call, WhatsApp, Location, and Share.`,
     alternates: {
       canonical: cardUrl,
     },
@@ -79,10 +76,24 @@ export async function generateMetadata({
       siteName: "InaCard Digital Business Card",
       images: [
         {
-          url: primaryImageUrl,
-          secureUrl: primaryImageUrl,
-          alt: `${card.name} - Digital Business Card`,
+          url: ogImageUrl,
+          secureUrl: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${card.name} — ${card.companyName}`,
+          type: "image/png",
         },
+        ...(hasDirectPhoto
+          ? [
+              {
+                url: card.photoUrl as string,
+                secureUrl: card.photoUrl as string,
+                width: 600,
+                height: 600,
+                alt: `${card.name} Photo`,
+              },
+            ]
+          : []),
       ],
       type: "website",
     },
@@ -90,7 +101,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: `${card.name} — ${card.companyName}`,
       description: `${card.name}, ${card.designation} at ${card.companyName}`,
-      images: [primaryImageUrl],
+      images: [ogImageUrl],
     },
   };
 }

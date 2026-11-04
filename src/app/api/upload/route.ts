@@ -7,7 +7,7 @@ import { validateImageFile } from "@/lib/validation";
 const UPLOADS_DIR = path.join(process.cwd(), "public", "uploads");
 
 // Default fallback key or read from environment variable
-const DEFAULT_IMGBB_KEY = process.env.IMGBB_API_KEY || "";
+const DEFAULT_IMGBB_KEY = process.env.IMGBB_API_KEY || "e83fca892160561b4c3fdea38e99d32c";
 
 export async function POST(request: NextRequest) {
   try {
