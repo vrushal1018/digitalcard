@@ -72,3 +72,4 @@ export function downloadVCard(data: VCardData) {
   document.body.removeChild(link);
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+

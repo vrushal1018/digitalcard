@@ -6,7 +6,6 @@ import { CardFormData, FormErrors } from "@/types/card";
 import { PhotoUpload } from "./PhotoUpload";
 import { ThemeBackgroundUpload } from "./ThemeBackgroundUpload";
 import { validateCardForm } from "@/lib/validation";
-import { generateVCard } from "@/lib/vcard";
 import {
   Sparkles,
   Loader2,
@@ -19,7 +18,6 @@ import {
   MessageCircle,
   Eye,
   Share2,
-  UserPlus,
   Download,
 } from "lucide-react";
 
@@ -37,7 +35,6 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
   const [cardToken, setCardToken] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
   const [showQr, setShowQr] = useState(false);
-  const [qrMode, setQrMode] = useState<"card" | "vcard">("card");
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -132,22 +129,9 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
   const cardPath = createdSlug ? `/card/${createdSlug}${queryPart}` : "";
   const cardFullUrl = createdSlug ? `${origin}${cardPath}` : "";
   const qrAutoSaveUrl = `${cardFullUrl}${cardFullUrl.includes("?") ? "&" : "?"}scan=1`;
-  const cardQrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(
     qrAutoSaveUrl
   )}`;
-  const vcardRaw = generateVCard({
-    name: formData.name,
-    designation: formData.designation,
-    companyName: formData.companyName,
-    phoneNumber: formData.phoneNumber,
-    officeLocation: formData.officeLocation,
-    photoUrl: formData.photoUrl,
-    cardUrl: cardFullUrl,
-  });
-  const vcardQrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(
-    vcardRaw
-  )}`;
-  const activeQrUrl = qrMode === "vcard" ? vcardQrCodeUrl : cardQrCodeUrl;
   const whatsappShareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(
     `Check out ${formData.name}'s digital business card: ${cardFullUrl}`
   )}`;
@@ -255,42 +239,14 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
 
             {showQr && (
               <div className="p-4 sm:p-5 bg-zinc-950 rounded-2xl border border-zinc-800 text-center animate-fade-in space-y-4">
-                {/* QR Type Switcher */}
-                <div className="inline-flex p-1 bg-zinc-900 rounded-xl border border-zinc-800 text-xs">
-                  <button
-                    type="button"
-                    onClick={() => setQrMode("card")}
-                    className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
-                      qrMode === "card"
-                        ? "bg-sky-500 text-zinc-950 shadow-sm"
-                        : "text-zinc-400 hover:text-white"
-                    }`}
-                  >
-                    Open Card & Auto-Save
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setQrMode("vcard")}
-                    className={`px-3 py-1.5 rounded-lg font-medium transition-all ${
-                      qrMode === "vcard"
-                        ? "bg-sky-500 text-zinc-950 shadow-sm"
-                        : "text-zinc-400 hover:text-white"
-                    }`}
-                  >
-                    Direct Contact (vCard)
-                  </button>
-                </div>
-
                 <p className="text-xs text-zinc-400 max-w-sm mx-auto">
-                  {qrMode === "card"
-                    ? "Scanning opens your live digital card and automatically prompts the scanner to save your contact number to their phone."
-                    : "Scanning opens the phone's native address book immediately with your name, phone number, and card link pre-filled."}
+                  Scan with your phone camera to open the card and automatically save the contact number to your device.
                 </p>
 
                 {/* QR Code Graphic Container */}
                 <div className="inline-block p-3 bg-white rounded-2xl shadow-xl shadow-black/50 border border-zinc-200">
                   <img
-                    src={activeQrUrl}
+                    src={qrCodeUrl}
                     alt="Digital Business Card QR Code"
                     className="w-44 h-44 block"
                   />
@@ -298,7 +254,7 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
 
                 <div className="flex items-center justify-center gap-3 pt-1">
                   <a
-                    href={activeQrUrl}
+                    href={qrCodeUrl}
                     download={`${formData.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") || "card"}-qr.png`}
                     target="_blank"
                     rel="noopener noreferrer"

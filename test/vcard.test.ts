@@ -26,3 +26,4 @@ describe("vCard generation", () => {
     expect(vcard).toContain("END:VCARD");
   });
 });
+
