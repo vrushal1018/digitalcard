@@ -33,6 +33,14 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
   const [cardToken, setCardToken] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
   const [showQr, setShowQr] = useState(false);
+  const [dbStatus, setDbStatus] = useState<{ connected: boolean; message: string } | null>(null);
+
+  React.useEffect(() => {
+    fetch("/api/status")
+      .then((res) => res.json())
+      .then((data) => setDbStatus(data))
+      .catch(() => setDbStatus({ connected: false, message: "Unable to check database status" }));
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -151,6 +159,31 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
         <p className="text-sm text-zinc-400 mt-1">
           Fill in your details below to generate a shareable, interactive card.
         </p>
+
+        {dbStatus && (
+          <div
+            className={`mt-4 p-3 rounded-xl text-xs flex items-center justify-between border ${
+              dbStatus.connected
+                ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
+                : "bg-amber-500/10 border-amber-500/30 text-amber-300"
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <span
+                className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                  dbStatus.connected
+                    ? "bg-emerald-400 animate-pulse"
+                    : "bg-amber-400"
+                }`}
+              />
+              <span className="font-medium">
+                {dbStatus.connected
+                  ? "Database Connected: Photos & Cards will be permanently saved to MongoDB Atlas."
+                  : "Database Not Connected on Vercel: Set MONGODB_URI in Vercel to save uploaded photos permanently."}
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
       {errors.general && (

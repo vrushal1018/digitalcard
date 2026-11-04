@@ -117,7 +117,6 @@ export function generateSlug(name: string): string {
 }
 
 export async function getAllCards(): Promise<DigitalCard[]> {
-  // 1. If MongoDB Atlas is connected
   if (isMongoConfigured()) {
     try {
       const db = await getMongoDb();
@@ -134,7 +133,6 @@ export async function getAllCards(): Promise<DigitalCard[]> {
     }
   }
 
-  // 2. Fallback to memory and local files
   const memoryCards = globalThis.__INACARD_STORE__ || [];
   const localCards = await readCardsFromFile(LOCAL_CARDS_FILE);
   const tmpCards = await readCardsFromFile(TMP_CARDS_FILE);
@@ -185,7 +183,6 @@ export async function getCardBySlug(slug: string): Promise<DigitalCard | null> {
 }
 
 export async function saveCardToStorage(card: DigitalCard): Promise<void> {
-  // 1. Save to MongoDB Atlas
   if (isMongoConfigured()) {
     try {
       const db = await getMongoDb();
@@ -202,7 +199,6 @@ export async function saveCardToStorage(card: DigitalCard): Promise<void> {
     }
   }
 
-  // 2. Save to Redis if available
   if (redisClient) {
     try {
       await redisClient.set(`card:${card.slug.toLowerCase()}`, card);
@@ -211,7 +207,6 @@ export async function saveCardToStorage(card: DigitalCard): Promise<void> {
     }
   }
 
-  // 3. Save to memory & files
   const cards = await getAllCards();
   if (!cards.some((c) => c.slug === card.slug)) {
     cards.push(card);
@@ -226,6 +221,39 @@ export async function saveCardToStorage(card: DigitalCard): Promise<void> {
 export async function createCard(formData: CardFormData): Promise<DigitalCard> {
   let slug = generateSlug(formData.name);
   const now = new Date().toISOString();
+  let finalPhotoUrl = formData.photoUrl.trim();
+
+  // 1. If MongoDB is connected and photoUrl is Base64 data from local upload:
+  // Automatically extract the image and persist it into MongoDB's photos collection!
+  if (isMongoConfigured() && finalPhotoUrl.startsWith("data:image/")) {
+    try {
+      const db = await getMongoDb();
+      if (db) {
+        const matches = finalPhotoUrl.match(/^data:(image\/\w+);base64,(.+)$/);
+        if (matches) {
+          const mimeType = matches[1];
+          const base64Data = matches[2];
+          const buffer = Buffer.from(base64Data, "base64");
+          const photoId = crypto.randomUUID();
+          let ext = "jpg";
+          if (mimeType === "image/png") ext = "png";
+          if (mimeType === "image/webp") ext = "webp";
+
+          await db.collection("photos").insertOne({
+            _id: photoId as any,
+            filename: `${photoId}.${ext}`,
+            contentType: mimeType,
+            data: buffer,
+            createdAt: new Date(),
+          });
+
+          finalPhotoUrl = `/api/images/${photoId}.${ext}`;
+        }
+      }
+    } catch (savePhotoErr) {
+      console.error("Failed to extract and save base64 photo to MongoDB:", savePhotoErr);
+    }
+  }
 
   const newCard: DigitalCard = {
     id: crypto.randomUUID(),
@@ -235,17 +263,16 @@ export async function createCard(formData: CardFormData): Promise<DigitalCard> {
     companyName: formData.companyName.trim(),
     phoneNumber: normalizePhoneForCall(formData.phoneNumber.trim()),
     officeLocation: formData.officeLocation.trim(),
-    photoUrl: formData.photoUrl.trim(),
+    photoUrl: finalPhotoUrl,
     createdAt: now,
     updatedAt: now,
   };
 
-  // 1. Save directly to MongoDB Atlas
+  // 2. Save card record directly to MongoDB Atlas
   if (isMongoConfigured()) {
     try {
       const db = await getMongoDb();
       if (db) {
-        // Ensure slug uniqueness in MongoDB
         let existing = await db.collection("cards").findOne({ slug: newCard.slug });
         while (existing) {
           newCard.slug = generateSlug(formData.name);
@@ -260,7 +287,7 @@ export async function createCard(formData: CardFormData): Promise<DigitalCard> {
     }
   }
 
-  // 2. Save to Redis if available
+  // 3. Save to Redis if available
   if (redisClient) {
     try {
       await redisClient.set(`card:${newCard.slug.toLowerCase()}`, newCard);
@@ -269,7 +296,7 @@ export async function createCard(formData: CardFormData): Promise<DigitalCard> {
     }
   }
 
-  // 3. Save to local/tmp files
+  // 4. Save to local/tmp files
   const cards = await getAllCards();
   cards.push(newCard);
   globalThis.__INACARD_STORE__ = cards;
