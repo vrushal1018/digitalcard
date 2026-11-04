@@ -340,11 +340,10 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
               value={formData.name}
               onChange={handleInputChange}
               placeholder="Alex Jordan"
-              className={`w-full px-4 py-2.5 bg-zinc-900/90 border rounded-xl text-white placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 transition-all ${
-                errors.name
+              className={`w-full px-4 py-2.5 bg-zinc-900/90 border rounded-xl text-white placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 transition-all ${errors.name
                   ? "border-rose-500 focus:ring-rose-500/30"
                   : "border-zinc-800 focus:border-sky-500 focus:ring-sky-500/20"
-              }`}
+                }`}
             />
             {errors.name && (
               <p className="text-xs text-rose-400 mt-1">{errors.name}</p>
@@ -367,11 +366,10 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
                 value={formData.designation}
                 onChange={handleInputChange}
                 placeholder="Creative Director"
-                className={`w-full px-4 py-2.5 bg-zinc-900/90 border rounded-xl text-white placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 transition-all ${
-                  errors.designation
+                className={`w-full px-4 py-2.5 bg-zinc-900/90 border rounded-xl text-white placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 transition-all ${errors.designation
                     ? "border-rose-500 focus:ring-rose-500/30"
                     : "border-zinc-800 focus:border-sky-500 focus:ring-sky-500/20"
-                }`}
+                  }`}
               />
               {errors.designation && (
                 <p className="text-xs text-rose-400 mt-1">{errors.designation}</p>
@@ -392,11 +390,10 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
                 value={formData.companyName}
                 onChange={handleInputChange}
                 placeholder="Innovative Spaces"
-                className={`w-full px-4 py-2.5 bg-zinc-900/90 border rounded-xl text-white placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 transition-all ${
-                  errors.companyName
+                className={`w-full px-4 py-2.5 bg-zinc-900/90 border rounded-xl text-white placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 transition-all ${errors.companyName
                     ? "border-rose-500 focus:ring-rose-500/30"
                     : "border-zinc-800 focus:border-sky-500 focus:ring-sky-500/20"
-                }`}
+                  }`}
               />
               {errors.companyName && (
                 <p className="text-xs text-rose-400 mt-1">{errors.companyName}</p>
@@ -419,11 +416,10 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
               value={formData.phoneNumber}
               onChange={handleInputChange}
               placeholder="+91 98765 43210"
-              className={`w-full px-4 py-2.5 bg-zinc-900/90 border rounded-xl text-white placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 transition-all ${
-                errors.phoneNumber
+              className={`w-full px-4 py-2.5 bg-zinc-900/90 border rounded-xl text-white placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 transition-all ${errors.phoneNumber
                   ? "border-rose-500 focus:ring-rose-500/30"
                   : "border-zinc-800 focus:border-sky-500 focus:ring-sky-500/20"
-              }`}
+                }`}
             />
             <p className="text-[11px] text-zinc-500 mt-1">
               Used to enable one-tap Call and WhatsApp actions on your card.
@@ -448,11 +444,10 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
               value={formData.officeLocation}
               onChange={handleInputChange}
               placeholder="BKC, Mumbai, Maharashtra"
-              className={`w-full px-4 py-2.5 bg-zinc-900/90 border rounded-xl text-white placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 transition-all ${
-                errors.officeLocation
+              className={`w-full px-4 py-2.5 bg-zinc-900/90 border rounded-xl text-white placeholder-zinc-500 text-sm focus:outline-none focus:ring-2 transition-all ${errors.officeLocation
                   ? "border-rose-500 focus:ring-rose-500/30"
                   : "border-zinc-800 focus:border-sky-500 focus:ring-sky-500/20"
-              }`}
+                }`}
             />
             <p className="text-[11px] text-zinc-500 mt-1">
               Used to launch Google Maps directions on your card.
