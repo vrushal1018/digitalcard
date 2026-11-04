@@ -43,10 +43,6 @@ export default function RootLayout({
         </header>
 
         <main className="flex-1">{children}</main>
-
-        <footer className="border-t border-zinc-900 py-6 text-center text-xs text-zinc-400">
-          Digital Business Card Builder &bull; Built with Next.js, TypeScript & Tailwind CSS
-        </footer>
       </body>
     </html>
   );
