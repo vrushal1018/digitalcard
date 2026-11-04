@@ -21,7 +21,6 @@ async function resolveCard(slug: string, token?: string) {
     const decoded = decodeCardToken(token);
     if (decoded && decoded.slug.toLowerCase() === slug.toLowerCase()) {
       card = decoded;
-      // Persist into memory and /tmp for current container
       await saveCardToStorage(decoded);
     }
   }
@@ -47,27 +46,36 @@ export async function generateMetadata({
 
   const querySuffix = searchParams?.d ? `?d=${searchParams.d}` : "";
   const cardUrl = `${appUrl}/card/${card.slug}${querySuffix}`;
-  const resolvedPhoto = card.photoUrl.startsWith("http")
-    ? card.photoUrl
-    : `${appUrl}${card.photoUrl.startsWith("/") ? "" : "/"}${card.photoUrl}`;
+
+  // Generate dynamic 1200x630 OpenGraph card image via /api/og
+  const ogParams = new URLSearchParams({
+    name: card.name,
+    designation: card.designation,
+    company: card.companyName,
+  });
+  if (card.photoUrl && card.photoUrl.startsWith("http")) {
+    ogParams.set("photo", card.photoUrl);
+  }
+  const ogImageUrl = `${appUrl}/api/og?${ogParams.toString()}`;
 
   return {
     title: `${card.name} — ${card.companyName} | Digital Business Card`,
-    description: `${card.name}, ${card.designation} at ${card.companyName}. Connect via Call, WhatsApp, Location, and Share.`,
+    description: `${card.name}, ${card.designation} at ${card.companyName}. Tap to call, message on WhatsApp, view office location, or save contact.`,
     alternates: {
       canonical: cardUrl,
     },
     openGraph: {
       title: `${card.name} — ${card.companyName}`,
-      description: `${card.name}, ${card.designation} at ${card.companyName}`,
+      description: `${card.name}, ${card.designation} at ${card.companyName}. Connect via Call, WhatsApp, Location, and Share.`,
       url: cardUrl,
       siteName: "InaCard Digital Business Card",
       images: [
         {
-          url: resolvedPhoto,
-          width: 800,
-          height: 800,
-          alt: `${card.name} profile photo`,
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${card.name} - Digital Business Card`,
+          type: "image/png",
         },
       ],
       type: "profile",
@@ -76,7 +84,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: `${card.name} — ${card.companyName}`,
       description: `${card.name}, ${card.designation} at ${card.companyName}`,
-      images: [resolvedPhoto],
+      images: [ogImageUrl],
     },
   };
 }

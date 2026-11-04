@@ -101,8 +101,11 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
       }
 
       setCreatedSlug(data.slug);
-      if (data.token) {
+      // Only include token query param if database is not active
+      if (data.token && !data.hasDatabase) {
         setCardToken(data.token);
+      } else {
+        setCardToken(null);
       }
       if (onCardCreated) {
         onCardCreated(data.slug);

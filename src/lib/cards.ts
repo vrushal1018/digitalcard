@@ -3,6 +3,23 @@ import path from "path";
 import crypto from "crypto";
 import { DigitalCard, CardFormData } from "../types/card";
 import { normalizePhoneForCall } from "./phone";
+import { Redis } from "@upstash/redis";
+
+// Initialize Upstash Redis if environment variables are provided
+let redisClient: Redis | null = null;
+const redisUrl = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+const redisToken = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+
+if (redisUrl && redisToken) {
+  try {
+    redisClient = new Redis({
+      url: redisUrl,
+      token: redisToken,
+    });
+  } catch (err) {
+    console.warn("Could not initialize Redis client:", err);
+  }
+}
 
 declare global {
   var __INACARD_STORE__: DigitalCard[] | undefined;
@@ -24,10 +41,14 @@ export interface CompactCardData {
   c: string; // companyName
   p: string; // phoneNumber
   l: string; // officeLocation
-  u: string; // photoUrl
+  u?: string; // photoUrl (only if clean short URL)
   s: string; // slug
 }
 
+/**
+ * Encodes card data into a lightweight token (under 120 bytes)
+ * without inflating the URL with raw base64 data.
+ */
 export function encodeCardToken(card: DigitalCard): string {
   const compact: CompactCardData = {
     n: card.name,
@@ -35,9 +56,12 @@ export function encodeCardToken(card: DigitalCard): string {
     c: card.companyName,
     p: card.phoneNumber,
     l: card.officeLocation,
-    u: card.photoUrl,
     s: card.slug,
   };
+  // Only include photoUrl if it's a short external URL (not a massive base64 string)
+  if (card.photoUrl && card.photoUrl.startsWith("http") && card.photoUrl.length < 250) {
+    compact.u = card.photoUrl;
+  }
   return Buffer.from(JSON.stringify(compact)).toString("base64url");
 }
 
@@ -63,9 +87,6 @@ export function decodeCardToken(token: string): DigitalCard | null {
   }
 }
 
-/**
- * Reads cards from a specified file path safely.
- */
 async function readCardsFromFile(filePath: string): Promise<DigitalCard[]> {
   try {
     const raw = await fs.readFile(filePath, "utf-8");
@@ -75,9 +96,6 @@ async function readCardsFromFile(filePath: string): Promise<DigitalCard[]> {
   }
 }
 
-/**
- * Writes cards to a specified file path safely, creating parent directories if needed.
- */
 async function writeCardsToFile(dirPath: string, filePath: string, cards: DigitalCard[]): Promise<boolean> {
   try {
     await fs.mkdir(dirPath, { recursive: true });
@@ -119,13 +137,34 @@ export async function getAllCards(): Promise<DigitalCard[]> {
 
 export async function getCardBySlug(slug: string): Promise<DigitalCard | null> {
   if (!slug) return null;
-  const cards = await getAllCards();
   const normalizedSlug = slug.toLowerCase().trim();
+
+  // 1. Try Redis / KV if configured
+  if (redisClient) {
+    try {
+      const card = await redisClient.get<DigitalCard>(`card:${normalizedSlug}`);
+      if (card) return card;
+    } catch (err) {
+      console.warn("Redis fetch failed:", err);
+    }
+  }
+
+  // 2. Try in-memory and local/tmp files
+  const cards = await getAllCards();
   const found = cards.find((c) => c.slug.toLowerCase() === normalizedSlug);
   return found || null;
 }
 
 export async function saveCardToStorage(card: DigitalCard): Promise<void> {
+  // Save to Redis if available
+  if (redisClient) {
+    try {
+      await redisClient.set(`card:${card.slug.toLowerCase()}`, card);
+    } catch (err) {
+      console.warn("Redis save failed:", err);
+    }
+  }
+
   const cards = await getAllCards();
   if (!cards.some((c) => c.slug === card.slug)) {
     cards.push(card);
@@ -159,6 +198,16 @@ export async function createCard(formData: CardFormData): Promise<DigitalCard> {
     updatedAt: now,
   };
 
+  // 1. Save to Redis / KV if available
+  if (redisClient) {
+    try {
+      await redisClient.set(`card:${newCard.slug.toLowerCase()}`, newCard);
+    } catch (err) {
+      console.warn("Redis save failed:", err);
+    }
+  }
+
+  // 2. Save to memory & files
   cards.push(newCard);
   globalThis.__INACARD_STORE__ = cards;
 
@@ -168,4 +217,8 @@ export async function createCard(formData: CardFormData): Promise<DigitalCard> {
   }
 
   return newCard;
+}
+
+export function isDatabaseConfigured(): boolean {
+  return Boolean(redisClient);
 }
