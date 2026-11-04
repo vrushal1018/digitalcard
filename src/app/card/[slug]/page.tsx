@@ -11,6 +11,8 @@ interface CardPageProps {
   };
   searchParams?: {
     d?: string;
+    save?: string;
+    scan?: string;
   };
 }
 
@@ -131,6 +133,7 @@ export default async function PublicCardPage({ params, searchParams }: CardPageP
           slug={card.slug}
           shareUrl={shareUrl}
           isPreview={false}
+          autoSave={searchParams?.save === "1" || searchParams?.scan === "1"}
         />
 
         {/* Footer actions for the public view */}

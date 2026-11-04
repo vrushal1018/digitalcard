@@ -1,11 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { Phone, MessageCircle, MapPin, BadgeCheck, User } from "lucide-react";
+import { Phone, MessageCircle, MapPin, BadgeCheck, User, UserPlus, Check } from "lucide-react";
 import { CardActionButton } from "./CardActionButton";
 import { ShareButton } from "./ShareButton";
 import { getCallLink, getWhatsAppLink, getGoogleMapsLink } from "@/lib/links";
+import { downloadVCard } from "@/lib/vcard";
 
 export interface DigitalCardProps {
   name: string;
@@ -18,6 +19,7 @@ export interface DigitalCardProps {
   slug?: string;
   shareUrl?: string;
   isPreview?: boolean;
+  autoSave?: boolean;
 }
 
 export function DigitalCard({
@@ -30,7 +32,10 @@ export function DigitalCard({
   bgUrl,
   shareUrl,
   isPreview = false,
+  autoSave = false,
 }: DigitalCardProps) {
+  const [hasSaved, setHasSaved] = useState(false);
+
   const displayName = name.trim() || (isPreview ? "Your Name" : "—");
   const displayDesignation =
     designation.trim() || (isPreview ? "Your Job Title" : "—");
@@ -40,6 +45,30 @@ export function DigitalCard({
   const callHref = getCallLink(phoneNumber);
   const whatsappHref = getWhatsAppLink(phoneNumber);
   const mapsHref = getGoogleMapsLink(officeLocation);
+
+  const handleSaveContact = () => {
+    if (isPreview || !phoneNumber) return;
+    downloadVCard({
+      name: displayName,
+      designation: displayDesignation,
+      companyName: displayCompany,
+      phoneNumber,
+      officeLocation,
+      photoUrl,
+      cardUrl: shareUrl,
+    });
+    setHasSaved(true);
+    setTimeout(() => setHasSaved(false), 3000);
+  };
+
+  useEffect(() => {
+    if (autoSave && !isPreview && phoneNumber) {
+      const timer = setTimeout(() => {
+        handleSaveContact();
+      }, 800);
+      return () => clearTimeout(timer);
+    }
+  }, [autoSave, isPreview, phoneNumber]);
 
   return (
     <div className="w-full max-w-md mx-auto">
@@ -136,6 +165,28 @@ export function DigitalCard({
             companyName={displayCompany}
             shareUrl={shareUrl}
           />
+        </div>
+
+        {/* Primary Save Contact Button */}
+        <div className="mt-4 pt-1">
+          <button
+            type="button"
+            onClick={handleSaveContact}
+            disabled={isPreview || !phoneNumber}
+            className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-sky-500 via-sky-400 to-blue-500 hover:from-sky-400 hover:to-blue-400 active:scale-[0.99] text-zinc-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-sky-500/25 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {hasSaved ? (
+              <>
+                <Check className="w-4 h-4 text-zinc-950 stroke-[2.5]" />
+                <span>Contact Card Saved to Phone!</span>
+              </>
+            ) : (
+              <>
+                <UserPlus className="w-4 h-4 text-zinc-950 stroke-[2.5]" />
+                <span>Save Contact to Phone</span>
+              </>
+            )}
+          </button>
         </div>
 
         {/* Interactive preview note when in preview */}
