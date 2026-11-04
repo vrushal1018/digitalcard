@@ -63,8 +63,8 @@ export async function generateMetadata({
   if (card.bgUrl && card.bgUrl.startsWith("http")) {
     ogParams.set("bg", card.bgUrl);
   }
-  const ogSquareImageUrl = `${appUrl}/api/og?${ogParams.toString()}&format=square`;
   const ogBannerImageUrl = `${appUrl}/api/og?${ogParams.toString()}&format=banner`;
+  const hasDirectPhoto = Boolean(card.photoUrl && card.photoUrl.startsWith("http"));
 
   return {
     title: `${card.name} — ${card.companyName} | Digital Business Card`,
@@ -78,14 +78,18 @@ export async function generateMetadata({
       url: cardUrl,
       siteName: "InaCard Digital Business Card",
       images: [
-        {
-          url: ogSquareImageUrl,
-          secureUrl: ogSquareImageUrl,
-          width: 600,
-          height: 600,
-          alt: `${card.name} — ${card.companyName}`,
-          type: "image/png",
-        },
+        ...(hasDirectPhoto
+          ? [
+              {
+                url: card.photoUrl as string,
+                secureUrl: card.photoUrl as string,
+                width: 600,
+                height: 600,
+                alt: `${card.name}`,
+                type: "image/jpeg",
+              },
+            ]
+          : []),
         {
           url: ogBannerImageUrl,
           secureUrl: ogBannerImageUrl,

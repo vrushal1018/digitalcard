@@ -261,44 +261,63 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
               This is how your link appears when sent via WhatsApp, iMessage, Slack, or LinkedIn:
             </p>
 
-            {/* Social card unfurl mockup */}
+            {/* WhatsApp-style horizontal Link Preview Mockup */}
             <a
               href={cardPath}
               target="_blank"
               rel="noopener noreferrer"
-              className="relative block group rounded-xl overflow-hidden border border-zinc-700/60 bg-zinc-950/80 hover:border-sky-500/50 transition-colors"
+              className="block group rounded-xl overflow-hidden border border-zinc-700/60 bg-zinc-950/90 shadow-lg hover:border-sky-500/50 transition-colors"
             >
-              {/* Theme background behind content if selected */}
-              {formData.bgUrl && (
-                <div className="absolute inset-0 z-0 pointer-events-none">
-                  <img
-                    src={formData.bgUrl}
-                    alt="Theme background"
-                    className="w-full h-full object-cover opacity-25"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/70 to-transparent" />
+              <div className="flex items-stretch min-h-[105px]">
+                {/* Left: Uploaded Photo Only */}
+                <div className="w-24 sm:w-28 flex-shrink-0 bg-zinc-900 relative overflow-hidden flex items-center justify-center">
+                  {formData.photoUrl ? (
+                    <img
+                      src={formData.photoUrl}
+                      alt={formData.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-zinc-600">
+                      👤
+                    </div>
+                  )}
                 </div>
-              )}
 
-              {formData.photoUrl && (
-                <div className="w-full h-36 bg-zinc-900 relative overflow-hidden z-10">
-                  <img
-                    src={formData.photoUrl}
-                    alt={formData.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
+                {/* Right: Theme in Background with Information on top */}
+                <div className="flex-1 p-3 sm:p-3.5 relative overflow-hidden flex flex-col justify-center">
+                  {/* Theme Background on the right */}
+                  {formData.bgUrl ? (
+                    <div className="absolute inset-0 z-0">
+                      <img
+                        src={formData.bgUrl}
+                        alt="Theme background"
+                        className="w-full h-full object-cover opacity-35"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-r from-zinc-950/90 via-zinc-950/75 to-zinc-950/85" />
+                    </div>
+                  ) : (
+                    <div className="absolute inset-0 z-0 bg-[#061814]" />
+                  )}
+
+                  <div className="relative z-10 space-y-0.5">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <h4 className="text-sm font-bold text-white group-hover:text-sky-300 transition-colors">
+                        {formData.name || "Your Name"}
+                        {formData.companyName ? ` — ${formData.companyName}` : ""}
+                      </h4>
+                      <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-sky-500/20 text-sky-400 text-[10px] font-bold">
+                        ✓
+                      </span>
+                    </div>
+                    <p className="text-xs text-zinc-300 line-clamp-2">
+                      {formData.name || "Name"}, {formData.designation || "Title"} at {formData.companyName || "Company"}. Connect via Call, WhatsApp, Location, and Share.
+                    </p>
+                    <p className="text-[10px] text-zinc-500 pt-0.5 truncate">
+                      {origin ? origin.replace(/^https?:\/\//, "") : "digitalcard.vercel.app"}
+                    </p>
+                  </div>
                 </div>
-              )}
-              <div className="p-3.5 space-y-1 relative z-10">
-                <p className="text-[11px] font-medium text-sky-400 uppercase tracking-wider">
-                  inacard.com
-                </p>
-                <h4 className="text-sm font-semibold text-white group-hover:text-sky-300 transition-colors">
-                  {formData.name} — {formData.companyName}
-                </h4>
-                <p className="text-xs text-zinc-400 line-clamp-2">
-                  {formData.name}, {formData.designation} at {formData.companyName}. Connect via Call, WhatsApp, Location, and Share.
-                </p>
               </div>
             </a>
           </div>

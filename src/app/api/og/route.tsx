@@ -178,7 +178,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // 2. Wide Banner 1200x630 layout
+    // 2. Wide Banner 1200x630 layout (Split: Left photo only | Right theme in background with info)
     return new ImageResponse(
       (
         <div
@@ -186,87 +186,124 @@ export async function GET(request: NextRequest) {
             height: "100%",
             width: "100%",
             display: "flex",
-            flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
             backgroundColor: "#07080a",
             backgroundImage:
               "radial-gradient(circle at 25px 25px, #181b22 2%, transparent 0%), radial-gradient(circle at 75px 75px, #181b22 2%, transparent 0%)",
             backgroundSize: "100px 100px",
-            padding: "40px 60px",
+            padding: "40px",
             fontFamily: "sans-serif",
           }}
         >
-          {/* Card Outer Container */}
+          {/* Split Card Container */}
           <div
             style={{
               position: "relative",
               width: "100%",
-              maxWidth: "900px",
+              maxWidth: "1060px",
+              height: "480px",
               display: "flex",
-              flexDirection: "column",
+              flexDirection: "row",
               backgroundColor: "#0d0f14",
               borderRadius: "32px",
               border: "2px solid #27272a",
-              padding: "48px",
               boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.9)",
               overflow: "hidden",
             }}
           >
-            {/* Theme Background if provided */}
-            {bg && bg.startsWith("http") && (
-              <img
-                src={bg}
-                alt="theme-bg"
+            {/* LEFT: Uploaded Photo ONLY */}
+            <div
+              style={{
+                width: "400px",
+                height: "100%",
+                backgroundColor: "#111318",
+                borderRight: "2px solid #27272a",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                position: "relative",
+                overflow: "hidden",
+              }}
+            >
+              {photo && photo.startsWith("http") ? (
+                <img
+                  src={photo}
+                  alt={name}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              ) : (
+                <div style={{ fontSize: "120px", color: "#52525b", display: "flex" }}>
+                  👤
+                </div>
+              )}
+            </div>
+
+            {/* RIGHT: Theme in Background with Information on it */}
+            <div
+              style={{
+                flex: 1,
+                height: "100%",
+                position: "relative",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                padding: "48px 48px",
+                overflow: "hidden",
+                backgroundColor: "#0d0f14",
+              }}
+            >
+              {/* Theme Wallpaper on the right side */}
+              {bg && bg.startsWith("http") ? (
+                <img
+                  src={bg}
+                  alt="theme-bg"
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    backgroundImage:
+                      "linear-gradient(135deg, #091e17 0%, #0d0f14 100%)",
+                  }}
+                />
+              )}
+
+              {/* Dark overlay for crystal clear contrast */}
+              <div
                 style={{
                   position: "absolute",
                   top: 0,
                   left: 0,
                   width: "100%",
                   height: "100%",
-                  objectFit: "cover",
-                  opacity: 0.35,
+                  backgroundColor: "rgba(10, 12, 16, 0.72)",
                 }}
               />
-            )}
-            {/* Header / Identity */}
-            <div style={{ display: "flex", alignItems: "center", gap: "36px" }}>
-              {/* Profile Photo */}
+
+              {/* Information Content on top of Theme */}
               <div
                 style={{
-                  width: "140px",
-                  height: "140px",
-                  borderRadius: "28px",
-                  backgroundColor: "#18181b",
-                  border: "2px solid #3f3f46",
+                  position: "relative",
                   display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  overflow: "hidden",
+                  flexDirection: "column",
+                  zIndex: 10,
                 }}
               >
-                {photo && photo.startsWith("http") ? (
-                  <img
-                    src={photo}
-                    alt={name}
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  />
-                ) : (
-                  <div
-                    style={{
-                      fontSize: "64px",
-                      color: "#71717a",
-                      display: "flex",
-                    }}
-                  >
-                    👤
-                  </div>
-                )}
-              </div>
-
-              {/* Text Info */}
-              <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                {/* Name + Verified Checkmark Badge */}
+                <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
                   <span
                     style={{
                       fontSize: "44px",
@@ -285,9 +322,9 @@ export async function GET(request: NextRequest) {
                       backgroundColor: "#0284c7",
                       color: "#ffffff",
                       borderRadius: "50%",
-                      width: "28px",
-                      height: "28px",
-                      fontSize: "16px",
+                      width: "30px",
+                      height: "30px",
+                      fontSize: "18px",
                       fontWeight: "bold",
                     }}
                   >
@@ -295,125 +332,111 @@ export async function GET(request: NextRequest) {
                   </span>
                 </div>
 
+                {/* Designation */}
                 <span
                   style={{
                     fontSize: "26px",
                     fontWeight: 600,
                     color: "#38bdf8",
-                    marginTop: "8px",
+                    marginTop: "10px",
                   }}
                 >
                   {designation}
                 </span>
 
+                {/* Company Name */}
                 {company && (
                   <span
                     style={{
                       fontSize: "22px",
-                      color: "#a1a1aa",
-                      marginTop: "4px",
+                      color: "#e4e4e7",
+                      marginTop: "6px",
                     }}
                   >
                     {company}
                   </span>
                 )}
-              </div>
-            </div>
 
-            {/* Divider */}
-            <div
-              style={{
-                width: "100%",
-                height: "1px",
-                backgroundColor: "#27272a",
-                margin: "36px 0 28px 0",
-              }}
-            />
+                {/* Divider Line */}
+                <div
+                  style={{
+                    width: "100%",
+                    height: "1px",
+                    backgroundColor: "rgba(255, 255, 255, 0.15)",
+                    margin: "28px 0 20px 0",
+                  }}
+                />
 
-            {/* Action Badges Footer */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <div style={{ display: "flex", gap: "16px" }}>
+                {/* Action Badges Footer */}
                 <div
                   style={{
                     display: "flex",
+                    justifyContent: "space-between",
                     alignItems: "center",
-                    gap: "8px",
-                    backgroundColor: "#18181b",
-                    padding: "10px 20px",
-                    borderRadius: "14px",
-                    border: "1px solid #27272a",
-                    color: "#e4e4e7",
-                    fontSize: "16px",
-                    fontWeight: 500,
                   }}
                 >
-                  📞 Call
-                </div>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    backgroundColor: "#18181b",
-                    padding: "10px 20px",
-                    borderRadius: "14px",
-                    border: "1px solid #27272a",
-                    color: "#e4e4e7",
-                    fontSize: "16px",
-                    fontWeight: 500,
-                  }}
-                >
-                  💬 WhatsApp
-                </div>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    backgroundColor: "#18181b",
-                    padding: "10px 20px",
-                    borderRadius: "14px",
-                    border: "1px solid #27272a",
-                    color: "#e4e4e7",
-                    fontSize: "16px",
-                    fontWeight: 500,
-                  }}
-                >
-                  📍 Location
-                </div>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    backgroundColor: "#18181b",
-                    padding: "10px 20px",
-                    borderRadius: "14px",
-                    border: "1px solid #27272a",
-                    color: "#e4e4e7",
-                    fontSize: "16px",
-                    fontWeight: 500,
-                  }}
-                >
-                  🔗 Share
+                  <div style={{ display: "flex", gap: "12px" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                        backgroundColor: "rgba(24, 24, 27, 0.8)",
+                        padding: "8px 16px",
+                        borderRadius: "12px",
+                        border: "1px solid rgba(255, 255, 255, 0.12)",
+                        color: "#e4e4e7",
+                        fontSize: "15px",
+                        fontWeight: 500,
+                      }}
+                    >
+                      📞 Call
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                        backgroundColor: "rgba(24, 24, 27, 0.8)",
+                        padding: "8px 16px",
+                        borderRadius: "12px",
+                        border: "1px solid rgba(255, 255, 255, 0.12)",
+                        color: "#e4e4e7",
+                        fontSize: "15px",
+                        fontWeight: 500,
+                      }}
+                    >
+                      💬 WhatsApp
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px",
+                        backgroundColor: "rgba(24, 24, 27, 0.8)",
+                        padding: "8px 16px",
+                        borderRadius: "12px",
+                        border: "1px solid rgba(255, 255, 255, 0.12)",
+                        color: "#e4e4e7",
+                        fontSize: "15px",
+                        fontWeight: 500,
+                      }}
+                    >
+                      📍 Location
+                    </div>
+                  </div>
+
+                  <span
+                    style={{
+                      fontSize: "14px",
+                      color: "#94a3b8",
+                      fontWeight: 500,
+                    }}
+                  >
+                    InaCard &bull; Digital Card
+                  </span>
                 </div>
               </div>
-
-              <span
-                style={{
-                  fontSize: "16px",
-                  color: "#71717a",
-                  fontWeight: 600,
-                }}
-              >
-                InaCard &bull; Digital Business Card
-              </span>
             </div>
           </div>
         </div>
