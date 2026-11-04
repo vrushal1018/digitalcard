@@ -12,7 +12,173 @@ export async function GET(request: NextRequest) {
     const company = searchParams.get("company") || "";
     const photo = searchParams.get("photo");
     const bg = searchParams.get("bg");
+    const format = searchParams.get("format") || "banner";
 
+    // 1. Dedicated Square 600x600 layout (used for WhatsApp left-side thumbnail)
+    if (format === "square") {
+      return new ImageResponse(
+        (
+          <div
+            style={{
+              height: "100%",
+              width: "100%",
+              position: "relative",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: "#07080a",
+              padding: "36px",
+              fontFamily: "sans-serif",
+              overflow: "hidden",
+            }}
+          >
+            {/* Theme Background Image filling the entire square */}
+            {bg && bg.startsWith("http") ? (
+              <img
+                src={bg}
+                alt="theme-bg"
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                }}
+              />
+            ) : (
+              <div
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  backgroundImage:
+                    "radial-gradient(circle at 50% 30%, #1e293b 0%, #07080a 100%)",
+                }}
+              />
+            )}
+
+            {/* Dark glass overlay for contrast and legibility */}
+            <div
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                backgroundColor: "rgba(10, 12, 16, 0.62)",
+              }}
+            />
+
+            {/* Profile Avatar Card with Glowing Ring */}
+            <div
+              style={{
+                position: "relative",
+                width: "220px",
+                height: "220px",
+                borderRadius: "48px",
+                backgroundColor: "#18181b",
+                border: "4px solid rgba(56, 189, 248, 0.7)",
+                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.9)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                overflow: "hidden",
+              }}
+            >
+              {photo && photo.startsWith("http") ? (
+                <img
+                  src={photo}
+                  alt={name}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
+              ) : (
+                <div style={{ fontSize: "96px", color: "#71717a", display: "flex" }}>
+                  👤
+                </div>
+              )}
+            </div>
+
+            {/* Name & Verified Badge */}
+            <div
+              style={{
+                position: "relative",
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                marginTop: "24px",
+                maxWidth: "520px",
+              }}
+            >
+              <span
+                style={{
+                  fontSize: "36px",
+                  fontWeight: "bold",
+                  color: "#ffffff",
+                  letterSpacing: "-0.02em",
+                  textAlign: "center",
+                }}
+              >
+                {name}
+              </span>
+              <span
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: "#0284c7",
+                  color: "#ffffff",
+                  borderRadius: "50%",
+                  width: "26px",
+                  height: "26px",
+                  fontSize: "15px",
+                  fontWeight: "bold",
+                }}
+              >
+                ✓
+              </span>
+            </div>
+
+            {/* Designation & Company */}
+            <span
+              style={{
+                position: "relative",
+                fontSize: "22px",
+                fontWeight: 600,
+                color: "#38bdf8",
+                marginTop: "6px",
+                textAlign: "center",
+              }}
+            >
+              {designation}
+            </span>
+
+            {company && (
+              <span
+                style={{
+                  position: "relative",
+                  fontSize: "19px",
+                  color: "#e4e4e7",
+                  marginTop: "4px",
+                  textAlign: "center",
+                }}
+              >
+                {company}
+              </span>
+            )}
+          </div>
+        ),
+        {
+          width: 600,
+          height: 600,
+        }
+      );
+    }
+
+    // 2. Wide Banner 1200x630 layout
     return new ImageResponse(
       (
         <div
