@@ -155,8 +155,8 @@ export function DigitalCard({
         {/* Divider */}
         <div className="my-5 sm:my-6 h-px bg-gradient-to-r from-transparent via-zinc-800 to-transparent" />
 
-        {/* Action Row */}
-        <div className="flex items-center justify-around py-1">
+        {/* Unified Action & Social Icons Bar */}
+        <div className="grid grid-cols-7 place-items-center py-2 sm:py-3 w-full">
           {/* Call Action */}
           <CardActionButton
             icon={Phone}
@@ -189,69 +189,52 @@ export function DigitalCard({
             companyName={displayCompany}
             shareUrl={shareUrl}
           />
+
+          {/* LinkedIn Action */}
+          <a
+            href={linkedinHref || undefined}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => {
+              if (!linkedinHref) e.preventDefault();
+            }}
+            aria-label="LinkedIn"
+            title="Open LinkedIn Profile"
+            className="group relative flex items-center justify-center p-2.5 sm:p-3 rounded-full transition-all duration-200 outline-none text-white hover:text-sky-400 hover:scale-115 active:scale-95 cursor-pointer"
+          >
+            <LinkedInIcon className="w-6 h-6 sm:w-7 sm:h-7 transition-transform group-hover:scale-110" />
+          </a>
+
+          {/* Instagram Action */}
+          <a
+            href={instagramHref || undefined}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => {
+              if (!instagramHref) e.preventDefault();
+            }}
+            aria-label="Instagram"
+            title="Open Instagram Profile"
+            className="group relative flex items-center justify-center p-2.5 sm:p-3 rounded-full transition-all duration-200 outline-none text-white hover:text-pink-400 hover:scale-115 active:scale-95 cursor-pointer"
+          >
+            <InstagramIcon className="w-6 h-6 sm:w-7 sm:h-7 transition-transform group-hover:scale-110" />
+          </a>
+
+          {/* Facebook Action */}
+          <a
+            href={facebookHref || undefined}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => {
+              if (!facebookHref) e.preventDefault();
+            }}
+            aria-label="Facebook"
+            title="Open Facebook Profile"
+            className="group relative flex items-center justify-center p-2.5 sm:p-3 rounded-full transition-all duration-200 outline-none text-white hover:text-blue-400 hover:scale-115 active:scale-95 cursor-pointer"
+          >
+            <FacebookIcon className="w-6 h-6 sm:w-7 sm:h-7 transition-transform group-hover:scale-110" />
+          </a>
         </div>
-
-        {/* Social Profiles Row */}
-        {(linkedinHref || instagramHref || facebookHref || isPreview) && (
-          <div className="my-2 py-2 flex items-center justify-center gap-7 sm:gap-9 border-t border-zinc-800/60">
-            {/* LinkedIn */}
-            <a
-              href={linkedinHref || undefined}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => {
-                if (!linkedinHref) e.preventDefault();
-              }}
-              aria-label="LinkedIn"
-              title={linkedinHref ? "Open LinkedIn Profile" : "No LinkedIn URL provided"}
-              className={`p-2 transition-all duration-200 outline-none ${
-                linkedinHref
-                  ? "text-white hover:text-sky-400 hover:scale-115 active:scale-95 cursor-pointer"
-                  : "text-white/30 cursor-not-allowed"
-              }`}
-            >
-              <LinkedInIcon className="w-6 h-6 sm:w-7 sm:h-7 transition-transform" />
-            </a>
-
-            {/* Instagram */}
-            <a
-              href={instagramHref || undefined}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => {
-                if (!instagramHref) e.preventDefault();
-              }}
-              aria-label="Instagram"
-              title={instagramHref ? "Open Instagram Profile" : "No Instagram URL provided"}
-              className={`p-2 transition-all duration-200 outline-none ${
-                instagramHref
-                  ? "text-white hover:text-pink-400 hover:scale-115 active:scale-95 cursor-pointer"
-                  : "text-white/30 cursor-not-allowed"
-              }`}
-            >
-              <InstagramIcon className="w-6 h-6 sm:w-7 sm:h-7 transition-transform" />
-            </a>
-
-            {/* Facebook */}
-            <a
-              href={facebookHref || undefined}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => {
-                if (!facebookHref) e.preventDefault();
-              }}
-              aria-label="Facebook"
-              title={facebookHref ? "Open Facebook Profile" : "No Facebook URL provided"}
-              className={`p-2 transition-all duration-200 outline-none ${
-                facebookHref
-                  ? "text-white hover:text-blue-400 hover:scale-115 active:scale-95 cursor-pointer"
-                  : "text-white/30 cursor-not-allowed"
-              }`}
-            >
-              <FacebookIcon className="w-6 h-6 sm:w-7 sm:h-7 transition-transform" />
-            </a>
-          </div>
-        )}
 
         {/* Save Contact to Device Button */}
         <div className="mt-5 pt-1">

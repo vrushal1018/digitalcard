@@ -5,7 +5,7 @@ export interface SocialIconProps extends React.SVGProps<SVGSVGElement> {
 }
 
 /**
- * Pure LinkedIn "in" glyph with no background shape/box
+ * Clean official LinkedIn "in" vector glyph without any background box
  */
 export function LinkedInIcon({ className = "w-5 h-5 sm:w-6 sm:h-6", ...props }: SocialIconProps) {
   return (
@@ -16,15 +16,13 @@ export function LinkedInIcon({ className = "w-5 h-5 sm:w-6 sm:h-6", ...props }: 
       aria-hidden="true"
       {...props}
     >
-      <circle cx="4.98" cy="3.5" r="2.5" />
-      <path d="M2.5 8h5v14h-5z" />
-      <path d="M12.5 8h-4.97v14h4.97v-7.5c0-4.17 5.5-4.5 5.5 0V22h5v-9.5c0-7.5-8-7.2-10.5-3.5V8z" />
+      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452z" />
     </svg>
   );
 }
 
 /**
- * Pure Instagram camera outline with no background fill
+ * Clean official Instagram camera outline without any background fill
  */
 export function InstagramIcon({ className = "w-5 h-5 sm:w-6 sm:h-6", ...props }: SocialIconProps) {
   return (
@@ -47,7 +45,7 @@ export function InstagramIcon({ className = "w-5 h-5 sm:w-6 sm:h-6", ...props }:
 }
 
 /**
- * Pure Facebook "f" letter glyph with no background circle/box
+ * Clean official Facebook "f" vector glyph without any background circle/box
  */
 export function FacebookIcon({ className = "w-5 h-5 sm:w-6 sm:h-6", ...props }: SocialIconProps) {
   return (
@@ -58,7 +56,7 @@ export function FacebookIcon({ className = "w-5 h-5 sm:w-6 sm:h-6", ...props }: 
       aria-hidden="true"
       {...props}
     >
-      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3V2z" />
+      <path d="M14 13.5h2.5l1-4H14v-2c0-1.03.73-1.5 1.5-1.5h2V2.5c-.7-.1-2.1-.2-3.5-.2-3.5 0-5.5 2-5.5 5.5v2.7H6v4h2.5V24h5.5v-10.5z" />
     </svg>
   );
 }

@@ -82,14 +82,12 @@ export function ShareButton({
 
   return (
     <>
-      <div className="relative flex-1">
-        <CardActionButton
-          icon={copied ? Check : Share2}
-          label={copied ? "Copied!" : "Share"}
-          onClick={handleShareClick}
-          isPrimary={copied}
-        />
-      </div>
+      <CardActionButton
+        icon={copied ? Check : Share2}
+        label={copied ? "Copied!" : "Share"}
+        onClick={handleShareClick}
+        isPrimary={copied}
+      />
 
       {/* Share & Preview Modal */}
       {showModal && (
