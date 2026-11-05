@@ -47,8 +47,8 @@ export async function generateMetadata({
     (process.env.VERCEL_PROJECT_PRODUCTION_URL
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
       : process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000");
+        ? `https://${process.env.VERCEL_URL}`
+        : "http://localhost:3000");
 
   const querySuffix = searchParams?.d ? `?d=${searchParams.d}` : "";
   const cardUrl = `${appUrl}/card/${card.slug}${querySuffix}`;
@@ -64,6 +64,9 @@ export async function generateMetadata({
   }
   if (card.bgUrl && card.bgUrl.startsWith("http")) {
     ogParams.set("bg", card.bgUrl);
+    if (card.bgFit) {
+      ogParams.set("fit", card.bgFit);
+    }
   }
   const ogBannerImageUrl = `${appUrl}/api/og?${ogParams.toString()}&format=banner`;
   const hasDirectPhoto = Boolean(card.photoUrl && card.photoUrl.startsWith("http"));
@@ -113,8 +116,8 @@ export default async function PublicCardPage({ params, searchParams }: CardPageP
     (process.env.VERCEL_PROJECT_PRODUCTION_URL
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
       : process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000");
+        ? `https://${process.env.VERCEL_URL}`
+        : "http://localhost:3000");
   const querySuffix = searchParams?.d ? `?d=${searchParams.d}` : "";
   const shareUrl = `${appUrl}/card/${card.slug}${querySuffix}`;
 
@@ -130,6 +133,7 @@ export default async function PublicCardPage({ params, searchParams }: CardPageP
           officeLocation={card.officeLocation}
           photoUrl={card.photoUrl}
           bgUrl={card.bgUrl}
+          bgFit={card.bgFit}
           slug={card.slug}
           shareUrl={shareUrl}
           isPreview={false}

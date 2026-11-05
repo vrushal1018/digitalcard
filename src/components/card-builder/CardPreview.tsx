@@ -49,6 +49,7 @@ export function CardPreview({ formData, createdSlug }: CardPreviewProps) {
           officeLocation={formData.officeLocation}
           photoUrl={formData.photoUrl}
           bgUrl={formData.bgUrl}
+          bgFit={formData.bgFit}
           slug={createdSlug || undefined}
           shareUrl={shareUrl}
           isPreview={!isLive}

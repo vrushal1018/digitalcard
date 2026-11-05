@@ -8,6 +8,7 @@ export interface DigitalCard {
   officeLocation: string;
   photoUrl: string;
   bgUrl?: string;
+  bgFit?: "contain" | "cover";
   createdAt: string;
   updatedAt: string;
 }
@@ -20,6 +21,7 @@ export interface CardFormData {
   officeLocation: string;
   photoUrl: string;
   bgUrl?: string;
+  bgFit?: "contain" | "cover";
 }
 
 export interface FormErrors {

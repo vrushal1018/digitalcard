@@ -14,6 +14,7 @@ export default function HomePage() {
     officeLocation: "",
     photoUrl: "",
     bgUrl: "",
+    bgFit: "contain",
   });
 
   const [createdSlug, setCreatedSlug] = useState<string | null>(null);

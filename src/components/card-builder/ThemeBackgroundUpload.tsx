@@ -6,8 +6,10 @@ import { validateImageFile } from "@/lib/validation";
 
 interface ThemeBackgroundUploadProps {
   currentBgUrl?: string;
-  onBgUploaded: (url: string) => void;
+  bgFit?: "contain" | "cover";
+  onBgUploaded: (url: string, fit?: "contain" | "cover") => void;
   onBgRemoved: () => void;
+  onFitChange?: (fit: "contain" | "cover") => void;
 }
 
 // Curated high quality presets for one-tap selection
@@ -46,8 +48,10 @@ const PRESET_THEMES = [
 
 export function ThemeBackgroundUpload({
   currentBgUrl,
+  bgFit = "contain",
   onBgUploaded,
   onBgRemoved,
+  onFitChange,
 }: ThemeBackgroundUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -89,7 +93,7 @@ export function ThemeBackgroundUpload({
       }
 
       if (data.photoUrl) {
-        onBgUploaded(data.photoUrl);
+        onBgUploaded(data.photoUrl, "contain");
       }
     } catch (err) {
       console.error("Theme upload error:", err);
@@ -137,7 +141,7 @@ export function ThemeBackgroundUpload({
               type="button"
               onClick={() => {
                 if (theme.url) {
-                  onBgUploaded(theme.url);
+                  onBgUploaded(theme.url, "cover");
                 } else {
                   onBgRemoved();
                 }
@@ -190,7 +194,7 @@ export function ThemeBackgroundUpload({
                 <img
                   src={currentBgUrl}
                   alt="Custom Theme Background"
-                  className="w-full h-full object-cover"
+                  className={`w-full h-full ${bgFit === "cover" ? "object-cover" : "object-contain p-1"}`}
                 />
               </div>
               <div className="truncate">
@@ -242,6 +246,42 @@ export function ThemeBackgroundUpload({
           </button>
         )}
       </div>
+
+      {/* Background Fit Mode Switcher */}
+      {currentBgUrl && (
+        <div className="flex items-center justify-between p-2.5 bg-zinc-900/60 rounded-xl border border-zinc-800 text-xs">
+          <div className="flex items-center gap-1.5">
+            <span className="text-zinc-300 font-medium">Theme Fit:</span>
+            <span className="text-[11px] text-zinc-500 hidden sm:inline">
+              {bgFit === "cover" ? "Full edge-to-edge bleed" : "Logo / graphic fitted (no zoom)"}
+            </span>
+          </div>
+          <div className="inline-flex p-0.5 bg-zinc-950 rounded-lg border border-zinc-800 text-[11px]">
+            <button
+              type="button"
+              onClick={() => onFitChange?.("contain")}
+              className={`px-2.5 py-1 rounded-md font-medium transition-all ${
+                bgFit !== "cover"
+                  ? "bg-sky-500 text-zinc-950 font-semibold shadow-sm"
+                  : "text-zinc-400 hover:text-white"
+              }`}
+            >
+              Fit (No Zoom)
+            </button>
+            <button
+              type="button"
+              onClick={() => onFitChange?.("cover")}
+              className={`px-2.5 py-1 rounded-md font-medium transition-all ${
+                bgFit === "cover"
+                  ? "bg-sky-500 text-zinc-950 font-semibold shadow-sm"
+                  : "text-zinc-400 hover:text-white"
+              }`}
+            >
+              Fill (Cover)
+            </button>
+          </div>
+        </div>
+      )}
 
       {error && (
         <p className="text-xs text-rose-400 animate-fade-in">{error}</p>

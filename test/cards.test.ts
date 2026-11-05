@@ -49,6 +49,7 @@ describe("Card storage and slug generation", () => {
       officeLocation: "BKC, Mumbai",
       photoUrl: "https://example.com/avatar.jpg",
       bgUrl: "https://example.com/wallpaper.jpg",
+      bgFit: "contain" as const,
       createdAt: "2026-11-03T12:00:00Z",
       updatedAt: "2026-11-03T12:00:00Z",
     };
@@ -63,6 +64,7 @@ describe("Card storage and slug generation", () => {
     expect(decoded?.slug).toBe("alex-jordan-1234");
     expect(decoded?.phoneNumber).toBe("+919876543210");
     expect(decoded?.bgUrl).toBe("https://example.com/wallpaper.jpg");
+    expect(decoded?.bgFit).toBe("contain");
   });
 
   it("returns null for non-existent slug", async () => {

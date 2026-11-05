@@ -16,6 +16,7 @@ export interface DigitalCardProps {
   officeLocation: string;
   photoUrl?: string;
   bgUrl?: string;
+  bgFit?: "contain" | "cover";
   slug?: string;
   shareUrl?: string;
   isPreview?: boolean;
@@ -30,6 +31,7 @@ export function DigitalCard({
   officeLocation,
   photoUrl,
   bgUrl,
+  bgFit = "contain",
   shareUrl,
   isPreview = false,
   autoSave = false,
@@ -80,7 +82,9 @@ export function DigitalCard({
             <img
               src={bgUrl}
               alt="Card Theme"
-              className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none transition-opacity duration-300"
+              className={`absolute inset-0 w-full h-full pointer-events-none select-none transition-all duration-300 ${
+                bgFit === "cover" ? "object-cover" : "object-contain p-2 sm:p-4"
+              }`}
             />
             {/* Elegant dark gradient overlay ensuring 100% legibility */}
             <div className="absolute inset-0 bg-gradient-to-b from-[#0d0f14]/80 via-[#0d0f14]/75 to-[#0d0f14]/92 backdrop-blur-[1px] pointer-events-none" />

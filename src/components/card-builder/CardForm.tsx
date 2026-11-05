@@ -309,7 +309,9 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
                       <img
                         src={formData.bgUrl}
                         alt="Theme background"
-                        className="w-full h-full object-cover opacity-35"
+                        className={`w-full h-full opacity-35 ${
+                          formData.bgFit === "cover" ? "object-cover" : "object-contain p-1"
+                        }`}
                       />
                       <div className="absolute inset-0 bg-gradient-to-r from-zinc-950/90 via-zinc-950/75 to-zinc-950/85" />
                     </div>
@@ -355,6 +357,7 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
                   officeLocation: "",
                   photoUrl: "",
                   bgUrl: "",
+                  bgFit: "contain",
                 });
               }}
               className="text-zinc-400 hover:text-white underline underline-offset-4"
@@ -518,8 +521,12 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
           {/* Theme & Background Upload Component */}
           <ThemeBackgroundUpload
             currentBgUrl={formData.bgUrl}
-            onBgUploaded={(bgUrl) => onChange({ ...formData, bgUrl })}
-            onBgRemoved={() => onChange({ ...formData, bgUrl: "" })}
+            bgFit={formData.bgFit}
+            onBgUploaded={(bgUrl, fit) =>
+              onChange({ ...formData, bgUrl, bgFit: fit || formData.bgFit || "contain" })
+            }
+            onBgRemoved={() => onChange({ ...formData, bgUrl: "", bgFit: "contain" })}
+            onFitChange={(bgFit) => onChange({ ...formData, bgFit })}
           />
 
           {/* Submit Button */}

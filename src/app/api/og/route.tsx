@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
     const company = searchParams.get("company") || "";
     const photo = searchParams.get("photo");
     const bg = searchParams.get("bg");
+    const fit = searchParams.get("fit") === "cover" ? "cover" : "contain";
     const format = searchParams.get("format") || "banner";
 
     // 1. Dedicated Square 600x600 layout (used for WhatsApp left-side thumbnail)
@@ -264,7 +265,8 @@ export async function GET(request: NextRequest) {
                     left: 0,
                     width: "100%",
                     height: "100%",
-                    objectFit: "cover",
+                    objectFit: fit === "cover" ? "cover" : "contain",
+                    padding: fit === "cover" ? "0px" : "16px",
                   }}
                 />
               ) : (

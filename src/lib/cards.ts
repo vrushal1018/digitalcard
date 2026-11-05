@@ -26,6 +26,7 @@ export interface CompactCardData {
   l: string; // officeLocation
   u?: string; // photoUrl (ImgBB permanent CDN link)
   b?: string; // bgUrl (theme background image)
+  f?: "contain" | "cover"; // bgFit (contain or cover)
   s: string; // slug
 }
 
@@ -48,6 +49,9 @@ export function encodeCardToken(card: DigitalCard): string {
   if (card.bgUrl && (card.bgUrl.startsWith("http") || card.bgUrl.startsWith("/"))) {
     compact.b = card.bgUrl;
   }
+  if (card.bgFit) {
+    compact.f = card.bgFit;
+  }
   return Buffer.from(JSON.stringify(compact)).toString("base64url");
 }
 
@@ -66,6 +70,7 @@ export function decodeCardToken(token: string): DigitalCard | null {
       officeLocation: parsed.l || "",
       photoUrl: parsed.u || "",
       bgUrl: parsed.b || "",
+      bgFit: parsed.f || (parsed.b ? "contain" : undefined),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -157,6 +162,7 @@ export async function createCard(formData: CardFormData): Promise<DigitalCard> {
     officeLocation: formData.officeLocation.trim(),
     photoUrl: formData.photoUrl.trim(),
     bgUrl: (formData.bgUrl || "").trim(),
+    bgFit: formData.bgFit || "contain",
     createdAt: now,
     updatedAt: now,
   };
