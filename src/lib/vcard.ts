@@ -6,6 +6,9 @@ export interface VCardData {
   officeLocation?: string;
   photoUrl?: string;
   cardUrl?: string;
+  linkedinUrl?: string;
+  instagramUrl?: string;
+  facebookUrl?: string;
 }
 
 /**
@@ -42,6 +45,18 @@ export function generateVCard(data: VCardData): string {
 
   if (data.cardUrl?.trim()) {
     lines.push(`URL:${data.cardUrl.trim()}`);
+  }
+
+  if (data.linkedinUrl?.trim()) {
+    lines.push(`X-SOCIALPROFILE;TYPE=linkedin:${data.linkedinUrl.trim()}`);
+  }
+
+  if (data.instagramUrl?.trim()) {
+    lines.push(`X-SOCIALPROFILE;TYPE=instagram:${data.instagramUrl.trim()}`);
+  }
+
+  if (data.facebookUrl?.trim()) {
+    lines.push(`X-SOCIALPROFILE;TYPE=facebook:${data.facebookUrl.trim()}`);
   }
 
   if (data.photoUrl?.startsWith("http")) {

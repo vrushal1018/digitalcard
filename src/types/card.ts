@@ -9,6 +9,9 @@ export interface DigitalCard {
   photoUrl: string;
   bgUrl?: string;
   bgFit?: "contain" | "cover";
+  linkedinUrl?: string;
+  instagramUrl?: string;
+  facebookUrl?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -22,6 +25,9 @@ export interface CardFormData {
   photoUrl: string;
   bgUrl?: string;
   bgFit?: "contain" | "cover";
+  linkedinUrl?: string;
+  instagramUrl?: string;
+  facebookUrl?: string;
 }
 
 export interface FormErrors {

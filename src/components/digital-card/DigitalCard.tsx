@@ -5,8 +5,16 @@ import Image from "next/image";
 import { Phone, MessageCircle, MapPin, BadgeCheck, User, UserPlus, Check } from "lucide-react";
 import { CardActionButton } from "./CardActionButton";
 import { ShareButton } from "./ShareButton";
-import { getCallLink, getWhatsAppLink, getGoogleMapsLink } from "@/lib/links";
+import {
+  getCallLink,
+  getWhatsAppLink,
+  getGoogleMapsLink,
+  getLinkedInLink,
+  getInstagramLink,
+  getFacebookLink,
+} from "@/lib/links";
 import { downloadVCard } from "@/lib/vcard";
+import { LinkedInIcon, InstagramIcon, FacebookIcon } from "./SocialIcons";
 
 export interface DigitalCardProps {
   name: string;
@@ -17,6 +25,9 @@ export interface DigitalCardProps {
   photoUrl?: string;
   bgUrl?: string;
   bgFit?: "contain" | "cover";
+  linkedinUrl?: string;
+  instagramUrl?: string;
+  facebookUrl?: string;
   slug?: string;
   shareUrl?: string;
   isPreview?: boolean;
@@ -32,6 +43,9 @@ export function DigitalCard({
   photoUrl,
   bgUrl,
   bgFit = "contain",
+  linkedinUrl,
+  instagramUrl,
+  facebookUrl,
   shareUrl,
   isPreview = false,
   autoSave = false,
@@ -47,9 +61,12 @@ export function DigitalCard({
   const callHref = getCallLink(phoneNumber);
   const whatsappHref = getWhatsAppLink(phoneNumber);
   const mapsHref = getGoogleMapsLink(officeLocation);
+  const linkedinHref = getLinkedInLink(linkedinUrl);
+  const instagramHref = getInstagramLink(instagramUrl);
+  const facebookHref = getFacebookLink(facebookUrl);
 
   const handleSaveContact = () => {
-    if (isPreview || !phoneNumber) return;
+    if (!phoneNumber) return;
     downloadVCard({
       name: displayName,
       designation: displayDesignation,
@@ -58,6 +75,9 @@ export function DigitalCard({
       officeLocation,
       photoUrl,
       cardUrl: shareUrl,
+      linkedinUrl: linkedinHref || undefined,
+      instagramUrl: instagramHref || undefined,
+      facebookUrl: facebookHref || undefined,
     });
     setHasSaved(true);
     setTimeout(() => setHasSaved(false), 3000);
@@ -73,9 +93,9 @@ export function DigitalCard({
   }, [autoSave, isPreview, phoneNumber]);
 
   return (
-    <div className="w-full max-w-md mx-auto">
+    <div className="w-full max-w-lg mx-auto">
       {/* Outer Card Container */}
-      <div className="relative overflow-hidden rounded-[28px] sm:rounded-[32px] bg-[#0d0f14] border border-zinc-800/90 shadow-[0_20px_50px_rgba(0,0,0,0.85)] p-5 sm:p-7 backdrop-blur-sm transition-all duration-300">
+      <div className="relative overflow-hidden rounded-[30px] sm:rounded-[36px] bg-[#0d0f14] border border-zinc-800/90 shadow-[0_20px_50px_rgba(0,0,0,0.85)] p-6 sm:p-8 backdrop-blur-sm transition-all duration-300">
         {/* Custom Theme Background Image */}
         {bgUrl && (
           <>
@@ -169,6 +189,110 @@ export function DigitalCard({
             companyName={displayCompany}
             shareUrl={shareUrl}
           />
+        </div>
+
+        {/* Social Profiles Row */}
+        {(linkedinHref || instagramHref || facebookHref || isPreview) && (
+          <div className="mt-5 pt-4 border-t border-zinc-800/80">
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 mb-2.5 px-0.5 flex items-center justify-between">
+              <span>Connect & Follow</span>
+              {isPreview && (!linkedinHref && !instagramHref && !facebookHref) && (
+                <span className="text-[10px] text-zinc-500 font-normal lowercase">(fill social links in form)</span>
+              )}
+            </div>
+            <div className="grid grid-cols-3 gap-2 sm:gap-3">
+              {/* LinkedIn */}
+              <a
+                href={linkedinHref || undefined}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => {
+                  if (!linkedinHref) e.preventDefault();
+                }}
+                className={`group flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border text-xs font-medium transition-all ${
+                  linkedinHref
+                    ? "bg-zinc-900/90 border-zinc-800 hover:border-[#0A66C2]/60 hover:bg-[#0A66C2]/10 hover:text-white text-zinc-300 shadow-sm cursor-pointer"
+                    : "bg-zinc-950/40 border-zinc-900 text-zinc-600 cursor-not-allowed"
+                }`}
+                title={linkedinHref ? "Open LinkedIn Profile" : "No LinkedIn provided"}
+              >
+                <LinkedInIcon
+                  className={`w-4 h-4 transition-transform group-hover:scale-110 ${
+                    linkedinHref ? "text-[#0A66C2]" : "text-zinc-600"
+                  }`}
+                />
+                <span className="truncate">LinkedIn</span>
+              </a>
+
+              {/* Instagram */}
+              <a
+                href={instagramHref || undefined}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => {
+                  if (!instagramHref) e.preventDefault();
+                }}
+                className={`group flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border text-xs font-medium transition-all ${
+                  instagramHref
+                    ? "bg-zinc-900/90 border-zinc-800 hover:border-[#E1306C]/60 hover:bg-[#E1306C]/10 hover:text-white text-zinc-300 shadow-sm cursor-pointer"
+                    : "bg-zinc-950/40 border-zinc-900 text-zinc-600 cursor-not-allowed"
+                }`}
+                title={instagramHref ? "Open Instagram Profile" : "No Instagram provided"}
+              >
+                <InstagramIcon
+                  className={`w-4 h-4 transition-transform group-hover:scale-110 ${
+                    instagramHref ? "text-[#E1306C]" : "text-zinc-600"
+                  }`}
+                />
+                <span className="truncate">Instagram</span>
+              </a>
+
+              {/* Facebook */}
+              <a
+                href={facebookHref || undefined}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => {
+                  if (!facebookHref) e.preventDefault();
+                }}
+                className={`group flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border text-xs font-medium transition-all ${
+                  facebookHref
+                    ? "bg-zinc-900/90 border-zinc-800 hover:border-[#1877F2]/60 hover:bg-[#1877F2]/10 hover:text-white text-zinc-300 shadow-sm cursor-pointer"
+                    : "bg-zinc-950/40 border-zinc-900 text-zinc-600 cursor-not-allowed"
+                }`}
+                title={facebookHref ? "Open Facebook Profile" : "No Facebook provided"}
+              >
+                <FacebookIcon
+                  className={`w-4 h-4 transition-transform group-hover:scale-110 ${
+                    facebookHref ? "text-[#1877F2]" : "text-zinc-600"
+                  }`}
+                />
+                <span className="truncate">Facebook</span>
+              </a>
+            </div>
+          </div>
+        )}
+
+        {/* Save Contact to Device Button */}
+        <div className="mt-5 pt-1">
+          <button
+            type="button"
+            onClick={handleSaveContact}
+            disabled={!phoneNumber}
+            className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-sky-500 via-sky-400 to-blue-500 hover:from-sky-400 hover:to-blue-400 active:scale-[0.99] text-zinc-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2.5 shadow-lg shadow-sky-500/25 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {hasSaved ? (
+              <>
+                <Check className="w-4 h-4 text-zinc-950 stroke-[3]" />
+                <span>Contact Details Saved to Device!</span>
+              </>
+            ) : (
+              <>
+                <UserPlus className="w-4 h-4 text-zinc-950 stroke-[2.5]" />
+                <span>Save Contact to Phone</span>
+              </>
+            )}
+          </button>
         </div>
 
         {/* Interactive preview note when in preview */}

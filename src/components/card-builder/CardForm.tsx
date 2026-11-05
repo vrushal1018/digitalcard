@@ -6,6 +6,7 @@ import { CardFormData, FormErrors } from "@/types/card";
 import { PhotoUpload } from "./PhotoUpload";
 import { ThemeBackgroundUpload } from "./ThemeBackgroundUpload";
 import { validateCardForm } from "@/lib/validation";
+import { LinkedInIcon, InstagramIcon, FacebookIcon } from "../digital-card/SocialIcons";
 import {
   Sparkles,
   Loader2,
@@ -358,6 +359,9 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
                   photoUrl: "",
                   bgUrl: "",
                   bgFit: "contain",
+                  linkedinUrl: "",
+                  instagramUrl: "",
+                  facebookUrl: "",
                 });
               }}
               className="text-zinc-400 hover:text-white underline underline-offset-4"
@@ -508,6 +512,80 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
             {errors.officeLocation && (
               <p className="text-xs text-rose-400 mt-1">{errors.officeLocation}</p>
             )}
+          </div>
+
+          {/* Social Profiles Section */}
+          <div className="pt-2 border-t border-zinc-800/80 space-y-3.5">
+            <div className="flex items-center justify-between">
+              <label className="flex items-center gap-2 text-sm font-medium text-zinc-300">
+                <Share2 className="w-4 h-4 text-sky-400" />
+                <span>Social Profiles</span>
+                <span className="text-[11px] font-normal text-zinc-500">(Optional)</span>
+              </label>
+              <span className="text-[11px] text-zinc-500">Links appear as clickable buttons</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* LinkedIn */}
+              <div>
+                <label
+                  htmlFor="linkedinUrl"
+                  className="block text-xs font-medium text-zinc-300 mb-1 flex items-center gap-1.5"
+                >
+                  <LinkedInIcon className="w-3.5 h-3.5 text-[#0A66C2]" />
+                  <span>LinkedIn</span>
+                </label>
+                <input
+                  id="linkedinUrl"
+                  name="linkedinUrl"
+                  type="text"
+                  value={formData.linkedinUrl || ""}
+                  onChange={handleInputChange}
+                  placeholder="username or URL"
+                  className="w-full px-3 py-2 bg-zinc-900/90 border border-zinc-800 focus:border-[#0A66C2] focus:ring-1 focus:ring-[#0A66C2]/30 rounded-xl text-white placeholder-zinc-500 text-xs focus:outline-none transition-all"
+                />
+              </div>
+
+              {/* Instagram */}
+              <div>
+                <label
+                  htmlFor="instagramUrl"
+                  className="block text-xs font-medium text-zinc-300 mb-1 flex items-center gap-1.5"
+                >
+                  <InstagramIcon className="w-3.5 h-3.5 text-[#E1306C]" />
+                  <span>Instagram</span>
+                </label>
+                <input
+                  id="instagramUrl"
+                  name="instagramUrl"
+                  type="text"
+                  value={formData.instagramUrl || ""}
+                  onChange={handleInputChange}
+                  placeholder="@username or URL"
+                  className="w-full px-3 py-2 bg-zinc-900/90 border border-zinc-800 focus:border-[#E1306C] focus:ring-1 focus:ring-[#E1306C]/30 rounded-xl text-white placeholder-zinc-500 text-xs focus:outline-none transition-all"
+                />
+              </div>
+
+              {/* Facebook */}
+              <div>
+                <label
+                  htmlFor="facebookUrl"
+                  className="block text-xs font-medium text-zinc-300 mb-1 flex items-center gap-1.5"
+                >
+                  <FacebookIcon className="w-3.5 h-3.5 text-[#1877F2]" />
+                  <span>Facebook</span>
+                </label>
+                <input
+                  id="facebookUrl"
+                  name="facebookUrl"
+                  type="text"
+                  value={formData.facebookUrl || ""}
+                  onChange={handleInputChange}
+                  placeholder="username or URL"
+                  className="w-full px-3 py-2 bg-zinc-900/90 border border-zinc-800 focus:border-[#1877F2] focus:ring-1 focus:ring-[#1877F2]/30 rounded-xl text-white placeholder-zinc-500 text-xs focus:outline-none transition-all"
+                />
+              </div>
+            </div>
           </div>
 
           {/* Photo Upload Component */}

@@ -123,7 +123,7 @@ export default async function PublicCardPage({ params, searchParams }: CardPageP
 
   return (
     <div className="min-h-[80vh] flex flex-col justify-center items-center px-4 py-12">
-      <div className="w-full max-w-md mx-auto space-y-6">
+      <div className="w-full max-w-lg mx-auto space-y-6">
         {/* Digital Business Card */}
         <DigitalCard
           name={card.name}
@@ -134,6 +134,9 @@ export default async function PublicCardPage({ params, searchParams }: CardPageP
           photoUrl={card.photoUrl}
           bgUrl={card.bgUrl}
           bgFit={card.bgFit}
+          linkedinUrl={card.linkedinUrl}
+          instagramUrl={card.instagramUrl}
+          facebookUrl={card.facebookUrl}
           slug={card.slug}
           shareUrl={shareUrl}
           isPreview={false}

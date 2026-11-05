@@ -27,6 +27,9 @@ export interface CompactCardData {
   u?: string; // photoUrl (ImgBB permanent CDN link)
   b?: string; // bgUrl (theme background image)
   f?: "contain" | "cover"; // bgFit (contain or cover)
+  li?: string; // linkedin
+  ig?: string; // instagram
+  fb?: string; // facebook
   s: string; // slug
 }
 
@@ -52,6 +55,15 @@ export function encodeCardToken(card: DigitalCard): string {
   if (card.bgFit) {
     compact.f = card.bgFit;
   }
+  if (card.linkedinUrl) {
+    compact.li = card.linkedinUrl;
+  }
+  if (card.instagramUrl) {
+    compact.ig = card.instagramUrl;
+  }
+  if (card.facebookUrl) {
+    compact.fb = card.facebookUrl;
+  }
   return Buffer.from(JSON.stringify(compact)).toString("base64url");
 }
 
@@ -71,6 +83,9 @@ export function decodeCardToken(token: string): DigitalCard | null {
       photoUrl: parsed.u || "",
       bgUrl: parsed.b || "",
       bgFit: parsed.f || (parsed.b ? "contain" : undefined),
+      linkedinUrl: parsed.li || "",
+      instagramUrl: parsed.ig || "",
+      facebookUrl: parsed.fb || "",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -163,6 +178,9 @@ export async function createCard(formData: CardFormData): Promise<DigitalCard> {
     photoUrl: formData.photoUrl.trim(),
     bgUrl: (formData.bgUrl || "").trim(),
     bgFit: formData.bgFit || "contain",
+    linkedinUrl: (formData.linkedinUrl || "").trim(),
+    instagramUrl: (formData.instagramUrl || "").trim(),
+    facebookUrl: (formData.facebookUrl || "").trim(),
     createdAt: now,
     updatedAt: now,
   };

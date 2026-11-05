@@ -44,5 +44,32 @@ describe("DigitalCard Component", () => {
       "google.com/maps/search/?api=1&query=BKC%2C%20Mumbai"
     );
   });
+
+  it("renders social links and save contact button properly", () => {
+    render(
+      <DigitalCard
+        name="Alex Jordan"
+        designation="Creative Director"
+        companyName="Innovative Spaces"
+        phoneNumber="+91 98765 43210"
+        officeLocation="BKC, Mumbai"
+        photoUrl="/sample.jpg"
+        linkedinUrl="alexjordan"
+        instagramUrl="@alexjordan"
+        facebookUrl="https://facebook.com/alexjordan"
+      />
+    );
+
+    expect(screen.getByText("Save Contact to Phone")).toBeDefined();
+
+    const linkedinLink = screen.getByTitle("Open LinkedIn Profile");
+    expect(linkedinLink.getAttribute("href")).toBe("https://www.linkedin.com/in/alexjordan");
+
+    const instagramLink = screen.getByTitle("Open Instagram Profile");
+    expect(instagramLink.getAttribute("href")).toBe("https://www.instagram.com/alexjordan/");
+
+    const facebookLink = screen.getByTitle("Open Facebook Profile");
+    expect(facebookLink.getAttribute("href")).toBe("https://facebook.com/alexjordan");
+  });
 });
 

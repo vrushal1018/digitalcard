@@ -3,6 +3,9 @@ import {
   getCallLink,
   getWhatsAppLink,
   getGoogleMapsLink,
+  getLinkedInLink,
+  getInstagramLink,
+  getFacebookLink,
   getCardUrl,
 } from "../src/lib/links";
 
@@ -29,6 +32,23 @@ describe("Link generation helpers", () => {
     expect(getCardUrl("alex-jordan-1234", "https://inacard.com")).toBe(
       "https://inacard.com/card/alex-jordan-1234"
     );
+  });
+
+  it("generates and normalizes social profile links correctly", () => {
+    expect(getLinkedInLink("https://linkedin.com/in/vrushal")).toBe("https://linkedin.com/in/vrushal");
+    expect(getLinkedInLink("@vrushal")).toBe("https://www.linkedin.com/in/vrushal");
+    expect(getLinkedInLink("vrushal")).toBe("https://www.linkedin.com/in/vrushal");
+    expect(getLinkedInLink("")).toBeNull();
+
+    expect(getInstagramLink("https://instagram.com/vrushal")).toBe("https://instagram.com/vrushal");
+    expect(getInstagramLink("@vrushal")).toBe("https://www.instagram.com/vrushal/");
+    expect(getInstagramLink("vrushal")).toBe("https://www.instagram.com/vrushal/");
+    expect(getInstagramLink("")).toBeNull();
+
+    expect(getFacebookLink("https://facebook.com/vrushal")).toBe("https://facebook.com/vrushal");
+    expect(getFacebookLink("@vrushal")).toBe("https://www.facebook.com/vrushal");
+    expect(getFacebookLink("vrushal")).toBe("https://www.facebook.com/vrushal");
+    expect(getFacebookLink("")).toBeNull();
   });
 });
 

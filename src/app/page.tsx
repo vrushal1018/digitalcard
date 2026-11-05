@@ -15,12 +15,15 @@ export default function HomePage() {
     photoUrl: "",
     bgUrl: "",
     bgFit: "contain",
+    linkedinUrl: "",
+    instagramUrl: "",
+    facebookUrl: "",
   });
 
   const [createdSlug, setCreatedSlug] = useState<string | null>(null);
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
       {/* Intro hero text */}
       <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">

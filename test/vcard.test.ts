@@ -11,6 +11,9 @@ describe("vCard generation", () => {
       officeLocation: "Mumbai, Maharashtra",
       photoUrl: "https://i.ibb.co/photo.jpg",
       cardUrl: "https://digitalcard.vercel.app/card/siddharth-menon",
+      linkedinUrl: "https://linkedin.com/in/siddharth",
+      instagramUrl: "https://instagram.com/siddharth",
+      facebookUrl: "https://facebook.com/siddharth",
     });
 
     expect(vcard).toContain("BEGIN:VCARD");
@@ -22,6 +25,9 @@ describe("vCard generation", () => {
     expect(vcard).toContain("TEL;TYPE=CELL,VOICE:+919876543210");
     expect(vcard).toContain("ADR;TYPE=WORK:;;Mumbai, Maharashtra;;;;");
     expect(vcard).toContain("URL:https://digitalcard.vercel.app/card/siddharth-menon");
+    expect(vcard).toContain("X-SOCIALPROFILE;TYPE=linkedin:https://linkedin.com/in/siddharth");
+    expect(vcard).toContain("X-SOCIALPROFILE;TYPE=instagram:https://instagram.com/siddharth");
+    expect(vcard).toContain("X-SOCIALPROFILE;TYPE=facebook:https://facebook.com/siddharth");
     expect(vcard).toContain("PHOTO;VALUE=URI:https://i.ibb.co/photo.jpg");
     expect(vcard).toContain("END:VCARD");
   });
