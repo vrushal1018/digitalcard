@@ -133,11 +133,23 @@ export function DigitalCard({
 
           {/* Identity Information */}
           <div className="flex-1 min-w-0 pr-1">
-            <div className="flex items-center gap-1.5 flex-wrap">
-              <h1 className="text-lg sm:text-xl font-bold tracking-tight text-white truncate max-w-full">
-                {displayName}
-              </h1>
-              <BadgeCheck className="w-4 h-4 sm:w-5 sm:h-5 text-sky-400 fill-sky-400/20 flex-shrink-0" />
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                <h1 className="text-lg sm:text-xl font-bold tracking-tight text-white truncate max-w-full">
+                  {displayName}
+                </h1>
+                <BadgeCheck className="w-4 h-4 sm:w-5 sm:h-5 text-sky-400 fill-sky-400/20 flex-shrink-0" />
+              </div>
+
+              {/* Share Icon in line with Name on the far right */}
+              <div className="flex-shrink-0">
+                <ShareButton
+                  cardName={displayName}
+                  designation={displayDesignation}
+                  companyName={displayCompany}
+                  shareUrl={shareUrl}
+                />
+              </div>
             </div>
 
             <p className="text-xs sm:text-sm font-medium text-zinc-300 mt-1 truncate">
@@ -155,8 +167,8 @@ export function DigitalCard({
         {/* Divider */}
         <div className="my-5 sm:my-6 h-px bg-gradient-to-r from-transparent via-zinc-800 to-transparent" />
 
-        {/* Unified Action & Social Icons Bar */}
-        <div className="grid grid-cols-7 place-items-center py-2 sm:py-3 w-full">
+        {/* Primary Action Icons (3 by 3: Row 1) */}
+        <div className="grid grid-cols-3 place-items-center py-1 sm:py-2 w-full">
           {/* Call Action */}
           <CardActionButton
             icon={Phone}
@@ -181,15 +193,13 @@ export function DigitalCard({
             href={isPreview ? undefined : mapsHref}
             disabled={!mapsHref}
           />
+        </div>
 
-          {/* Share Action */}
-          <ShareButton
-            cardName={displayName}
-            designation={displayDesignation}
-            companyName={displayCompany}
-            shareUrl={shareUrl}
-          />
+        {/* Spacing & Separator between 3 by 3 */}
+        <div className="my-3 sm:my-4 h-px bg-gradient-to-r from-transparent via-zinc-800/70 to-transparent" />
 
+        {/* Social Action Icons (3 by 3: Row 2) */}
+        <div className="grid grid-cols-3 place-items-center py-1 sm:py-2 w-full">
           {/* LinkedIn Action */}
           <a
             href={linkedinHref || undefined}
