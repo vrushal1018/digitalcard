@@ -194,12 +194,17 @@ export function DigitalCard({
         {/* Social Profiles Row */}
         {(linkedinHref || instagramHref || facebookHref || isPreview) && (
           <div className="mt-5 pt-4 border-t border-zinc-800/80">
-            <div className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 mb-2.5 px-0.5 flex items-center justify-between">
-              <span>Connect & Follow</span>
+            <div className="flex items-center justify-between mb-2.5 px-1">
+              <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-400">
+                Social Profiles
+              </span>
               {isPreview && (!linkedinHref && !instagramHref && !facebookHref) && (
-                <span className="text-[10px] text-zinc-500 font-normal lowercase">(fill social links in form)</span>
+                <span className="text-[10px] text-zinc-500 font-normal">
+                  (fill form to activate links)
+                </span>
               )}
             </div>
+
             <div className="grid grid-cols-3 gap-2 sm:gap-3">
               {/* LinkedIn */}
               <a
@@ -209,19 +214,20 @@ export function DigitalCard({
                 onClick={(e) => {
                   if (!linkedinHref) e.preventDefault();
                 }}
-                className={`group flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border text-xs font-medium transition-all ${
+                aria-label="LinkedIn"
+                className={`group relative flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl transition-all duration-200 outline-none border ${
                   linkedinHref
-                    ? "bg-zinc-900/90 border-zinc-800 hover:border-[#0A66C2]/60 hover:bg-[#0A66C2]/10 hover:text-white text-zinc-300 shadow-sm cursor-pointer"
-                    : "bg-zinc-950/40 border-zinc-900 text-zinc-600 cursor-not-allowed"
+                    ? "bg-zinc-800/60 hover:bg-zinc-800 text-zinc-200 hover:text-white border-zinc-700/60 hover:border-[#0A66C2]/70 hover:scale-105 active:scale-95 shadow-md shadow-black/20 cursor-pointer"
+                    : "bg-zinc-800/40 border-zinc-800 text-zinc-400 opacity-60 cursor-not-allowed"
                 }`}
-                title={linkedinHref ? "Open LinkedIn Profile" : "No LinkedIn provided"}
+                title={linkedinHref ? "Open LinkedIn Profile" : "No LinkedIn URL provided"}
               >
-                <LinkedInIcon
-                  className={`w-4 h-4 transition-transform group-hover:scale-110 ${
-                    linkedinHref ? "text-[#0A66C2]" : "text-zinc-600"
-                  }`}
-                />
-                <span className="truncate">LinkedIn</span>
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#0A66C2]/20 flex items-center justify-center mb-1.5 transition-transform group-hover:scale-110">
+                  <LinkedInIcon className="w-5 h-5 text-[#0A66C2]" />
+                </div>
+                <span className="text-[11px] sm:text-xs font-medium tracking-tight text-center text-zinc-200">
+                  LinkedIn
+                </span>
               </a>
 
               {/* Instagram */}
@@ -232,19 +238,20 @@ export function DigitalCard({
                 onClick={(e) => {
                   if (!instagramHref) e.preventDefault();
                 }}
-                className={`group flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border text-xs font-medium transition-all ${
+                aria-label="Instagram"
+                className={`group relative flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl transition-all duration-200 outline-none border ${
                   instagramHref
-                    ? "bg-zinc-900/90 border-zinc-800 hover:border-[#E1306C]/60 hover:bg-[#E1306C]/10 hover:text-white text-zinc-300 shadow-sm cursor-pointer"
-                    : "bg-zinc-950/40 border-zinc-900 text-zinc-600 cursor-not-allowed"
+                    ? "bg-zinc-800/60 hover:bg-zinc-800 text-zinc-200 hover:text-white border-zinc-700/60 hover:border-[#E1306C]/70 hover:scale-105 active:scale-95 shadow-md shadow-black/20 cursor-pointer"
+                    : "bg-zinc-800/40 border-zinc-800 text-zinc-400 opacity-60 cursor-not-allowed"
                 }`}
-                title={instagramHref ? "Open Instagram Profile" : "No Instagram provided"}
+                title={instagramHref ? "Open Instagram Profile" : "No Instagram URL provided"}
               >
-                <InstagramIcon
-                  className={`w-4 h-4 transition-transform group-hover:scale-110 ${
-                    instagramHref ? "text-[#E1306C]" : "text-zinc-600"
-                  }`}
-                />
-                <span className="truncate">Instagram</span>
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#E1306C]/20 flex items-center justify-center mb-1.5 transition-transform group-hover:scale-110">
+                  <InstagramIcon className="w-5 h-5 text-[#E1306C]" />
+                </div>
+                <span className="text-[11px] sm:text-xs font-medium tracking-tight text-center text-zinc-200">
+                  Instagram
+                </span>
               </a>
 
               {/* Facebook */}
@@ -255,19 +262,20 @@ export function DigitalCard({
                 onClick={(e) => {
                   if (!facebookHref) e.preventDefault();
                 }}
-                className={`group flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border text-xs font-medium transition-all ${
+                aria-label="Facebook"
+                className={`group relative flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl transition-all duration-200 outline-none border ${
                   facebookHref
-                    ? "bg-zinc-900/90 border-zinc-800 hover:border-[#1877F2]/60 hover:bg-[#1877F2]/10 hover:text-white text-zinc-300 shadow-sm cursor-pointer"
-                    : "bg-zinc-950/40 border-zinc-900 text-zinc-600 cursor-not-allowed"
+                    ? "bg-zinc-800/60 hover:bg-zinc-800 text-zinc-200 hover:text-white border-zinc-700/60 hover:border-[#1877F2]/70 hover:scale-105 active:scale-95 shadow-md shadow-black/20 cursor-pointer"
+                    : "bg-zinc-800/40 border-zinc-800 text-zinc-400 opacity-60 cursor-not-allowed"
                 }`}
-                title={facebookHref ? "Open Facebook Profile" : "No Facebook provided"}
+                title={facebookHref ? "Open Facebook Profile" : "No Facebook URL provided"}
               >
-                <FacebookIcon
-                  className={`w-4 h-4 transition-transform group-hover:scale-110 ${
-                    facebookHref ? "text-[#1877F2]" : "text-zinc-600"
-                  }`}
-                />
-                <span className="truncate">Facebook</span>
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#1877F2]/20 flex items-center justify-center mb-1.5 transition-transform group-hover:scale-110">
+                  <FacebookIcon className="w-5 h-5 text-[#1877F2]" />
+                </div>
+                <span className="text-[11px] sm:text-xs font-medium tracking-tight text-center text-zinc-200">
+                  Facebook
+                </span>
               </a>
             </div>
           </div>

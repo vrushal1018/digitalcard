@@ -4,7 +4,7 @@ export interface SocialIconProps extends React.SVGProps<SVGSVGElement> {
   className?: string;
 }
 
-export function LinkedInIcon({ className = "w-4 h-4", ...props }: SocialIconProps) {
+export function LinkedInIcon({ className = "w-5 h-5", ...props }: SocialIconProps) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -18,7 +18,7 @@ export function LinkedInIcon({ className = "w-4 h-4", ...props }: SocialIconProp
   );
 }
 
-export function InstagramIcon({ className = "w-4 h-4", ...props }: SocialIconProps) {
+export function InstagramIcon({ className = "w-5 h-5", ...props }: SocialIconProps) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -38,7 +38,7 @@ export function InstagramIcon({ className = "w-4 h-4", ...props }: SocialIconPro
   );
 }
 
-export function FacebookIcon({ className = "w-4 h-4", ...props }: SocialIconProps) {
+export function FacebookIcon({ className = "w-5 h-5", ...props }: SocialIconProps) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -51,3 +51,4 @@ export function FacebookIcon({ className = "w-4 h-4", ...props }: SocialIconProp
     </svg>
   );
 }
+

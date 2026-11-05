@@ -155,7 +155,7 @@ export default async function PublicCardPage({ params, searchParams }: CardPageP
 
           <span className="inline-flex items-center gap-1 text-zinc-600">
             <Sparkles className="w-3 h-3 text-sky-400" />
-            <span>Powered by InaCard</span>
+            <span>Powered by Ina TechFM</span>
           </span>
         </div>
       </div>
