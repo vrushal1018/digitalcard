@@ -532,7 +532,7 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
                   htmlFor="linkedinUrl"
                   className="block text-xs font-medium text-zinc-300 mb-1 flex items-center gap-1.5"
                 >
-                  <LinkedInIcon className="w-3.5 h-3.5 text-[#0A66C2]" />
+                  <LinkedInIcon className="w-3.5 h-3.5 text-white" />
                   <span>LinkedIn</span>
                 </label>
                 <input
@@ -542,7 +542,7 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
                   value={formData.linkedinUrl || ""}
                   onChange={handleInputChange}
                   placeholder="username or URL"
-                  className="w-full px-3 py-2 bg-zinc-900/90 border border-zinc-800 focus:border-[#0A66C2] focus:ring-1 focus:ring-[#0A66C2]/30 rounded-xl text-white placeholder-zinc-500 text-xs focus:outline-none transition-all"
+                  className="w-full px-3 py-2 bg-zinc-900/90 border border-zinc-800 focus:border-sky-500 focus:ring-1 focus:ring-sky-500/30 rounded-xl text-white placeholder-zinc-500 text-xs focus:outline-none transition-all"
                 />
               </div>
 
@@ -552,7 +552,7 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
                   htmlFor="instagramUrl"
                   className="block text-xs font-medium text-zinc-300 mb-1 flex items-center gap-1.5"
                 >
-                  <InstagramIcon className="w-3.5 h-3.5 text-[#E1306C]" />
+                  <InstagramIcon className="w-3.5 h-3.5 text-white" />
                   <span>Instagram</span>
                 </label>
                 <input
@@ -562,7 +562,7 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
                   value={formData.instagramUrl || ""}
                   onChange={handleInputChange}
                   placeholder="@username or URL"
-                  className="w-full px-3 py-2 bg-zinc-900/90 border border-zinc-800 focus:border-[#E1306C] focus:ring-1 focus:ring-[#E1306C]/30 rounded-xl text-white placeholder-zinc-500 text-xs focus:outline-none transition-all"
+                  className="w-full px-3 py-2 bg-zinc-900/90 border border-zinc-800 focus:border-sky-500 focus:ring-1 focus:ring-sky-500/30 rounded-xl text-white placeholder-zinc-500 text-xs focus:outline-none transition-all"
                 />
               </div>
 
@@ -572,7 +572,7 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
                   htmlFor="facebookUrl"
                   className="block text-xs font-medium text-zinc-300 mb-1 flex items-center gap-1.5"
                 >
-                  <FacebookIcon className="w-3.5 h-3.5 text-[#1877F2]" />
+                  <FacebookIcon className="w-3.5 h-3.5 text-white" />
                   <span>Facebook</span>
                 </label>
                 <input
@@ -582,7 +582,7 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
                   value={formData.facebookUrl || ""}
                   onChange={handleInputChange}
                   placeholder="username or URL"
-                  className="w-full px-3 py-2 bg-zinc-900/90 border border-zinc-800 focus:border-[#1877F2] focus:ring-1 focus:ring-[#1877F2]/30 rounded-xl text-white placeholder-zinc-500 text-xs focus:outline-none transition-all"
+                  className="w-full px-3 py-2 bg-zinc-900/90 border border-zinc-800 focus:border-sky-500 focus:ring-1 focus:ring-sky-500/30 rounded-xl text-white placeholder-zinc-500 text-xs focus:outline-none transition-all"
                 />
               </div>
             </div>

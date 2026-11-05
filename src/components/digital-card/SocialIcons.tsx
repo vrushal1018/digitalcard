@@ -4,7 +4,10 @@ export interface SocialIconProps extends React.SVGProps<SVGSVGElement> {
   className?: string;
 }
 
-export function LinkedInIcon({ className = "w-5 h-5", ...props }: SocialIconProps) {
+/**
+ * Pure LinkedIn "in" glyph with no background shape/box
+ */
+export function LinkedInIcon({ className = "w-5 h-5 sm:w-6 sm:h-6", ...props }: SocialIconProps) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -13,12 +16,17 @@ export function LinkedInIcon({ className = "w-5 h-5", ...props }: SocialIconProp
       aria-hidden="true"
       {...props}
     >
-      <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v8.37H9.2V10.9H6.46M7.83 6.25a1.62 1.62 0 1 0 0 3.24 1.62 1.62 0 0 0 0-3.24Z" />
+      <circle cx="4.98" cy="3.5" r="2.5" />
+      <path d="M2.5 8h5v14h-5z" />
+      <path d="M12.5 8h-4.97v14h4.97v-7.5c0-4.17 5.5-4.5 5.5 0V22h5v-9.5c0-7.5-8-7.2-10.5-3.5V8z" />
     </svg>
   );
 }
 
-export function InstagramIcon({ className = "w-5 h-5", ...props }: SocialIconProps) {
+/**
+ * Pure Instagram camera outline with no background fill
+ */
+export function InstagramIcon({ className = "w-5 h-5 sm:w-6 sm:h-6", ...props }: SocialIconProps) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -38,7 +46,10 @@ export function InstagramIcon({ className = "w-5 h-5", ...props }: SocialIconPro
   );
 }
 
-export function FacebookIcon({ className = "w-5 h-5", ...props }: SocialIconProps) {
+/**
+ * Pure Facebook "f" letter glyph with no background circle/box
+ */
+export function FacebookIcon({ className = "w-5 h-5 sm:w-6 sm:h-6", ...props }: SocialIconProps) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -47,8 +58,7 @@ export function FacebookIcon({ className = "w-5 h-5", ...props }: SocialIconProp
       aria-hidden="true"
       {...props}
     >
-      <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95C18.05 21.45 22 17.19 22 12Z" />
+      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3V2z" />
     </svg>
   );
 }
-
