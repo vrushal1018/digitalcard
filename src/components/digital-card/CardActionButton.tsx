@@ -4,7 +4,7 @@ import React from "react";
 import { LucideIcon } from "lucide-react";
 
 interface CardActionButtonProps {
-  icon: LucideIcon;
+  icon: LucideIcon | React.ComponentType<{ className?: string }>;
   label: string;
   href?: string | null;
   onClick?: () => void;

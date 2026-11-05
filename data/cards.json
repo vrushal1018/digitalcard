@@ -503,5 +503,39 @@
     "facebookUrl": "",
     "createdAt": "2026-11-05T12:21:30.952Z",
     "updatedAt": "2026-11-05T12:21:30.952Z"
+  },
+  {
+    "id": "b1ee3d0f-603e-48ff-9e26-8f737b2e0e3d",
+    "slug": "jaisalil-shilewant-32c0ebc5",
+    "name": "Jaisalil Shilewant",
+    "designation": "Vice President - Design & Build",
+    "companyName": "Ina SpaceWorks",
+    "phoneNumber": "+919156802555",
+    "officeLocation": "kasarvadavli , MBC park",
+    "photoUrl": "https://i.ibb.co/RTfHTBWk/a7140048c48b.jpg",
+    "bgUrl": "https://i.ibb.co/W4WsSJd9/fe8b866df52f.jpg",
+    "bgFit": "cover",
+    "linkedinUrl": "https://www.linkedin.com/in/jaisalilshilewant/?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base_contact_details%3BbwrwkY2OTpefZSkyNaxt4A%3D%3D",
+    "instagramUrl": "https://www.instagram.com/jaishilewant?exln=dG9pZmtueG0wYW96&utm_source=qr",
+    "facebookUrl": "https://www.facebook.com/share/1CFTHfE46X/?mibextid=wwXIfr",
+    "createdAt": "2026-11-05T12:25:32.690Z",
+    "updatedAt": "2026-11-05T12:25:32.690Z"
+  },
+  {
+    "id": "001c27bb-0214-43f0-974e-0314a64cbdec",
+    "slug": "jane-doe-f37fb0ec",
+    "name": "Jane Doe",
+    "designation": "Lead Architect",
+    "companyName": "Modern Studio",
+    "phoneNumber": "+15551234567",
+    "officeLocation": "Seattle, WA",
+    "photoUrl": "/uploads/jane.jpg",
+    "bgUrl": "",
+    "bgFit": "contain",
+    "linkedinUrl": "",
+    "instagramUrl": "",
+    "facebookUrl": "",
+    "createdAt": "2026-11-05T12:28:12.866Z",
+    "updatedAt": "2026-11-05T12:28:12.866Z"
   }
 ]

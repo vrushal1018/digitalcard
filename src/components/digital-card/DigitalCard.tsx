@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { Phone, MessageCircle, MapPin, BadgeCheck, User, UserPlus, Check } from "lucide-react";
+import { Phone, MapPin, BadgeCheck, User, UserPlus, Check } from "lucide-react";
 import { CardActionButton } from "./CardActionButton";
 import { ShareButton } from "./ShareButton";
 import {
@@ -14,7 +14,7 @@ import {
   getFacebookLink,
 } from "@/lib/links";
 import { downloadVCard } from "@/lib/vcard";
-import { LinkedInIcon, InstagramIcon, FacebookIcon } from "./SocialIcons";
+import { LinkedInIcon, InstagramIcon, FacebookIcon, WhatsAppIcon } from "./SocialIcons";
 
 export interface DigitalCardProps {
   name: string;
@@ -175,12 +175,11 @@ export function DigitalCard({
             label="Call"
             href={isPreview ? undefined : callHref}
             disabled={!callHref}
-            isPrimary={Boolean(callHref)}
           />
 
           {/* WhatsApp Action */}
           <CardActionButton
-            icon={MessageCircle}
+            icon={WhatsAppIcon}
             label="WhatsApp"
             href={isPreview ? undefined : whatsappHref}
             disabled={!whatsappHref}
