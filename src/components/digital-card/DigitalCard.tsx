@@ -156,7 +156,7 @@ export function DigitalCard({
         <div className="my-5 sm:my-6 h-px bg-gradient-to-r from-transparent via-zinc-800 to-transparent" />
 
         {/* Action Row */}
-        <div className="grid grid-cols-4 gap-2 sm:gap-3">
+        <div className="flex items-center justify-around py-1">
           {/* Call Action */}
           <CardActionButton
             icon={Phone}
@@ -193,85 +193,63 @@ export function DigitalCard({
 
         {/* Social Profiles Row */}
         {(linkedinHref || instagramHref || facebookHref || isPreview) && (
-          <div className="mt-5 pt-4 border-t border-zinc-800/80">
-            <div className="flex items-center justify-between mb-2.5 px-1">
-              <span className="text-[11px] sm:text-xs font-semibold uppercase tracking-wider text-zinc-400">
-                Social Profiles
-              </span>
-              {isPreview && (!linkedinHref && !instagramHref && !facebookHref) && (
-                <span className="text-[10px] text-zinc-500 font-normal">
-                  (fill form to activate links)
-                </span>
-              )}
-            </div>
+          <div className="my-2 py-2 flex items-center justify-center gap-7 sm:gap-9 border-t border-zinc-800/60">
+            {/* LinkedIn */}
+            <a
+              href={linkedinHref || undefined}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => {
+                if (!linkedinHref) e.preventDefault();
+              }}
+              aria-label="LinkedIn"
+              title={linkedinHref ? "Open LinkedIn Profile" : "No LinkedIn URL provided"}
+              className={`p-2 transition-all duration-200 outline-none ${
+                linkedinHref
+                  ? "text-white hover:text-sky-400 hover:scale-115 active:scale-95 cursor-pointer"
+                  : "text-white/30 cursor-not-allowed"
+              }`}
+            >
+              <LinkedInIcon className="w-6 h-6 sm:w-7 sm:h-7 transition-transform" />
+            </a>
 
-            <div className="grid grid-cols-3 gap-2 sm:gap-3">
-              {/* LinkedIn */}
-              <a
-                href={linkedinHref || undefined}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => {
-                  if (!linkedinHref) e.preventDefault();
-                }}
-                aria-label="LinkedIn"
-                className={`group relative flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl transition-all duration-200 outline-none border ${
-                  linkedinHref
-                    ? "bg-zinc-800/60 hover:bg-zinc-800 text-white border-zinc-700/60 hover:border-zinc-500 hover:scale-105 active:scale-95 shadow-md shadow-black/20 cursor-pointer"
-                    : "bg-zinc-800/30 border-zinc-800/80 text-white/50 cursor-not-allowed"
-                }`}
-                title={linkedinHref ? "Open LinkedIn Profile" : "No LinkedIn URL provided"}
-              >
-                <LinkedInIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white transition-transform group-hover:scale-110" />
-                <span className="text-[11px] sm:text-xs font-medium mt-1.5 tracking-tight text-center text-white">
-                  LinkedIn
-                </span>
-              </a>
+            {/* Instagram */}
+            <a
+              href={instagramHref || undefined}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => {
+                if (!instagramHref) e.preventDefault();
+              }}
+              aria-label="Instagram"
+              title={instagramHref ? "Open Instagram Profile" : "No Instagram URL provided"}
+              className={`p-2 transition-all duration-200 outline-none ${
+                instagramHref
+                  ? "text-white hover:text-pink-400 hover:scale-115 active:scale-95 cursor-pointer"
+                  : "text-white/30 cursor-not-allowed"
+              }`}
+            >
+              <InstagramIcon className="w-6 h-6 sm:w-7 sm:h-7 transition-transform" />
+            </a>
 
-              {/* Instagram */}
-              <a
-                href={instagramHref || undefined}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => {
-                  if (!instagramHref) e.preventDefault();
-                }}
-                aria-label="Instagram"
-                className={`group relative flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl transition-all duration-200 outline-none border ${
-                  instagramHref
-                    ? "bg-zinc-800/60 hover:bg-zinc-800 text-white border-zinc-700/60 hover:border-zinc-500 hover:scale-105 active:scale-95 shadow-md shadow-black/20 cursor-pointer"
-                    : "bg-zinc-800/30 border-zinc-800/80 text-white/50 cursor-not-allowed"
-                }`}
-                title={instagramHref ? "Open Instagram Profile" : "No Instagram URL provided"}
-              >
-                <InstagramIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white transition-transform group-hover:scale-110" />
-                <span className="text-[11px] sm:text-xs font-medium mt-1.5 tracking-tight text-center text-white">
-                  Instagram
-                </span>
-              </a>
-
-              {/* Facebook */}
-              <a
-                href={facebookHref || undefined}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => {
-                  if (!facebookHref) e.preventDefault();
-                }}
-                aria-label="Facebook"
-                className={`group relative flex flex-col items-center justify-center p-3 sm:p-3.5 rounded-2xl transition-all duration-200 outline-none border ${
-                  facebookHref
-                    ? "bg-zinc-800/60 hover:bg-zinc-800 text-white border-zinc-700/60 hover:border-zinc-500 hover:scale-105 active:scale-95 shadow-md shadow-black/20 cursor-pointer"
-                    : "bg-zinc-800/30 border-zinc-800/80 text-white/50 cursor-not-allowed"
-                }`}
-                title={facebookHref ? "Open Facebook Profile" : "No Facebook URL provided"}
-              >
-                <FacebookIcon className="w-5 h-5 sm:w-6 sm:h-6 text-white transition-transform group-hover:scale-110" />
-                <span className="text-[11px] sm:text-xs font-medium mt-1.5 tracking-tight text-center text-white">
-                  Facebook
-                </span>
-              </a>
-            </div>
+            {/* Facebook */}
+            <a
+              href={facebookHref || undefined}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => {
+                if (!facebookHref) e.preventDefault();
+              }}
+              aria-label="Facebook"
+              title={facebookHref ? "Open Facebook Profile" : "No Facebook URL provided"}
+              className={`p-2 transition-all duration-200 outline-none ${
+                facebookHref
+                  ? "text-white hover:text-blue-400 hover:scale-115 active:scale-95 cursor-pointer"
+                  : "text-white/30 cursor-not-allowed"
+              }`}
+            >
+              <FacebookIcon className="w-6 h-6 sm:w-7 sm:h-7 transition-transform" />
+            </a>
           </div>
         )}
 
