@@ -36,7 +36,7 @@ export default function RootLayout({
               <span className="w-7 h-7 rounded-lg bg-sky-500/20 border border-sky-500/40 text-sky-400 flex items-center justify-center text-xs">
                 🪪
               </span>
-              <span className="text-sm sm:text-base">Ina SpaceWorks</span>
+              <span className="text-sm sm:text-base">Digi</span>
             </div>
             <span className="text-xs text-zinc-400">Digital Business Card</span>
           </div>
