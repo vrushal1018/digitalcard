@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validateCardForm } from "@/lib/validation";
-import { createCard, updateCard, getAllCards, getCardBySlug, encodeCardToken } from "@/lib/cards";
+import {
+  createCard,
+  updateCard,
+  deleteCard,
+  getAllCards,
+  getCardBySlug,
+  encodeCardToken,
+} from "@/lib/cards";
 import { CardFormData } from "@/types/card";
 
 export async function GET(request: NextRequest) {
@@ -96,6 +103,49 @@ export async function PUT(request: NextRequest) {
     console.error("PUT /api/cards error:", error);
     return NextResponse.json(
       { error: "Failed to update digital business card" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    let slug = searchParams.get("slug");
+
+    if (!slug) {
+      try {
+        const body = await request.json();
+        slug = body.slug;
+      } catch {
+        // no json body
+      }
+    }
+
+    if (!slug) {
+      return NextResponse.json(
+        { error: "Card slug is required for deletion" },
+        { status: 400 }
+      );
+    }
+
+    const success = await deleteCard(slug);
+    if (!success) {
+      return NextResponse.json(
+        { error: `Card with slug "${slug}" not found` },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Card deleted successfully",
+      slug,
+    });
+  } catch (error) {
+    console.error("DELETE /api/cards error:", error);
+    return NextResponse.json(
+      { error: "Failed to delete digital business card" },
       { status: 500 }
     );
   }

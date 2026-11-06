@@ -3,6 +3,7 @@ import {
   generateSlug,
   createCard,
   updateCard,
+  deleteCard,
   getCardBySlug,
   encodeCardToken,
   decodeCardToken,
@@ -84,6 +85,31 @@ describe("Card storage and slug generation", () => {
       photoUrl: "",
     });
     expect(result).toBeNull();
+  });
+
+  it("deletes an existing card successfully", async () => {
+    const card = await createCard({
+      name: "Temporary User",
+      designation: "Intern",
+      companyName: "Temp Corp",
+      phoneNumber: "+1 555 000 1111",
+      officeLocation: "Denver, CO",
+      photoUrl: "",
+    });
+
+    const foundBefore = await getCardBySlug(card.slug);
+    expect(foundBefore).not.toBeNull();
+
+    const deleted = await deleteCard(card.slug);
+    expect(deleted).toBe(true);
+
+    const foundAfter = await getCardBySlug(card.slug);
+    expect(foundAfter).toBeNull();
+  });
+
+  it("returns false when deleting a non-existent card", async () => {
+    const result = await deleteCard("does-not-exist-slug");
+    expect(result).toBe(false);
   });
 
   it("encodes and decodes a card token for serverless URL resilience", () => {

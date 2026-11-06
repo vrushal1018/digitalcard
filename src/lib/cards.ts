@@ -254,3 +254,24 @@ export async function createCard(formData: CardFormData): Promise<DigitalCard> {
 
   return newCard;
 }
+
+export async function deleteCard(slug: string): Promise<boolean> {
+  if (!slug) return false;
+  const normalizedSlug = slug.toLowerCase().trim();
+  const cards = await getAllCards();
+
+  const index = cards.findIndex((c) => c.slug.toLowerCase() === normalizedSlug);
+  if (index === -1) {
+    return false;
+  }
+
+  cards.splice(index, 1);
+  globalThis.__INACARD_STORE__ = cards;
+
+  const localSuccess = await writeCardsToFile(LOCAL_DATA_DIR, LOCAL_CARDS_FILE, cards);
+  if (!localSuccess) {
+    await writeCardsToFile(TMP_DATA_DIR, TMP_CARDS_FILE, cards);
+  }
+
+  return true;
+}

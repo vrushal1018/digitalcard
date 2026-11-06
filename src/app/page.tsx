@@ -82,6 +82,16 @@ export default function HomePage() {
     });
   };
 
+  const handleDeleteCard = (slug: string) => {
+    if (editingSlug && editingSlug.toLowerCase() === slug.toLowerCase()) {
+      handleCancelEdit();
+    }
+    if (createdSlug && createdSlug.toLowerCase() === slug.toLowerCase()) {
+      setCreatedSlug(null);
+    }
+    setRefreshTrigger((prev) => prev + 1);
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
       {/* Intro hero text */}
@@ -130,6 +140,7 @@ export default function HomePage() {
       {/* Saved Cards Section */}
       <SavedCardsList
         onSelectCard={handleSelectCardToEdit}
+        onDeleteCard={handleDeleteCard}
         currentSlug={editingSlug}
         refreshTrigger={refreshTrigger}
       />
