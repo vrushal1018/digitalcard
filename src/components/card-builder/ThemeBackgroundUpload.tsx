@@ -21,6 +21,12 @@ const PRESET_THEMES = [
     previewStyle: "bg-zinc-950 border-zinc-800",
   },
   {
+    id: "ina-spaceworks-blue",
+    name: "Ina SpaceWorks",
+    url: "https://i.ibb.co/Q78FpTR8/82956cac0b1e.jpg",
+    previewStyle: "bg-[#0ea5e9] border-sky-400",
+  },
+  {
     id: "midnight",
     name: "Midnight Azure",
     url: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=80",
@@ -129,11 +135,15 @@ export function ThemeBackgroundUpload({
       </div>
 
       {/* Preset Theme Selection Badges */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
         {PRESET_THEMES.map((theme) => {
           const isSelected =
             (!currentBgUrl && theme.id === "none") ||
-            (currentBgUrl && currentBgUrl === theme.url);
+            (currentBgUrl &&
+              (currentBgUrl === theme.url ||
+                (theme.id === "ina-spaceworks-blue" &&
+                  (currentBgUrl.includes("82956cac0b1e") ||
+                    currentBgUrl.includes("ina-spaceworks-blue")))));
 
           return (
             <button
@@ -146,7 +156,7 @@ export function ThemeBackgroundUpload({
                   onBgRemoved();
                 }
               }}
-              className={`relative flex flex-col items-center justify-center p-2 rounded-xl border text-xs font-medium transition-all ${
+              className={`relative flex flex-col items-center justify-center p-2 rounded-xl border text-xs font-medium transition-all cursor-pointer ${
                 isSelected
                   ? "border-sky-500 bg-sky-500/10 text-white ring-1 ring-sky-500/30"
                   : "border-zinc-800/80 bg-zinc-900/60 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
