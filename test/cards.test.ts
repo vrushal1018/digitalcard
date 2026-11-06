@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   generateSlug,
   createCard,
+  updateCard,
   getCardBySlug,
   encodeCardToken,
   decodeCardToken,
@@ -36,6 +37,53 @@ describe("Card storage and slug generation", () => {
     expect(fetched).not.toBeNull();
     expect(fetched?.slug).toBe(created.slug);
     expect(fetched?.designation).toBe("Lead Architect");
+  });
+
+  it("updates an existing card and preserves the slug", async () => {
+    const initialData = {
+      name: "Morgan Smith",
+      designation: "Product Lead",
+      companyName: "Nexus",
+      phoneNumber: "+1 555 456 7890",
+      officeLocation: "Austin, TX",
+      photoUrl: "/uploads/morgan.jpg",
+    };
+
+    const card = await createCard(initialData);
+    expect(card.designation).toBe("Product Lead");
+
+    const updated = await updateCard(card.slug, {
+      name: "Morgan Smith",
+      designation: "VP of Product",
+      companyName: "Nexus Global",
+      phoneNumber: "+1 555 999 8888",
+      officeLocation: "Austin, TX & Remote",
+      photoUrl: "/uploads/morgan-new.jpg",
+      linkedinUrl: "https://linkedin.com/in/morgansmith",
+    });
+
+    expect(updated).not.toBeNull();
+    expect(updated?.slug).toBe(card.slug); // Slug remains identical
+    expect(updated?.designation).toBe("VP of Product");
+    expect(updated?.companyName).toBe("Nexus Global");
+    expect(updated?.linkedinUrl).toBe("https://linkedin.com/in/morgansmith");
+
+    // Retrieve again to ensure persistence
+    const fetched = await getCardBySlug(card.slug);
+    expect(fetched?.designation).toBe("VP of Product");
+    expect(fetched?.companyName).toBe("Nexus Global");
+  });
+
+  it("returns null when updating a non-existent card", async () => {
+    const result = await updateCard("non-existent-card-9999", {
+      name: "Ghost",
+      designation: "None",
+      companyName: "None",
+      phoneNumber: "+15551234567",
+      officeLocation: "None",
+      photoUrl: "",
+    });
+    expect(result).toBeNull();
   });
 
   it("encodes and decodes a card token for serverless URL resilience", () => {

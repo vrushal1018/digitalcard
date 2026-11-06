@@ -20,22 +20,54 @@ import {
   Eye,
   Share2,
   Download,
+  Edit3,
 } from "lucide-react";
 
 interface CardFormProps {
   formData: CardFormData;
   onChange: (newData: CardFormData) => void;
   onCardCreated?: (slug: string) => void;
+  onCardUpdated?: (slug: string) => void;
+  editingSlug?: string | null;
+  onCancelEdit?: () => void;
 }
 
-export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
+export function CardForm({
+  formData,
+  onChange,
+  onCardCreated,
+  onCardUpdated,
+  editingSlug,
+  onCancelEdit,
+}: CardFormProps) {
   const router = useRouter();
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [createdSlug, setCreatedSlug] = useState<string | null>(null);
+  const [isUpdatedNotice, setIsUpdatedNotice] = useState(false);
   const [cardToken, setCardToken] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
   const [showQr, setShowQr] = useState(false);
+
+  const saveCardToLocalCache = (card: any) => {
+    if (typeof window === "undefined" || !card?.slug) return;
+    try {
+      const raw = localStorage.getItem("inacard_saved_cards");
+      let list = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(list)) list = [];
+      const idx = list.findIndex(
+        (c: any) => c.slug.toLowerCase() === card.slug.toLowerCase()
+      );
+      if (idx >= 0) {
+        list[idx] = { ...list[idx], ...card, updatedAt: new Date().toISOString() };
+      } else {
+        list.unshift(card);
+      }
+      localStorage.setItem("inacard_saved_cards", JSON.stringify(list));
+    } catch (e) {
+      console.error("Failed to save to local cache", e);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -86,10 +118,16 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
 
     try {
       setIsSubmitting(true);
-      const response = await fetch("/api/cards", {
-        method: "POST",
+      const url = editingSlug
+        ? `/api/cards?slug=${encodeURIComponent(editingSlug)}`
+        : "/api/cards";
+      const method = editingSlug ? "PUT" : "POST";
+      const payload = editingSlug ? { ...formData, slug: editingSlug } : formData;
+
+      const response = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
@@ -98,20 +136,36 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
         if (data.errors) {
           setErrors(data.errors);
         } else {
-          setErrors({ general: data.error || "Failed to create digital card." });
+          setErrors({
+            general:
+              data.error ||
+              (editingSlug
+                ? "Failed to update digital card."
+                : "Failed to create digital card."),
+          });
         }
         return;
       }
 
-      setCreatedSlug(data.slug);
+      const activeSlug = data.slug || editingSlug;
+      if (data.card) {
+        saveCardToLocalCache(data.card);
+      }
+
+      setCreatedSlug(activeSlug);
+      setIsUpdatedNotice(Boolean(editingSlug));
+
       // Only include token query param if database is not active
       if (data.token && !data.hasDatabase) {
         setCardToken(data.token);
       } else {
         setCardToken(null);
       }
-      if (onCardCreated) {
-        onCardCreated(data.slug);
+
+      if (editingSlug && onCardUpdated) {
+        onCardUpdated(activeSlug);
+      } else if (onCardCreated) {
+        onCardCreated(activeSlug);
       }
     } catch (err) {
       console.error("Submission failed:", err);
@@ -151,11 +205,20 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
   return (
     <div className="bg-zinc-950/70 border border-zinc-800/80 rounded-3xl p-6 sm:p-8 backdrop-blur-md shadow-2xl">
       <div className="mb-6">
-        <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-          Create Digital Card
-        </h2>
+        <div className="flex items-center gap-2">
+          {editingSlug ? (
+            <span className="p-1 rounded-md bg-sky-500/20 text-sky-400">
+              <Edit3 className="w-5 h-5" />
+            </span>
+          ) : null}
+          <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+            {editingSlug ? "Edit Digital Card" : "Create Digital Card"}
+          </h2>
+        </div>
         <p className="text-sm text-zinc-400 mt-1">
-          Fill in your details below to generate a shareable, interactive card.
+          {editingSlug
+            ? "Make changes below and update. Your existing URL, QR code, and saved link stay the same."
+            : "Fill in your details below to generate a shareable, interactive card."}
         </p>
       </div>
 
@@ -172,10 +235,16 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
           <div className="p-5 bg-zinc-900/90 border border-emerald-500/30 rounded-2xl space-y-3">
             <div className="flex items-center gap-2 text-emerald-400 font-semibold text-base">
               <Check className="w-5 h-5" />
-              <span>Card Created & Ready to Share!</span>
+              <span>
+                {isUpdatedNotice
+                  ? "Card Updated Successfully!"
+                  : "Card Created & Ready to Share!"}
+              </span>
             </div>
             <p className="text-sm text-zinc-300">
-              Your digital card is live at:
+              {isUpdatedNotice
+                ? "All changes are saved. Your existing QR code and link now display your latest details:"
+                : "Your digital card is live at:"}
             </p>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-zinc-950 p-2.5 rounded-xl border border-zinc-800">
@@ -342,32 +411,47 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
             </a>
           </div>
 
-          {/* Reset Action */}
-          <div className="pt-2 flex justify-between items-center text-xs text-zinc-400">
-            <button
-              type="button"
-              onClick={() => {
-                setCreatedSlug(null);
-                setCardToken(null);
-                setShowQr(false);
-                onChange({
-                  name: "",
-                  designation: "",
-                  companyName: "",
-                  phoneNumber: "",
-                  officeLocation: "",
-                  photoUrl: "",
-                  bgUrl: "",
-                  bgFit: "contain",
-                  linkedinUrl: "",
-                  instagramUrl: "",
-                  facebookUrl: "",
-                });
-              }}
-              className="text-zinc-400 hover:text-white underline underline-offset-4"
-            >
-              Create another digital card
-            </button>
+          {/* Reset / Edit Actions */}
+          <div className="pt-2 flex flex-wrap items-center justify-between gap-3 text-xs text-zinc-400">
+            <div className="flex items-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => {
+                  setCreatedSlug(null);
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-medium transition-colors border border-zinc-700"
+              >
+                <Edit3 className="w-3.5 h-3.5 text-sky-400" />
+                <span>Edit this card again</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setCreatedSlug(null);
+                  setCardToken(null);
+                  setShowQr(false);
+                  setIsUpdatedNotice(false);
+                  if (onCancelEdit) onCancelEdit();
+                  onChange({
+                    name: "",
+                    designation: "",
+                    companyName: "",
+                    phoneNumber: "",
+                    officeLocation: "",
+                    photoUrl: "",
+                    bgUrl: "",
+                    bgFit: "contain",
+                    linkedinUrl: "",
+                    instagramUrl: "",
+                    facebookUrl: "",
+                  });
+                }}
+                className="text-zinc-400 hover:text-white underline underline-offset-4"
+              >
+                Create new card
+              </button>
+            </div>
 
             <a
               href={cardPath}
@@ -382,6 +466,25 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+          {editingSlug && (
+            <div className="p-3.5 rounded-2xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-between gap-2 text-xs sm:text-sm text-sky-300">
+              <div className="flex items-center gap-2 min-w-0">
+                <Edit3 className="w-4 h-4 text-sky-400 flex-shrink-0" />
+                <span className="truncate">
+                  Editing: <strong className="text-white font-mono">{editingSlug}</strong>
+                </span>
+              </div>
+              {onCancelEdit && (
+                <button
+                  type="button"
+                  onClick={onCancelEdit}
+                  className="px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white text-xs font-medium transition-colors flex-shrink-0 border border-zinc-700"
+                >
+                  Cancel Edit
+                </button>
+              )}
+            </div>
+          )}
           {/* Name Field */}
           <div>
             <label
@@ -617,16 +720,25 @@ export function CardForm({ formData, onChange, onCardCreated }: CardFormProps) {
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin text-zinc-950" />
-                  <span>Generating Digital Card...</span>
+                  <span>
+                    {editingSlug ? "Updating Digital Card..." : "Generating Digital Card..."}
+                  </span>
                 </>
               ) : (
                 <>
                   <Sparkles className="w-4 h-4" />
-                  <span>Generate Digital Card</span>
+                  <span>
+                    {editingSlug ? "Save & Update Digital Card" : "Generate Digital Card"}
+                  </span>
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
             </button>
+            {editingSlug && (
+              <p className="text-center text-[11px] text-zinc-400 mt-2">
+                All changes will be updated at <span className="text-sky-400 font-mono">/card/{editingSlug}</span> and its existing QR code.
+              </p>
+            )}
           </div>
         </form>
       )}

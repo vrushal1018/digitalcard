@@ -137,7 +137,11 @@ export async function getAllCards(): Promise<DigitalCard[]> {
   for (const c of tmpCards) map.set(c.id, c);
   for (const c of memoryCards) map.set(c.id, c);
 
-  const all = Array.from(map.values());
+  const all = Array.from(map.values()).sort((a, b) => {
+    const timeA = new Date(a.updatedAt || a.createdAt || 0).getTime();
+    const timeB = new Date(b.updatedAt || b.createdAt || 0).getTime();
+    return timeB - timeA;
+  });
   globalThis.__INACARD_STORE__ = all;
   return all;
 }
@@ -153,14 +157,68 @@ export async function getCardBySlug(slug: string): Promise<DigitalCard | null> {
 
 export async function saveCardToStorage(card: DigitalCard): Promise<void> {
   const cards = await getAllCards();
-  if (!cards.some((c) => c.slug === card.slug)) {
+  const existingIndex = cards.findIndex(
+    (c) => c.slug.toLowerCase() === card.slug.toLowerCase() || c.id === card.id
+  );
+
+  if (existingIndex >= 0) {
+    cards[existingIndex] = {
+      ...cards[existingIndex],
+      ...card,
+      updatedAt: new Date().toISOString(),
+    };
+  } else {
     cards.push(card);
-    globalThis.__INACARD_STORE__ = cards;
-    const localSuccess = await writeCardsToFile(LOCAL_DATA_DIR, LOCAL_CARDS_FILE, cards);
-    if (!localSuccess) {
-      await writeCardsToFile(TMP_DATA_DIR, TMP_CARDS_FILE, cards);
-    }
   }
+
+  globalThis.__INACARD_STORE__ = cards;
+  const localSuccess = await writeCardsToFile(LOCAL_DATA_DIR, LOCAL_CARDS_FILE, cards);
+  if (!localSuccess) {
+    await writeCardsToFile(TMP_DATA_DIR, TMP_CARDS_FILE, cards);
+  }
+}
+
+export async function updateCard(
+  slug: string,
+  formData: CardFormData
+): Promise<DigitalCard | null> {
+  if (!slug) return null;
+  const normalizedSlug = slug.toLowerCase().trim();
+  const cards = await getAllCards();
+
+  const index = cards.findIndex((c) => c.slug.toLowerCase() === normalizedSlug);
+  if (index === -1) {
+    return null;
+  }
+
+  const existing = cards[index];
+  const now = new Date().toISOString();
+
+  const updatedCard: DigitalCard = {
+    ...existing,
+    name: formData.name.trim(),
+    designation: formData.designation.trim(),
+    companyName: formData.companyName.trim(),
+    phoneNumber: normalizePhoneForCall(formData.phoneNumber.trim()),
+    officeLocation: formData.officeLocation.trim(),
+    photoUrl: formData.photoUrl.trim(),
+    bgUrl: (formData.bgUrl || "").trim(),
+    bgFit: formData.bgFit || "contain",
+    linkedinUrl: (formData.linkedinUrl || "").trim(),
+    instagramUrl: (formData.instagramUrl || "").trim(),
+    facebookUrl: (formData.facebookUrl || "").trim(),
+    updatedAt: now,
+  };
+
+  cards[index] = updatedCard;
+  globalThis.__INACARD_STORE__ = cards;
+
+  const localSuccess = await writeCardsToFile(LOCAL_DATA_DIR, LOCAL_CARDS_FILE, cards);
+  if (!localSuccess) {
+    await writeCardsToFile(TMP_DATA_DIR, TMP_CARDS_FILE, cards);
+  }
+
+  return updatedCard;
 }
 
 export async function createCard(formData: CardFormData): Promise<DigitalCard> {

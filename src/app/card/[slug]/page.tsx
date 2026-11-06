@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getCardBySlug, decodeCardToken, saveCardToStorage } from "@/lib/cards";
 import { DigitalCard } from "@/components/digital-card/DigitalCard";
-import { Sparkles, ArrowLeft } from "lucide-react";
+import { Sparkles, ArrowLeft, Edit3 } from "lucide-react";
 
 interface CardPageProps {
   params: {
@@ -144,13 +144,21 @@ export default async function PublicCardPage({ params, searchParams }: CardPageP
         />
 
         {/* Footer actions for the public view */}
-        <div className="flex items-center justify-between px-2 pt-2 text-xs text-zinc-500">
+        <div className="flex flex-wrap items-center justify-between gap-2 px-2 pt-2 text-xs text-zinc-500">
           <Link
             href="/"
             className="inline-flex items-center gap-1.5 hover:text-zinc-300 transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Create your own card</span>
+            <span>Create new card</span>
+          </Link>
+
+          <Link
+            href={`/?edit=${card.slug}`}
+            className="inline-flex items-center gap-1.5 px-3 py-1 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 hover:text-white rounded-lg border border-zinc-800 transition-colors"
+          >
+            <Edit3 className="w-3.5 h-3.5 text-sky-400" />
+            <span>Edit this card</span>
           </Link>
 
           <span className="inline-flex items-center gap-1 text-zinc-600">
