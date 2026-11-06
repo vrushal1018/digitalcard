@@ -38,7 +38,7 @@ export default function RootLayout({
               </span>
               <span className="text-sm sm:text-base">DigiCard</span>
             </a>
-            <span className="text-xs text-zinc-400">Digital Business Card Builder</span>
+            <span className="text-xs text-zinc-400">Digital Business Card</span>
           </div>
         </header>
 
