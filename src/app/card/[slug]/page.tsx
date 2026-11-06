@@ -159,7 +159,7 @@ export default async function PublicCardPage({ params, searchParams }: CardPageP
         <div className="flex items-center justify-center py-2 text-xs text-zinc-600">
           <span className="inline-flex items-center gap-1">
             <Sparkles className="w-3 h-3 text-sky-400" />
-            <span>Ina SpaceWorks Digital Card</span>
+            <span>Powered by Ina</span>
           </span>
         </div>
       </div>

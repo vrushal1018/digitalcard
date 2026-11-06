@@ -122,3 +122,4 @@ export function AdminLockScreen({ onUnlock, expectedPin }: AdminLockScreenProps)
     </div>
   );
 }
+
