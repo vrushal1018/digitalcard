@@ -98,24 +98,26 @@ export function DigitalCard({
       <div className="relative overflow-hidden rounded-[30px] sm:rounded-[36px] bg-[#0d0f14] border border-zinc-800/90 shadow-[0_20px_50px_rgba(0,0,0,0.85)] p-6 sm:p-8 backdrop-blur-sm transition-all duration-300">
         {/* Custom Theme Background Image */}
         {bgUrl && (
-          <>
+          <div className="absolute inset-0 z-0 pointer-events-none select-none">
             <img
               src={bgUrl}
               alt="Card Theme"
-              className={`absolute inset-0 w-full h-full pointer-events-none select-none transition-all duration-300 ${
+              className={`w-full h-full transition-all duration-300 ${
                 bgFit === "cover" ? "object-cover" : "object-contain p-2 sm:p-4"
               }`}
             />
             {/* Elegant dark gradient overlay ensuring 100% legibility */}
-            <div className="absolute inset-0 bg-gradient-to-b from-[#0d0f14]/80 via-[#0d0f14]/75 to-[#0d0f14]/92 backdrop-blur-[1px] pointer-events-none" />
-          </>
+            <div className="absolute inset-0 bg-gradient-to-b from-[#0d0f14]/80 via-[#0d0f14]/75 to-[#0d0f14]/92 backdrop-blur-[1px]" />
+          </div>
         )}
 
         {/* Subtle decorative top glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-24 bg-sky-500/10 blur-3xl pointer-events-none rounded-full" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-24 bg-sky-500/10 blur-3xl pointer-events-none rounded-full z-0" />
 
-        {/* Profile and Identity Header */}
-        <div className="relative flex items-center gap-4 sm:gap-5">
+        {/* Foreground Content Container - Always above background layers */}
+        <div className="relative z-10 flex flex-col">
+          {/* Profile and Identity Header */}
+          <div className="relative flex items-center gap-4 sm:gap-5">
           {/* Profile Photo */}
           <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-inner">
             {photoUrl ? (
@@ -246,7 +248,7 @@ export function DigitalCard({
         </div>
 
         {/* Save Contact to Device Button */}
-        <div className="mt-5 pt-1">
+        <div className="relative z-20 mt-5 pt-1">
           <button
             type="button"
             onClick={handleSaveContact}
@@ -275,6 +277,7 @@ export function DigitalCard({
             </span>
           </div>
         )}
+        </div>
       </div>
     </div>
   );
