@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getCardBySlug, decodeCardToken, saveCardToStorage } from "@/lib/cards";
+import { getCardBySlug, getDeletedSlugs, decodeCardToken, saveCardToStorage } from "@/lib/cards";
 import { DigitalCard } from "@/components/digital-card/DigitalCard";
 import { Sparkles, ArrowLeft, Edit3 } from "lucide-react";
 
@@ -17,6 +17,11 @@ interface CardPageProps {
 }
 
 async function resolveCard(slug: string, token?: string) {
+  const deletedSlugs = await getDeletedSlugs();
+  if (deletedSlugs.has(slug.toLowerCase())) {
+    return null;
+  }
+
   let card = await getCardBySlug(slug);
 
   if (!card && token) {

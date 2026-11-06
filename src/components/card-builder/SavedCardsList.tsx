@@ -39,6 +39,20 @@ export function SavedCardsList({
     async function loadCards() {
       try {
         setLoading(true);
+
+        // 0. Load locally recorded deleted slugs
+        let deletedSlugs: string[] = [];
+        if (typeof window !== "undefined") {
+          try {
+            const rawDel = localStorage.getItem("inacard_deleted_slugs");
+            if (rawDel) {
+              deletedSlugs = JSON.parse(rawDel).map((s: string) => s.toLowerCase());
+            }
+          } catch (e) {
+            console.error("Failed to parse deleted slugs", e);
+          }
+        }
+
         // 1. Load from API
         const res = await fetch("/api/cards");
         let serverCards: DigitalCard[] = [];
@@ -62,13 +76,19 @@ export function SavedCardsList({
           }
         }
 
-        // 3. Merge unique by slug
+        // 3. Merge unique by slug, filtering out any deleted cards
         const map = new Map<string, DigitalCard>();
         for (const c of serverCards) {
-          if (c.slug) map.set(c.slug.toLowerCase(), c);
+          if (c.slug && !deletedSlugs.includes(c.slug.toLowerCase())) {
+            map.set(c.slug.toLowerCase(), c);
+          }
         }
         for (const c of localCards) {
-          if (c.slug && !map.has(c.slug.toLowerCase())) {
+          if (
+            c.slug &&
+            !deletedSlugs.includes(c.slug.toLowerCase()) &&
+            !map.has(c.slug.toLowerCase())
+          ) {
             map.set(c.slug.toLowerCase(), c);
           }
         }
@@ -113,44 +133,51 @@ export function SavedCardsList({
 
   const handleDeleteCard = async (slug: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    const normalizedSlug = slug.toLowerCase();
     try {
       setDeletingSlug(slug);
-      const res = await fetch(`/api/cards?slug=${encodeURIComponent(slug)}`, {
+
+      // 1. Immediately record in deleted slugs in localStorage
+      if (typeof window !== "undefined") {
+        try {
+          const rawDel = localStorage.getItem("inacard_deleted_slugs");
+          const deletedList: string[] = rawDel ? JSON.parse(rawDel) : [];
+          if (!deletedList.includes(normalizedSlug)) {
+            deletedList.push(normalizedSlug);
+            localStorage.setItem("inacard_deleted_slugs", JSON.stringify(deletedList));
+          }
+
+          // 2. Remove from saved cards cache
+          const raw = localStorage.getItem("inacard_saved_cards");
+          if (raw) {
+            const list: DigitalCard[] = JSON.parse(raw);
+            const filtered = list.filter(
+              (item) => item.slug.toLowerCase() !== normalizedSlug
+            );
+            localStorage.setItem("inacard_saved_cards", JSON.stringify(filtered));
+          }
+        } catch (err) {
+          console.error("Failed to update localStorage on delete", err);
+        }
+      }
+
+      // 3. Immediately remove from local state and close confirmation
+      setCards((prev) =>
+        prev.filter((item) => item.slug.toLowerCase() !== normalizedSlug)
+      );
+      setConfirmingSlug(null);
+
+      // 4. Notify parent to clear form if editing this card
+      if (onDeleteCard) {
+        onDeleteCard(slug);
+      }
+
+      // 5. Send server-side deletion request
+      await fetch(`/api/cards?slug=${encodeURIComponent(slug)}`, {
         method: "DELETE",
       });
-
-      if (res.ok) {
-        // Remove from local storage
-        if (typeof window !== "undefined") {
-          try {
-            const raw = localStorage.getItem("inacard_saved_cards");
-            if (raw) {
-              const list: DigitalCard[] = JSON.parse(raw);
-              const filtered = list.filter(
-                (item) => item.slug.toLowerCase() !== slug.toLowerCase()
-              );
-              localStorage.setItem("inacard_saved_cards", JSON.stringify(filtered));
-            }
-          } catch (err) {
-            console.error("Failed to remove from localStorage", err);
-          }
-        }
-
-        // Remove from local state
-        setCards((prev) =>
-          prev.filter((item) => item.slug.toLowerCase() !== slug.toLowerCase())
-        );
-        setConfirmingSlug(null);
-        if (onDeleteCard) {
-          onDeleteCard(slug);
-        }
-      } else {
-        const data = await res.json().catch(() => ({}));
-        alert(data.error || "Failed to delete card.");
-      }
     } catch (err) {
-      console.error("Delete failed:", err);
-      alert("Failed to delete card. Please try again.");
+      console.error("Delete request error:", err);
     } finally {
       setDeletingSlug(null);
     }
