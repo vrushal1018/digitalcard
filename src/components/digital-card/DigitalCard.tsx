@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { Phone, MapPin, BadgeCheck, User, UserPlus, Check } from "lucide-react";
+import { Phone, MapPin, BadgeCheck, User, UserPlus, Check, Mail } from "lucide-react";
 import { CardActionButton } from "./CardActionButton";
 import { ShareButton } from "./ShareButton";
 import {
@@ -12,6 +12,7 @@ import {
   getLinkedInLink,
   getInstagramLink,
   getFacebookLink,
+  getEmailLink,
 } from "@/lib/links";
 import { downloadVCard } from "@/lib/vcard";
 import { LinkedInIcon, InstagramIcon, FacebookIcon, WhatsAppIcon } from "./SocialIcons";
@@ -28,6 +29,7 @@ export interface DigitalCardProps {
   linkedinUrl?: string;
   instagramUrl?: string;
   facebookUrl?: string;
+  email?: string;
   slug?: string;
   shareUrl?: string;
   isPreview?: boolean;
@@ -46,6 +48,7 @@ export function DigitalCard({
   linkedinUrl,
   instagramUrl,
   facebookUrl,
+  email,
   shareUrl,
   isPreview = false,
   autoSave = false,
@@ -64,6 +67,7 @@ export function DigitalCard({
   const linkedinHref = getLinkedInLink(linkedinUrl);
   const instagramHref = getInstagramLink(instagramUrl);
   const facebookHref = getFacebookLink(facebookUrl);
+  const emailHref = getEmailLink(email);
 
   const handleSaveContact = () => {
     if (!phoneNumber) return;
@@ -78,6 +82,7 @@ export function DigitalCard({
       linkedinUrl: linkedinHref || undefined,
       instagramUrl: instagramHref || undefined,
       facebookUrl: facebookHref || undefined,
+      email: email?.trim() || undefined,
     });
     setHasSaved(true);
     setTimeout(() => setHasSaved(false), 3000);
@@ -231,19 +236,17 @@ export function DigitalCard({
             <InstagramIcon className="w-6 h-6 sm:w-7 sm:h-7 transition-transform group-hover:scale-110" />
           </a>
 
-          {/* Facebook Action */}
+          {/* Email Action */}
           <a
-            href={facebookHref || undefined}
-            target="_blank"
-            rel="noopener noreferrer"
+            href={emailHref || undefined}
             onClick={(e) => {
-              if (!facebookHref) e.preventDefault();
+              if (!emailHref) e.preventDefault();
             }}
-            aria-label="Facebook"
-            title="Open Facebook Profile"
-            className="group relative flex items-center justify-center p-2.5 sm:p-3 rounded-full transition-all duration-200 outline-none text-white hover:text-blue-400 hover:scale-115 active:scale-95 cursor-pointer"
+            aria-label="Email"
+            title="Send Email"
+            className="group relative flex items-center justify-center p-2.5 sm:p-3 rounded-full transition-all duration-200 outline-none text-white hover:text-sky-400 hover:scale-115 active:scale-95 cursor-pointer"
           >
-            <FacebookIcon className="w-6 h-6 sm:w-7 sm:h-7 transition-transform group-hover:scale-110" />
+            <Mail className="w-6 h-6 sm:w-7 sm:h-7 transition-transform group-hover:scale-110" />
           </a>
         </div>
 

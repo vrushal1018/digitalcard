@@ -21,6 +21,7 @@ import {
   Share2,
   Download,
   Edit3,
+  Mail,
 } from "lucide-react";
 
 interface CardFormProps {
@@ -445,6 +446,7 @@ export function CardForm({
                     linkedinUrl: "",
                     instagramUrl: "",
                     facebookUrl: "",
+                    email: "",
                   });
                 }}
                 className="text-zinc-400 hover:text-white underline underline-offset-4"
@@ -669,22 +671,22 @@ export function CardForm({
                 />
               </div>
 
-              {/* Facebook */}
+              {/* Email */}
               <div>
                 <label
-                  htmlFor="facebookUrl"
+                  htmlFor="email"
                   className="block text-xs font-medium text-zinc-300 mb-1 flex items-center gap-1.5"
                 >
-                  <FacebookIcon className="w-3.5 h-3.5 text-white" />
-                  <span>Facebook</span>
+                  <Mail className="w-3.5 h-3.5 text-white" />
+                  <span>Email Address</span>
                 </label>
                 <input
-                  id="facebookUrl"
-                  name="facebookUrl"
-                  type="text"
-                  value={formData.facebookUrl || ""}
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={formData.email || ""}
                   onChange={handleInputChange}
-                  placeholder="username or URL"
+                  placeholder="name@example.com"
                   className="w-full px-3 py-2 bg-zinc-900/90 border border-zinc-800 focus:border-sky-500 focus:ring-1 focus:ring-sky-500/30 rounded-xl text-white placeholder-zinc-500 text-xs focus:outline-none transition-all"
                 />
               </div>

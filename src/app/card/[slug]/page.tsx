@@ -149,6 +149,7 @@ export default async function PublicCardPage({ params, searchParams }: CardPageP
           linkedinUrl={card.linkedinUrl}
           instagramUrl={card.instagramUrl}
           facebookUrl={card.facebookUrl}
+          email={card.email}
           slug={card.slug}
           shareUrl={shareUrl}
           isPreview={false}

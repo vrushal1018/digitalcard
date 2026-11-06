@@ -9,6 +9,7 @@ export interface VCardData {
   linkedinUrl?: string;
   instagramUrl?: string;
   facebookUrl?: string;
+  email?: string;
 }
 
 /**
@@ -57,6 +58,10 @@ export function generateVCard(data: VCardData): string {
 
   if (data.facebookUrl?.trim()) {
     lines.push(`X-SOCIALPROFILE;TYPE=facebook:${data.facebookUrl.trim()}`);
+  }
+
+  if (data.email?.trim()) {
+    lines.push(`EMAIL;TYPE=INTERNET,WORK:${data.email.trim()}`);
   }
 
   if (data.photoUrl?.startsWith("http")) {

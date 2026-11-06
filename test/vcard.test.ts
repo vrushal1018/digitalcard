@@ -14,6 +14,7 @@ describe("vCard generation", () => {
       linkedinUrl: "https://linkedin.com/in/siddharth",
       instagramUrl: "https://instagram.com/siddharth",
       facebookUrl: "https://facebook.com/siddharth",
+      email: "siddharth@1change.com",
     });
 
     expect(vcard).toContain("BEGIN:VCARD");
@@ -23,6 +24,7 @@ describe("vCard generation", () => {
     expect(vcard).toContain("TITLE:Founder");
     expect(vcard).toContain("ORG:1 change");
     expect(vcard).toContain("TEL;TYPE=CELL,VOICE:+919876543210");
+    expect(vcard).toContain("EMAIL;TYPE=INTERNET,WORK:siddharth@1change.com");
     expect(vcard).toContain("ADR;TYPE=WORK:;;Mumbai, Maharashtra;;;;");
     expect(vcard).toContain("URL:https://digitalcard.vercel.app/card/siddharth-menon");
     expect(vcard).toContain("X-SOCIALPROFILE;TYPE=linkedin:https://linkedin.com/in/siddharth");

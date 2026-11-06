@@ -6,6 +6,7 @@ import {
   getLinkedInLink,
   getInstagramLink,
   getFacebookLink,
+  getEmailLink,
   getCardUrl,
 } from "../src/lib/links";
 
@@ -49,6 +50,10 @@ describe("Link generation helpers", () => {
     expect(getFacebookLink("@vrushal")).toBe("https://www.facebook.com/vrushal");
     expect(getFacebookLink("vrushal")).toBe("https://www.facebook.com/vrushal");
     expect(getFacebookLink("")).toBeNull();
+
+    expect(getEmailLink("info@example.com")).toBe("mailto:info@example.com");
+    expect(getEmailLink("mailto:info@example.com")).toBe("mailto:info@example.com");
+    expect(getEmailLink("")).toBeNull();
   });
 });
 

@@ -41,6 +41,13 @@ export function getFacebookLink(input?: string): string | null {
   return `https://www.facebook.com/${handle}`;
 }
 
+export function getEmailLink(input?: string): string | null {
+  if (!input || !input.trim()) return null;
+  const clean = input.trim();
+  if (clean.toLowerCase().startsWith("mailto:")) return clean;
+  return `mailto:${clean}`;
+}
+
 export function getCardUrl(slug: string, baseUrl?: string): string {
   if (baseUrl) {
     const cleanBase = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;

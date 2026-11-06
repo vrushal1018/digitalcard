@@ -56,7 +56,7 @@ describe("DigitalCard Component", () => {
         photoUrl="/sample.jpg"
         linkedinUrl="alexjordan"
         instagramUrl="@alexjordan"
-        facebookUrl="https://facebook.com/alexjordan"
+        email="alex@innovativespaces.com"
       />
     );
 
@@ -68,8 +68,8 @@ describe("DigitalCard Component", () => {
     const instagramLink = screen.getByTitle("Open Instagram Profile");
     expect(instagramLink.getAttribute("href")).toBe("https://www.instagram.com/alexjordan/");
 
-    const facebookLink = screen.getByTitle("Open Facebook Profile");
-    expect(facebookLink.getAttribute("href")).toBe("https://facebook.com/alexjordan");
+    const emailLink = screen.getByTitle("Send Email");
+    expect(emailLink.getAttribute("href")).toBe("mailto:alex@innovativespaces.com");
   });
 });
 
