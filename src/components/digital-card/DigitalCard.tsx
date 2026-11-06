@@ -192,19 +192,19 @@ export function DigitalCard({
             disabled={!whatsappHref}
           />
 
-          {/* Location Action */}
+          {/* Email / Mail Action */}
           <CardActionButton
-            icon={MapPin}
-            label="Location"
-            href={isPreview ? undefined : mapsHref}
-            disabled={!mapsHref}
+            icon={Mail}
+            label="Email"
+            href={isPreview ? undefined : emailHref}
+            disabled={!emailHref}
           />
         </div>
 
         {/* Spacing & Separator between 3 by 3 */}
         <div className="my-3 sm:my-4 h-px bg-gradient-to-r from-transparent via-zinc-800/70 to-transparent" />
 
-        {/* Social Action Icons (3 by 3: Row 2) */}
+        {/* Social & Location Action Icons (3 by 3: Row 2) */}
         <div className="grid grid-cols-3 place-items-center py-1 sm:py-2 w-full">
           {/* LinkedIn Action */}
           <a
@@ -236,18 +236,13 @@ export function DigitalCard({
             <InstagramIcon className="w-6 h-6 sm:w-7 sm:h-7 transition-transform group-hover:scale-110" />
           </a>
 
-          {/* Email Action */}
-          <a
-            href={emailHref || undefined}
-            onClick={(e) => {
-              if (!emailHref) e.preventDefault();
-            }}
-            aria-label="Email"
-            title="Send Email"
-            className="group relative flex items-center justify-center p-2.5 sm:p-3 rounded-full transition-all duration-200 outline-none text-white hover:text-sky-400 hover:scale-115 active:scale-95 cursor-pointer"
-          >
-            <Mail className="w-6 h-6 sm:w-7 sm:h-7 transition-transform group-hover:scale-110" />
-          </a>
+          {/* Location Action */}
+          <CardActionButton
+            icon={MapPin}
+            label="Location"
+            href={isPreview ? undefined : mapsHref}
+            disabled={!mapsHref}
+          />
         </div>
 
         {/* Save Contact to Device Button */}

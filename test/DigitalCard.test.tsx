@@ -68,7 +68,7 @@ describe("DigitalCard Component", () => {
     const instagramLink = screen.getByTitle("Open Instagram Profile");
     expect(instagramLink.getAttribute("href")).toBe("https://www.instagram.com/alexjordan/");
 
-    const emailLink = screen.getByTitle("Send Email");
+    const emailLink = screen.getByRole("link", { name: /email/i });
     expect(emailLink.getAttribute("href")).toBe("mailto:alex@innovativespaces.com");
   });
 });
