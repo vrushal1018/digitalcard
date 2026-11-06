@@ -158,25 +158,25 @@ export default async function PublicCardPage({ params, searchParams }: CardPageP
 
         {/* Footer actions for the public view */}
         <div className="flex flex-wrap items-center justify-between gap-2 px-2 pt-2 text-xs text-zinc-500">
-          <Link
+          {/* <Link
             href="/"
             className="inline-flex items-center gap-1.5 hover:text-zinc-300 transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Create new card</span>
-          </Link>
-
+          </Link> */}
+          {/* 
           <Link
             href={`/?edit=${card.slug}`}
             className="inline-flex items-center gap-1.5 px-3 py-1 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 hover:text-white rounded-lg border border-zinc-800 transition-colors"
           >
             <Edit3 className="w-3.5 h-3.5 text-sky-400" />
             <span>Edit this card</span>
-          </Link>
+          </Link> */}
 
           <span className="inline-flex items-center gap-1 text-zinc-600">
             <Sparkles className="w-3 h-3 text-sky-400" />
-            <span>Powered by InaCard</span>
+            <span>Powered by Ina</span>
           </span>
         </div>
       </div>
