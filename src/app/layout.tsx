@@ -32,12 +32,12 @@ export default function RootLayout({
       <body className="bg-[#07080a] text-zinc-100 min-h-screen flex flex-col selection:bg-sky-500 selection:text-zinc-950">
         <header className="border-b border-zinc-800/60 bg-zinc-950/60 backdrop-blur-md sticky top-0 z-40">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-            <a href="/" className="flex items-center gap-2.5 font-bold tracking-tight text-white group">
-              <span className="w-7 h-7 rounded-lg bg-sky-500/20 border border-sky-500/40 text-sky-400 flex items-center justify-center text-xs group-hover:scale-105 transition-transform">
+            <div className="flex items-center gap-2.5 font-bold tracking-tight text-white select-none">
+              <span className="w-7 h-7 rounded-lg bg-sky-500/20 border border-sky-500/40 text-sky-400 flex items-center justify-center text-xs">
                 🪪
               </span>
-              <span className="text-sm sm:text-base">DigiCard</span>
-            </a>
+              <span className="text-sm sm:text-base">Ina SpaceWorks</span>
+            </div>
             <span className="text-xs text-zinc-400">Digital Business Card</span>
           </div>
         </header>

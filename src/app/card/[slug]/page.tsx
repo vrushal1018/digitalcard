@@ -1,9 +1,8 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { getCardBySlug, getDeletedSlugs, decodeCardToken, saveCardToStorage } from "@/lib/cards";
 import { DigitalCard } from "@/components/digital-card/DigitalCard";
-import { Sparkles, ArrowLeft, Edit3 } from "lucide-react";
+import { Sparkles } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -156,27 +155,11 @@ export default async function PublicCardPage({ params, searchParams }: CardPageP
           autoSave={searchParams?.save === "1" || searchParams?.scan === "1"}
         />
 
-        {/* Footer actions for the public view */}
-        <div className="flex flex-wrap items-center justify-between gap-2 px-2 pt-2 text-xs text-zinc-500">
-          {/* <Link
-            href="/"
-            className="inline-flex items-center gap-1.5 hover:text-zinc-300 transition-colors"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Create new card</span>
-          </Link> */}
-          {/* 
-          <Link
-            href={`/?edit=${card.slug}`}
-            className="inline-flex items-center gap-1.5 px-3 py-1 bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 hover:text-white rounded-lg border border-zinc-800 transition-colors"
-          >
-            <Edit3 className="w-3.5 h-3.5 text-sky-400" />
-            <span>Edit this card</span>
-          </Link> */}
-
-          <span className="inline-flex items-center gap-1 text-zinc-600">
+        {/* Footer for the public view (no builder links) */}
+        <div className="flex items-center justify-center py-2 text-xs text-zinc-600">
+          <span className="inline-flex items-center gap-1">
             <Sparkles className="w-3 h-3 text-sky-400" />
-            <span>Powered by Ina</span>
+            <span>Ina SpaceWorks Digital Card</span>
           </span>
         </div>
       </div>

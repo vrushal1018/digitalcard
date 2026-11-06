@@ -5,8 +5,13 @@ import { CardFormData, DigitalCard } from "@/types/card";
 import { CardForm } from "@/components/card-builder/CardForm";
 import { CardPreview } from "@/components/card-builder/CardPreview";
 import { SavedCardsList } from "@/components/card-builder/SavedCardsList";
+import { AdminLockScreen } from "@/components/card-builder/AdminLockScreen";
+import { Lock } from "lucide-react";
+
+const EXPECTED_PIN = process.env.NEXT_PUBLIC_ADMIN_PIN || "1018";
 
 export default function HomePage() {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [formData, setFormData] = useState<CardFormData>({
     name: "",
     designation: "",
@@ -26,10 +31,22 @@ export default function HomePage() {
   const [editingSlug, setEditingSlug] = useState<string | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  // Check URL query parameters for ?edit=<slug>
+  // Check authentication & URL query parameters
   useEffect(() => {
     if (typeof window === "undefined") return;
+
     const params = new URLSearchParams(window.location.search);
+    const pinParam = params.get("pin") || params.get("admin");
+
+    // If matching PIN provided in URL, auto-authenticate and save session
+    if (pinParam && pinParam.trim() === EXPECTED_PIN.trim()) {
+      localStorage.setItem("inacard_admin_auth", "true");
+      setIsAuthenticated(true);
+    } else {
+      const savedAuth = localStorage.getItem("inacard_admin_auth");
+      setIsAuthenticated(savedAuth === "true");
+    }
+
     const editSlug = params.get("edit");
     if (editSlug) {
       fetch(`/api/cards?slug=${encodeURIComponent(editSlug)}`)
@@ -95,8 +112,47 @@ export default function HomePage() {
     setRefreshTrigger((prev) => prev + 1);
   };
 
+  if (isAuthenticated === null) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-sky-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <AdminLockScreen
+        onUnlock={() => setIsAuthenticated(true)}
+        expectedPin={EXPECTED_PIN}
+      />
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+      {/* Admin Status Pill */}
+      <div className="flex items-center justify-end mb-6">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-zinc-900/90 border border-zinc-800 rounded-xl text-xs text-zinc-400 backdrop-blur-sm shadow-sm">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="font-medium text-zinc-300">Admin Mode Active</span>
+          <button
+            type="button"
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                localStorage.removeItem("inacard_admin_auth");
+              }
+              setIsAuthenticated(false);
+            }}
+            className="ml-2 pl-2 border-l border-zinc-800 text-zinc-400 hover:text-rose-400 flex items-center gap-1 transition-colors cursor-pointer"
+            title="Lock Admin Portal"
+          >
+            <Lock className="w-3 h-3" />
+            <span>Lock</span>
+          </button>
+        </div>
+      </div>
+
       {/* Intro hero text */}
       <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
