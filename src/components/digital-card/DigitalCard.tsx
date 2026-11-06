@@ -253,7 +253,7 @@ export function DigitalCard({
             type="button"
             onClick={handleSaveContact}
             disabled={!phoneNumber}
-            className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-sky-500 via-sky-400 to-blue-500 hover:from-sky-400 hover:to-blue-400 active:scale-[0.99] text-zinc-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2.5 shadow-lg shadow-sky-500/25 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-3.5 px-5 rounded-2xl bg-white hover:bg-zinc-200 active:scale-[0.99] text-zinc-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2.5 shadow-lg shadow-white/10 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {hasSaved ? (
               <>
