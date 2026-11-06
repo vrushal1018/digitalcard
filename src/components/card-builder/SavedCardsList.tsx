@@ -46,7 +46,12 @@ export function SavedCardsList({
           try {
             const rawDel = localStorage.getItem("inacard_deleted_slugs");
             if (rawDel) {
-              deletedSlugs = JSON.parse(rawDel).map((s: string) => s.toLowerCase());
+              const parsed: string[] = JSON.parse(rawDel).map((s: string) => s.toLowerCase());
+              // Unblock restored real cards so they always show
+              deletedSlugs = parsed.filter(
+                (s) => !["jaisalil", "lipson", "vrushal"].some((r) => s.includes(r))
+              );
+              localStorage.setItem("inacard_deleted_slugs", JSON.stringify(deletedSlugs));
             }
           } catch (e) {
             console.error("Failed to parse deleted slugs", e);
@@ -63,13 +68,20 @@ export function SavedCardsList({
           }
         }
 
-        // 2. Load from localStorage
+        // 2. Load from localStorage, purging any old demo cards
         let localCards: DigitalCard[] = [];
         if (typeof window !== "undefined") {
           try {
             const raw = localStorage.getItem("inacard_saved_cards");
             if (raw) {
-              localCards = JSON.parse(raw);
+              const parsed: DigitalCard[] = JSON.parse(raw);
+              localCards = parsed.filter(
+                (c) =>
+                  !c.name?.toLowerCase().includes("jane doe") &&
+                  !c.name?.toLowerCase().includes("morgan smith") &&
+                  !c.name?.toLowerCase().includes("alex jordan")
+              );
+              localStorage.setItem("inacard_saved_cards", JSON.stringify(localCards));
             }
           } catch (e) {
             console.error("Failed to parse local cards", e);

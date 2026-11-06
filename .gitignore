@@ -5,6 +5,7 @@
 
 # testing
 /coverage
+data/*.test.json
 
 # next.js
 /.next/

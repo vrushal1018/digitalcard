@@ -16,9 +16,14 @@ if (!globalThis.__INACARD_DELETED__) {
   globalThis.__INACARD_DELETED__ = new Set<string>();
 }
 
+const isTestEnv = process.env.NODE_ENV === "test" || Boolean(process.env.VITEST);
 const LOCAL_DATA_DIR = path.join(process.cwd(), "data");
-const LOCAL_CARDS_FILE = path.join(LOCAL_DATA_DIR, "cards.json");
-const LOCAL_DELETED_FILE = path.join(LOCAL_DATA_DIR, "deleted.json");
+const LOCAL_CARDS_FILE = isTestEnv
+  ? path.join(LOCAL_DATA_DIR, "cards.test.json")
+  : path.join(LOCAL_DATA_DIR, "cards.json");
+const LOCAL_DELETED_FILE = isTestEnv
+  ? path.join(LOCAL_DATA_DIR, "deleted.test.json")
+  : path.join(LOCAL_DATA_DIR, "deleted.json");
 
 const TMP_DATA_DIR = path.join("/tmp", "inacard");
 const TMP_CARDS_FILE = path.join(TMP_DATA_DIR, "cards.json");
