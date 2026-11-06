@@ -5,6 +5,9 @@ import { getCardBySlug, getDeletedSlugs, decodeCardToken, saveCardToStorage } fr
 import { DigitalCard } from "@/components/digital-card/DigitalCard";
 import { Sparkles, ArrowLeft, Edit3 } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 interface CardPageProps {
   params: {
     slug: string;
@@ -24,11 +27,15 @@ async function resolveCard(slug: string, token?: string) {
 
   let card = await getCardBySlug(slug);
 
-  if (!card && token) {
+  if (token) {
     const decoded = decodeCardToken(token);
     if (decoded && decoded.slug.toLowerCase() === slug.toLowerCase()) {
-      card = decoded;
-      await saveCardToStorage(decoded);
+      const cardTime = card?.updatedAt ? new Date(card.updatedAt).getTime() : 0;
+      const tokenTime = decoded.updatedAt ? new Date(decoded.updatedAt).getTime() : 0;
+      if (!card || tokenTime >= cardTime) {
+        card = decoded;
+        await saveCardToStorage(decoded);
+      }
     }
   }
 

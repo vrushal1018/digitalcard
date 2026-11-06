@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { validateCardForm } from "@/lib/validation";
 import {
   createCard,
@@ -45,6 +46,10 @@ export async function POST(request: NextRequest) {
 
     const newCard = await createCard(body);
     const token = encodeCardToken(newCard);
+    try {
+      revalidatePath(`/card/${newCard.slug}`);
+      revalidatePath("/");
+    } catch {}
     return NextResponse.json(
       {
         success: true,
@@ -93,6 +98,10 @@ export async function PUT(request: NextRequest) {
     }
 
     const token = encodeCardToken(updatedCard);
+    try {
+      revalidatePath(`/card/${updatedCard.slug}`);
+      revalidatePath("/");
+    } catch {}
     return NextResponse.json({
       success: true,
       card: updatedCard,
@@ -136,6 +145,11 @@ export async function DELETE(request: NextRequest) {
         { status: 404 }
       );
     }
+
+    try {
+      revalidatePath(`/card/${slug}`);
+      revalidatePath("/");
+    } catch {}
 
     return NextResponse.json({
       success: true,

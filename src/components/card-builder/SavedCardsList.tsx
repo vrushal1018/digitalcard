@@ -88,7 +88,7 @@ export function SavedCardsList({
           }
         }
 
-        // 3. Merge unique by slug, filtering out any deleted cards
+        // 3. Merge unique by slug, prioritizing whichever source has the newer updatedAt
         const map = new Map<string, DigitalCard>();
         for (const c of serverCards) {
           if (c.slug && !deletedSlugs.includes(c.slug.toLowerCase())) {
@@ -96,12 +96,18 @@ export function SavedCardsList({
           }
         }
         for (const c of localCards) {
-          if (
-            c.slug &&
-            !deletedSlugs.includes(c.slug.toLowerCase()) &&
-            !map.has(c.slug.toLowerCase())
-          ) {
-            map.set(c.slug.toLowerCase(), c);
+          if (c.slug && !deletedSlugs.includes(c.slug.toLowerCase())) {
+            const slugKey = c.slug.toLowerCase();
+            const existing = map.get(slugKey);
+            if (!existing) {
+              map.set(slugKey, c);
+            } else {
+              const existingTime = new Date(existing.updatedAt || existing.createdAt || 0).getTime();
+              const localTime = new Date(c.updatedAt || c.createdAt || 0).getTime();
+              if (localTime >= existingTime) {
+                map.set(slugKey, { ...existing, ...c });
+              }
+            }
           }
         }
 
