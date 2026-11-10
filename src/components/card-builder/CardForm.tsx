@@ -22,6 +22,7 @@ import {
   Download,
   Edit3,
   Mail,
+  Globe,
 } from "lucide-react";
 
 interface CardFormProps {
@@ -447,6 +448,7 @@ export function CardForm({
                     instagramUrl: "",
                     facebookUrl: "",
                     email: "",
+                    websiteUrl: "",
                   });
                 }}
                 className="text-zinc-400 hover:text-white underline underline-offset-4"
@@ -617,6 +619,32 @@ export function CardForm({
             {errors.officeLocation && (
               <p className="text-xs text-rose-400 mt-1">{errors.officeLocation}</p>
             )}
+          </div>
+
+          {/* Company Website URL Field */}
+          <div>
+            <label
+              htmlFor="websiteUrl"
+              className="block text-sm font-medium text-zinc-300 mb-1.5 flex items-center justify-between"
+            >
+              <span className="flex items-center gap-1.5">
+                <Globe className="w-4 h-4 text-sky-400" />
+                <span>Company Website URL</span>
+              </span>
+              <span className="text-[11px] font-normal text-zinc-500">(Optional)</span>
+            </label>
+            <input
+              id="websiteUrl"
+              name="websiteUrl"
+              type="text"
+              value={formData.websiteUrl || ""}
+              onChange={handleInputChange}
+              placeholder="https://inaspaceworks.com"
+              className="w-full px-4 py-2.5 bg-zinc-900/90 border border-zinc-800 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 rounded-xl text-white placeholder-zinc-500 text-sm focus:outline-none transition-all"
+            />
+            <p className="text-[11px] text-zinc-500 mt-1">
+              Automatically saved to phone contacts under Website when users tap Save Contact.
+            </p>
           </div>
 
           {/* Social Profiles Section */}

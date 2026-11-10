@@ -42,6 +42,7 @@ export interface CompactCardData {
   ig?: string; // instagram
   fb?: string; // facebook
   em?: string; // email
+  w?: string; // websiteUrl
   s: string; // slug
 }
 
@@ -79,6 +80,9 @@ export function encodeCardToken(card: DigitalCard): string {
   if (card.email) {
     compact.em = card.email;
   }
+  if (card.websiteUrl) {
+    compact.w = card.websiteUrl;
+  }
   return Buffer.from(JSON.stringify(compact)).toString("base64url");
 }
 
@@ -102,6 +106,7 @@ export function decodeCardToken(token: string): DigitalCard | null {
       instagramUrl: parsed.ig || "",
       facebookUrl: parsed.fb || "",
       email: parsed.em || "",
+      websiteUrl: parsed.w || "",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -276,6 +281,7 @@ export async function updateCard(
     instagramUrl: (formData.instagramUrl || "").trim(),
     facebookUrl: (formData.facebookUrl || "").trim(),
     email: (formData.email || "").trim(),
+    websiteUrl: (formData.websiteUrl || "").trim(),
     updatedAt: now,
   };
 
@@ -309,6 +315,7 @@ export async function createCard(formData: CardFormData): Promise<DigitalCard> {
     instagramUrl: (formData.instagramUrl || "").trim(),
     facebookUrl: (formData.facebookUrl || "").trim(),
     email: (formData.email || "").trim(),
+    websiteUrl: (formData.websiteUrl || "").trim(),
     createdAt: now,
     updatedAt: now,
   };

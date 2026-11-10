@@ -30,6 +30,7 @@ export interface DigitalCardProps {
   instagramUrl?: string;
   facebookUrl?: string;
   email?: string;
+  websiteUrl?: string;
   slug?: string;
   shareUrl?: string;
   isPreview?: boolean;
@@ -49,6 +50,7 @@ export function DigitalCard({
   instagramUrl,
   facebookUrl,
   email,
+  websiteUrl,
   shareUrl,
   isPreview = false,
   autoSave = false,
@@ -83,6 +85,7 @@ export function DigitalCard({
       instagramUrl: instagramHref || undefined,
       facebookUrl: facebookHref || undefined,
       email: email?.trim() || undefined,
+      websiteUrl: websiteUrl?.trim() || undefined,
     });
     setHasSaved(true);
     setTimeout(() => setHasSaved(false), 3000);
@@ -164,9 +167,21 @@ export function DigitalCard({
             </p>
 
             {displayCompany && (
-              <p className="text-xs font-normal text-zinc-400 mt-0.5 truncate">
-                {displayCompany}
-              </p>
+              websiteUrl?.trim() ? (
+                <a
+                  href={websiteUrl.trim().startsWith("http") ? websiteUrl.trim() : `https://${websiteUrl.trim()}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block text-xs font-normal text-zinc-400 hover:text-sky-400 hover:underline transition-colors mt-0.5 truncate max-w-full"
+                  title="Visit Company Website"
+                >
+                  {displayCompany}
+                </a>
+              ) : (
+                <p className="text-xs font-normal text-zinc-400 mt-0.5 truncate">
+                  {displayCompany}
+                </p>
+              )
             )}
           </div>
         </div>

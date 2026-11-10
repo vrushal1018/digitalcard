@@ -10,6 +10,7 @@ export interface VCardData {
   instagramUrl?: string;
   facebookUrl?: string;
   email?: string;
+  websiteUrl?: string;
 }
 
 /**
@@ -42,6 +43,13 @@ export function generateVCard(data: VCardData): string {
 
   if (data.officeLocation?.trim()) {
     lines.push(`ADR;TYPE=WORK:;;${data.officeLocation.trim()};;;;`);
+  }
+
+  if (data.websiteUrl?.trim()) {
+    const cleanWeb = data.websiteUrl.trim().startsWith("http")
+      ? data.websiteUrl.trim()
+      : `https://${data.websiteUrl.trim()}`;
+    lines.push(`URL;TYPE=WORK:${cleanWeb}`);
   }
 
   if (data.cardUrl?.trim()) {
