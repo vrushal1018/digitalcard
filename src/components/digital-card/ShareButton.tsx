@@ -9,6 +9,7 @@ interface ShareButtonProps {
   designation: string;
   companyName: string;
   shareUrl?: string;
+  variant?: "icon" | "pill";
 }
 
 export function ShareButton({
@@ -16,6 +17,7 @@ export function ShareButton({
   designation,
   companyName,
   shareUrl,
+  variant = "icon",
 }: ShareButtonProps) {
   const [copied, setCopied] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -82,12 +84,30 @@ export function ShareButton({
 
   return (
     <>
-      <CardActionButton
-        icon={copied ? Check : Share2}
-        label={copied ? "Copied!" : "Share"}
-        onClick={handleShareClick}
-        isPrimary={copied}
-      />
+      {variant === "pill" ? (
+        <button
+          type="button"
+          onClick={handleShareClick}
+          aria-label="Share card"
+          className="w-full py-3.5 px-6 rounded-full bg-white hover:bg-zinc-50 border-2 border-zinc-900 active:scale-[0.99] text-zinc-900 font-semibold text-sm sm:text-[15px] flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+        >
+          {copied ? (
+            <>
+              <Check className="w-4 h-4 text-emerald-600 stroke-[2.5]" />
+              <span>Link copied to clipboard!</span>
+            </>
+          ) : (
+            <span>Share card</span>
+          )}
+        </button>
+      ) : (
+        <CardActionButton
+          icon={copied ? Check : Share2}
+          label={copied ? "Copied!" : "Share"}
+          onClick={handleShareClick}
+          isPrimary={copied}
+        />
+      )}
 
       {/* Share & Preview Modal */}
       {showModal && (

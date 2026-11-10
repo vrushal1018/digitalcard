@@ -17,19 +17,23 @@ export function CardActionButton({
   label,
   href,
   onClick,
-  isPrimary = false,
   disabled = false,
 }: CardActionButtonProps) {
-  const baseClasses =
-    "group relative flex items-center justify-center p-2.5 sm:p-3 rounded-full transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 " +
-    (disabled
-      ? "opacity-35 cursor-not-allowed text-zinc-500"
-      : isPrimary
-      ? "text-sky-400 hover:text-sky-300 hover:scale-115 active:scale-95 drop-shadow-[0_0_12px_rgba(56,189,248,0.5)]"
-      : "text-white hover:text-sky-400 hover:scale-115 active:scale-95");
-
   const content = (
-    <Icon className="w-6 h-6 sm:w-7 sm:h-7 transition-transform group-hover:scale-110" />
+    <div className="flex flex-col items-center group w-full cursor-pointer select-none">
+      <div
+        className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center transition-all duration-200 ${
+          disabled
+            ? "bg-zinc-100 text-zinc-400 opacity-40 cursor-not-allowed"
+            : "bg-[#e8f3fa] text-[#1886cf] group-hover:bg-[#d4ecfa] group-hover:scale-105 active:scale-95 shadow-sm"
+        }`}
+      >
+        <Icon className="w-5 h-5 sm:w-6 sm:h-6 transition-transform group-hover:scale-110" />
+      </div>
+      <span className="text-[11px] sm:text-xs font-semibold text-zinc-800 mt-1.5 text-center transition-colors group-hover:text-[#1886cf]">
+        {label}
+      </span>
+    </div>
   );
 
   if (href && !disabled) {
@@ -40,7 +44,7 @@ export function CardActionButton({
         rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
         aria-label={label}
         title={label}
-        className={baseClasses}
+        className="outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded-xl"
       >
         {content}
       </a>
@@ -54,10 +58,11 @@ export function CardActionButton({
       disabled={disabled}
       aria-label={label}
       title={label}
-      className={baseClasses}
+      className="outline-none focus-visible:ring-2 focus-visible:ring-sky-400 rounded-xl"
     >
       {content}
     </button>
   );
 }
+
 

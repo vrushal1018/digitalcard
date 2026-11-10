@@ -133,8 +133,8 @@ export default async function PublicCardPage({ params, searchParams }: CardPageP
   const shareUrl = `${appUrl}/card/${card.slug}${querySuffix}`;
 
   return (
-    <div className="min-h-[80vh] flex flex-col justify-center items-center px-4 py-12">
-      <div className="w-full max-w-lg mx-auto space-y-6">
+    <div className="min-h-screen flex flex-col justify-center items-center px-3 py-6 sm:py-10">
+      <div className="w-full max-w-[390px] mx-auto space-y-4">
         {/* Digital Business Card */}
         <DigitalCard
           name={card.name}

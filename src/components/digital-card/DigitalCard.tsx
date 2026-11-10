@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
-import { Phone, MapPin, BadgeCheck, User, UserPlus, Check, Mail } from "lucide-react";
+import { Phone, MapPin, Check, Mail } from "lucide-react";
 import { CardActionButton } from "./CardActionButton";
 import { ShareButton } from "./ShareButton";
 import {
@@ -11,11 +10,10 @@ import {
   getGoogleMapsLink,
   getLinkedInLink,
   getInstagramLink,
-  getFacebookLink,
   getEmailLink,
 } from "@/lib/links";
 import { downloadVCard } from "@/lib/vcard";
-import { LinkedInIcon, InstagramIcon, FacebookIcon, WhatsAppIcon } from "./SocialIcons";
+import { LinkedInIcon, InstagramIcon, WhatsAppIcon } from "./SocialIcons";
 
 export interface DigitalCardProps {
   name: string;
@@ -45,7 +43,7 @@ export function DigitalCard({
   officeLocation,
   photoUrl,
   bgUrl,
-  bgFit = "contain",
+  bgFit = "cover",
   linkedinUrl,
   instagramUrl,
   facebookUrl,
@@ -63,12 +61,16 @@ export function DigitalCard({
   const displayCompany =
     companyName.trim() || (isPreview ? "Company Name" : "");
 
+  // Split name for visual formatting: first word bold, remaining regular
+  const nameParts = displayName.split(/\s+/).filter(Boolean);
+  const firstName = nameParts[0] || displayName;
+  const lastName = nameParts.slice(1).join(" ");
+
   const callHref = getCallLink(phoneNumber);
   const whatsappHref = getWhatsAppLink(phoneNumber);
   const mapsHref = getGoogleMapsLink(officeLocation);
   const linkedinHref = getLinkedInLink(linkedinUrl);
   const instagramHref = getInstagramLink(instagramUrl);
-  const facebookHref = getFacebookLink(facebookUrl);
   const emailHref = getEmailLink(email);
 
   const handleSaveContact = () => {
@@ -83,7 +85,7 @@ export function DigitalCard({
       cardUrl: shareUrl,
       linkedinUrl: linkedinHref || undefined,
       instagramUrl: instagramHref || undefined,
-      facebookUrl: facebookHref || undefined,
+      facebookUrl: facebookUrl || undefined,
       email: email?.trim() || undefined,
       websiteUrl: websiteUrl?.trim() || undefined,
     });
@@ -100,34 +102,64 @@ export function DigitalCard({
     }
   }, [autoSave, isPreview, phoneNumber]);
 
+  // Clean website display label without protocol
+  const displayWebsite = websiteUrl
+    ? websiteUrl.trim().replace(/^https?:\/\//i, "").replace(/\/$/, "")
+    : "";
+  const websiteHref = websiteUrl
+    ? websiteUrl.trim().startsWith("http")
+      ? websiteUrl.trim()
+      : `https://${websiteUrl.trim()}`
+    : undefined;
+
   return (
-    <div className="w-full max-w-lg mx-auto">
-      {/* Outer Card Container */}
-      <div className="relative overflow-hidden rounded-[30px] sm:rounded-[36px] bg-[#0d0f14] border border-zinc-800/90 shadow-[0_20px_50px_rgba(0,0,0,0.85)] p-6 sm:p-8 backdrop-blur-sm transition-all duration-300">
-        {/* Custom Theme Background Image */}
-        {bgUrl && (
-          <div className="absolute inset-0 z-0 pointer-events-none select-none">
-            <img
-              src={bgUrl}
-              alt="Card Theme"
-              className={`w-full h-full transition-all duration-300 ${
-                bgFit === "cover" ? "object-cover" : "object-contain p-2 sm:p-4"
-              }`}
-            />
-            {/* Elegant dark gradient overlay ensuring 100% legibility */}
-            <div className="absolute inset-0 bg-gradient-to-b from-[#0d0f14]/80 via-[#0d0f14]/75 to-[#0d0f14]/92 backdrop-blur-[1px]" />
+    <div className="w-full max-w-[390px] mx-auto select-none">
+      {/* Phone Frame Mockup Container */}
+      <div className="relative overflow-hidden rounded-[38px] sm:rounded-[44px] bg-white border-[8px] sm:border-[10px] border-zinc-900 shadow-2xl transition-all duration-300">
+        {/* Top Vivid Blue Banner */}
+        <div className="relative h-44 sm:h-48 bg-[#1886cf] overflow-hidden flex flex-col items-center justify-start pt-7 sm:pt-8 text-white">
+          {/* Custom Theme Background (if provided) */}
+          {bgUrl && (
+            <div className="absolute inset-0 z-0 pointer-events-none select-none">
+              <img
+                src={bgUrl}
+                alt="Header Theme"
+                className={`w-full h-full transition-all duration-300 ${
+                  bgFit === "cover" ? "object-cover" : "object-contain"
+                }`}
+              />
+              <div className="absolute inset-0 bg-[#1886cf]/65 mix-blend-multiply" />
+            </div>
+          )}
+
+          {/* Left subtle avatar silhouette watermark */}
+          <div className="absolute -left-2 top-3 pointer-events-none select-none opacity-20 text-white z-0">
+            <svg width="120" height="120" viewBox="0 0 100 100" fill="currentColor">
+              <circle cx="50" cy="30" r="18" />
+              <path d="M12 85 C12 55, 30 50, 50 50 C70 50, 88 55, 88 85 Z" />
+            </svg>
           </div>
-        )}
 
-        {/* Subtle decorative top glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-24 bg-sky-500/10 blur-3xl pointer-events-none rounded-full z-0" />
+          {/* Brand Logo in Top Center */}
+          <div className="relative z-10 flex flex-col items-center text-center">
+            {/* "ina" logo mark */}
+            <div className="flex items-center justify-center">
+              <span className="text-white font-extrabold text-[28px] sm:text-[30px] tracking-tight leading-none lowercase">
+                ina
+              </span>
+            </div>
+            {/* "space works" subline */}
+            <div className="flex items-center gap-1 text-white/95 text-base sm:text-[17px] font-normal tracking-wide lowercase -mt-0.5">
+              <span>space</span>
+              <span className="font-semibold">works</span>
+            </div>
+          </div>
+        </div>
 
-        {/* Foreground Content Container - Always above background layers */}
-        <div className="relative z-10 flex flex-col">
-          {/* Profile and Identity Header */}
-          <div className="relative flex items-center gap-4 sm:gap-5">
-          {/* Profile Photo */}
-          <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800 shadow-inner">
+        {/* Foreground Content with Overlapping Avatar */}
+        <div className="relative z-10 px-4 sm:px-5 pb-6 bg-white text-zinc-900">
+          {/* Overlapping Avatar Circle */}
+          <div className="relative -mt-14 sm:-mt-16 w-28 h-28 sm:w-32 sm:h-32 rounded-full border-4 sm:border-[5px] border-white shadow-md mx-auto overflow-hidden bg-[#d6cec7] flex items-center justify-center z-20">
             {photoUrl ? (
               <img
                 src={photoUrl}
@@ -135,164 +167,203 @@ export function DigitalCard({
                 className="w-full h-full object-cover object-center"
               />
             ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-900 text-zinc-600">
-                <User className="w-10 h-10 stroke-1 text-zinc-500" />
-              </div>
+              <span className="text-xs sm:text-[13px] font-semibold tracking-widest text-[#666059] uppercase select-none">
+                PHOTO
+              </span>
             )}
           </div>
 
-          {/* Identity Information */}
-          <div className="flex-1 min-w-0 pr-1">
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-1.5 flex-wrap min-w-0">
-                <h1 className="text-lg sm:text-xl font-bold tracking-tight text-white truncate max-w-full">
-                  {displayName}
-                </h1>
-                <BadgeCheck className="w-4 h-4 sm:w-5 sm:h-5 text-sky-400 fill-sky-400/20 flex-shrink-0" />
-              </div>
+          {/* Identity: Name, Designation & Company */}
+          <div className="text-center mt-3 sm:mt-3.5">
+            <h1 className="text-2xl sm:text-[26px] tracking-tight text-zinc-950 font-sans">
+              {lastName ? (
+                <>
+                  <span className="font-bold">{firstName}</span>{" "}
+                  <span className="font-normal text-zinc-800">{lastName}</span>
+                </>
+              ) : (
+                <span className="font-bold">{displayName}</span>
+              )}
+            </h1>
 
-              {/* Share Icon in line with Name on the far right */}
-              <div className="flex-shrink-0">
-                <ShareButton
-                  cardName={displayName}
-                  designation={displayDesignation}
-                  companyName={displayCompany}
-                  shareUrl={shareUrl}
-                />
-              </div>
-            </div>
-
-            <p className="text-xs sm:text-sm font-medium text-zinc-300 mt-1 truncate">
+            <p className="text-sm sm:text-[15px] font-semibold text-[#1886cf] mt-1 leading-snug">
               {displayDesignation}
             </p>
 
             {displayCompany && (
-              websiteUrl?.trim() ? (
+              <p className="text-xs sm:text-[13px] font-normal text-zinc-500 mt-0.5 leading-relaxed">
+                {displayCompany}
+              </p>
+            )}
+          </div>
+
+          {/* 4 Action Icons in a Row */}
+          <div className="grid grid-cols-4 gap-1.5 place-items-center w-full my-4 sm:my-5 px-1">
+            <CardActionButton
+              icon={Phone}
+              label="Call"
+              href={isPreview ? undefined : callHref}
+              disabled={!callHref}
+            />
+            <CardActionButton
+              icon={WhatsAppIcon}
+              label="WhatsApp"
+              href={isPreview ? undefined : whatsappHref}
+              disabled={!whatsappHref}
+            />
+            <CardActionButton
+              icon={Mail}
+              label="Email"
+              href={isPreview ? undefined : emailHref}
+              disabled={!emailHref}
+            />
+            <CardActionButton
+              icon={MapPin}
+              label="Location"
+              href={isPreview ? undefined : mapsHref}
+              disabled={!mapsHref}
+            />
+          </div>
+
+          {/* Details Information Box */}
+          <div className="bg-[#f4f2ee] border border-[#eae6de] rounded-2xl sm:rounded-3xl p-5 sm:p-6 my-2 space-y-4 text-left">
+            {/* Phone field */}
+            {phoneNumber && (
+              <div>
+                <div className="text-[10px] sm:text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-0.5">
+                  PHONE
+                </div>
                 <a
-                  href={websiteUrl.trim().startsWith("http") ? websiteUrl.trim() : `https://${websiteUrl.trim()}`}
+                  href={isPreview ? undefined : callHref || undefined}
+                  className="text-sm sm:text-[15px] font-medium text-zinc-900 hover:text-[#1886cf] transition-colors"
+                >
+                  {phoneNumber}
+                </a>
+              </div>
+            )}
+
+            {/* Email field */}
+            {email && (
+              <div>
+                <div className="text-[10px] sm:text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-0.5">
+                  EMAIL
+                </div>
+                <a
+                  href={isPreview ? undefined : emailHref || undefined}
+                  className="text-sm sm:text-[15px] font-medium text-zinc-900 hover:text-[#1886cf] transition-colors break-all"
+                >
+                  {email}
+                </a>
+              </div>
+            )}
+
+            {/* Website field */}
+            {websiteUrl && (
+              <div>
+                <div className="text-[10px] sm:text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-0.5">
+                  WEBSITE
+                </div>
+                <a
+                  href={websiteHref}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-block text-xs font-normal text-zinc-400 hover:text-sky-400 hover:underline transition-colors mt-0.5 truncate max-w-full"
-                  title="Visit Company Website"
+                  className="text-sm sm:text-[15px] font-medium text-zinc-900 hover:text-[#1886cf] transition-colors break-all"
                 >
-                  {displayCompany}
+                  {displayWebsite}
                 </a>
+              </div>
+            )}
+
+            {/* Address field */}
+            {officeLocation && (
+              <div>
+                <div className="text-[10px] sm:text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-0.5">
+                  ADDRESS
+                </div>
+                <a
+                  href={isPreview ? undefined : mapsHref || undefined}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs sm:text-[13.5px] font-medium text-zinc-900 hover:text-[#1886cf] transition-colors leading-relaxed block"
+                >
+                  {officeLocation}
+                </a>
+              </div>
+            )}
+
+            {/* Online Social Profiles (if LinkedIn or Instagram configured) */}
+            {(linkedinHref || instagramHref) && (
+              <div className="pt-2 border-t border-zinc-200/80">
+                <div className="text-[10px] sm:text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
+                  ONLINE PROFILES
+                </div>
+                <div className="flex items-center gap-3">
+                  {linkedinHref && (
+                    <a
+                      href={linkedinHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Open LinkedIn Profile"
+                      className="text-zinc-700 hover:text-[#0077b5] transition-colors p-1"
+                    >
+                      <LinkedInIcon className="w-5 h-5" />
+                    </a>
+                  )}
+                  {instagramHref && (
+                    <a
+                      href={instagramHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Open Instagram Profile"
+                      className="text-zinc-700 hover:text-pink-600 transition-colors p-1"
+                    >
+                      <InstagramIcon className="w-5 h-5" />
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Bottom Action Pill Buttons */}
+          <div className="my-4 sm:my-5 space-y-2.5">
+            {/* Save contact button */}
+            <button
+              type="button"
+              onClick={handleSaveContact}
+              disabled={!phoneNumber}
+              className="w-full py-3.5 px-6 rounded-full bg-[#1886cf] hover:bg-[#1578bb] active:scale-[0.99] text-white font-semibold text-sm sm:text-[15px] flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {hasSaved ? (
+                <>
+                  <Check className="w-4 h-4 stroke-[2.5]" />
+                  <span>Contact details saved!</span>
+                </>
               ) : (
-                <p className="text-xs font-normal text-zinc-400 mt-0.5 truncate">
-                  {displayCompany}
-                </p>
-              )
-            )}
+                <span>Save contact</span>
+              )}
+            </button>
+
+            {/* Share card button */}
+            <ShareButton
+              cardName={displayName}
+              designation={displayDesignation}
+              companyName={displayCompany}
+              shareUrl={shareUrl}
+              variant="pill"
+            />
           </div>
-        </div>
 
-        {/* Divider */}
-        <div className="my-5 sm:my-6 h-px bg-gradient-to-r from-transparent via-zinc-800 to-transparent" />
-
-        {/* Primary Action Icons (3 by 3: Row 1) */}
-        <div className="grid grid-cols-3 place-items-center py-1 sm:py-2 w-full">
-          {/* Call Action */}
-          <CardActionButton
-            icon={Phone}
-            label="Call"
-            href={isPreview ? undefined : callHref}
-            disabled={!callHref}
-          />
-
-          {/* WhatsApp Action */}
-          <CardActionButton
-            icon={WhatsAppIcon}
-            label="WhatsApp"
-            href={isPreview ? undefined : whatsappHref}
-            disabled={!whatsappHref}
-          />
-
-          {/* Email / Mail Action */}
-          <CardActionButton
-            icon={Mail}
-            label="Email"
-            href={isPreview ? undefined : emailHref}
-            disabled={!emailHref}
-          />
-        </div>
-
-        {/* Spacing & Separator between 3 by 3 */}
-        <div className="my-3 sm:my-4 h-px bg-gradient-to-r from-transparent via-zinc-800/70 to-transparent" />
-
-        {/* Social & Location Action Icons (3 by 3: Row 2) */}
-        <div className="grid grid-cols-3 place-items-center py-1 sm:py-2 w-full">
-          {/* LinkedIn Action */}
-          <a
-            href={linkedinHref || undefined}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => {
-              if (!linkedinHref) e.preventDefault();
-            }}
-            aria-label="LinkedIn"
-            title="Open LinkedIn Profile"
-            className="group relative flex items-center justify-center p-2.5 sm:p-3 rounded-full transition-all duration-200 outline-none text-white hover:text-sky-400 hover:scale-115 active:scale-95 cursor-pointer"
-          >
-            <LinkedInIcon className="w-6 h-6 sm:w-7 sm:h-7 transition-transform group-hover:scale-110" />
-          </a>
-
-          {/* Instagram Action */}
-          <a
-            href={instagramHref || undefined}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => {
-              if (!instagramHref) e.preventDefault();
-            }}
-            aria-label="Instagram"
-            title="Open Instagram Profile"
-            className="group relative flex items-center justify-center p-2.5 sm:p-3 rounded-full transition-all duration-200 outline-none text-white hover:text-pink-400 hover:scale-115 active:scale-95 cursor-pointer"
-          >
-            <InstagramIcon className="w-6 h-6 sm:w-7 sm:h-7 transition-transform group-hover:scale-110" />
-          </a>
-
-          {/* Location Action */}
-          <CardActionButton
-            icon={MapPin}
-            label="Location"
-            href={isPreview ? undefined : mapsHref}
-            disabled={!mapsHref}
-          />
-        </div>
-
-        {/* Save Contact to Device Button */}
-        <div className="relative z-20 mt-5 pt-1">
-          <button
-            type="button"
-            onClick={handleSaveContact}
-            disabled={!phoneNumber}
-            className="w-full py-3.5 px-5 rounded-2xl bg-white hover:bg-zinc-200 active:scale-[0.99] text-zinc-950 font-bold text-xs sm:text-sm flex items-center justify-center gap-2.5 shadow-lg shadow-white/10 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {hasSaved ? (
-              <>
-                <Check className="w-4 h-4 text-zinc-950 stroke-[3]" />
-                <span>Contact Details Saved to Device!</span>
-              </>
-            ) : (
-              <>
-                <UserPlus className="w-4 h-4 text-zinc-950 stroke-[2.5]" />
-                <span>Save Contact to Phone</span>
-              </>
-            )}
-          </button>
-        </div>
-
-        {/* Interactive preview note when in preview */}
-        {isPreview && (
-          <div className="mt-4 pt-3 border-t border-zinc-900 text-center">
-            <span className="text-[10px] uppercase tracking-wider text-zinc-500 font-semibold">
-              Live Card Preview
-            </span>
-          </div>
-        )}
+          {/* Interactive preview note when in preview */}
+          {isPreview && (
+            <div className="mt-2 pt-2 border-t border-zinc-200 text-center">
+              <span className="text-[10px] uppercase tracking-wider text-zinc-400 font-semibold">
+                Live Card Preview
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
-

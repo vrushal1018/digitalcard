@@ -16,7 +16,7 @@ describe("DigitalCard Component", () => {
       />
     );
 
-    expect(screen.getByText("Alex Jordan")).toBeDefined();
+    expect(screen.getByRole("heading", { name: /alex jordan/i })).toBeDefined();
     expect(screen.getByText("Creative Director")).toBeDefined();
     expect(screen.getByText("Innovative Spaces")).toBeDefined();
   });
@@ -60,7 +60,7 @@ describe("DigitalCard Component", () => {
       />
     );
 
-    expect(screen.getByText("Save Contact to Phone")).toBeDefined();
+    expect(screen.getByRole("button", { name: /save contact/i })).toBeDefined();
 
     const linkedinLink = screen.getByTitle("Open LinkedIn Profile");
     expect(linkedinLink.getAttribute("href")).toBe("https://www.linkedin.com/in/alexjordan");
