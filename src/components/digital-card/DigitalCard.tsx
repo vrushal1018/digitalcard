@@ -113,9 +113,15 @@ export function DigitalCard({
     : undefined;
 
   return (
-    <div className="w-full max-w-[390px] mx-auto select-none">
-      {/* Phone Frame Mockup Container */}
-      <div className="relative overflow-hidden rounded-[38px] sm:rounded-[44px] bg-white border-[8px] sm:border-[10px] border-zinc-900 shadow-2xl transition-all duration-300">
+    <div className={`w-full mx-auto select-none ${isPreview ? "max-w-[420px]" : "w-full sm:max-w-[420px]"}`}>
+      {/* Card Container: Edge-to-edge full screen on mobile, elegant card on desktop/preview */}
+      <div
+        className={`relative overflow-hidden bg-white transition-all duration-300 ${
+          isPreview
+            ? "rounded-[32px] sm:rounded-[36px] border border-zinc-200/80 shadow-xl"
+            : "w-full min-h-screen sm:min-h-0 rounded-none sm:rounded-[36px] border-0 sm:border sm:border-zinc-200/80 shadow-none sm:shadow-2xl"
+        }`}
+      >
         {/* Top Vivid Blue Banner */}
         <div className="relative h-44 sm:h-48 bg-[#1886cf] overflow-hidden flex flex-col items-center justify-start pt-7 sm:pt-8 text-white">
           {/* Custom Theme Background (if provided) */}
@@ -157,7 +163,7 @@ export function DigitalCard({
         </div>
 
         {/* Foreground Content with Overlapping Avatar */}
-        <div className="relative z-10 px-4 sm:px-5 pb-6 bg-white text-zinc-900">
+        <div className="relative z-10 px-4 sm:px-5 pb-8 sm:pb-6 bg-white text-zinc-900">
           {/* Overlapping Avatar Circle */}
           <div className="relative -mt-14 sm:-mt-16 w-28 h-28 sm:w-32 sm:h-32 rounded-full border-4 sm:border-[5px] border-white shadow-md mx-auto overflow-hidden bg-[#d6cec7] flex items-center justify-center z-20">
             {photoUrl ? (

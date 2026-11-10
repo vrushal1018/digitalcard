@@ -133,7 +133,20 @@ export default function HomePage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+    <>
+      <header className="border-b border-zinc-800/60 bg-zinc-950/60 backdrop-blur-md sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-2.5 font-bold tracking-tight text-white select-none">
+            <span className="w-7 h-7 rounded-lg bg-sky-500/20 border border-sky-500/40 text-sky-400 flex items-center justify-center text-xs">
+              🪪
+            </span>
+            <span className="text-sm sm:text-base">Digi</span>
+          </div>
+          <span className="text-xs text-zinc-400">Digital Business Card</span>
+        </div>
+      </header>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
       {/* Admin Status Pill */}
       <div className="flex items-center justify-end mb-6">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-zinc-900/90 border border-zinc-800 rounded-xl text-xs text-zinc-400 backdrop-blur-sm shadow-sm">
@@ -207,5 +220,6 @@ export default function HomePage() {
         refreshTrigger={refreshTrigger}
       />
     </div>
+    </>
   );
 }
