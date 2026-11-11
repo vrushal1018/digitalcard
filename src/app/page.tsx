@@ -117,7 +117,7 @@ export default function HomePage() {
 
   if (isAuthenticated === null) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center">
+      <div className="bg-[#07080a] text-zinc-100 min-h-screen flex items-center justify-center">
         <div className="w-6 h-6 border-2 border-sky-400 border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -125,15 +125,17 @@ export default function HomePage() {
 
   if (!isAuthenticated) {
     return (
-      <AdminLockScreen
-        onUnlock={() => setIsAuthenticated(true)}
-        expectedPin={EXPECTED_PIN}
-      />
+      <div className="bg-[#07080a] text-zinc-100 min-h-screen">
+        <AdminLockScreen
+          onUnlock={() => setIsAuthenticated(true)}
+          expectedPin={EXPECTED_PIN}
+        />
+      </div>
     );
   }
 
   return (
-    <>
+    <div className="bg-[#07080a] text-zinc-100 min-h-screen dark flex flex-col">
       <header className="border-b border-zinc-800/60 bg-zinc-950/60 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2.5 font-bold tracking-tight text-white select-none">
@@ -220,6 +222,6 @@ export default function HomePage() {
         refreshTrigger={refreshTrigger}
       />
     </div>
-    </>
+    </div>
   );
 }

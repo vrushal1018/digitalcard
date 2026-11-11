@@ -133,8 +133,8 @@ export default async function PublicCardPage({ params, searchParams }: CardPageP
   const shareUrl = `${appUrl}/card/${card.slug}${querySuffix}`;
 
   return (
-    <div className="min-h-screen w-full bg-white sm:bg-[#07080a] flex flex-col justify-start sm:justify-center items-center p-0 sm:py-8 sm:px-4">
-      <div className="w-full sm:max-w-[420px] mx-auto flex flex-col">
+    <div className="min-h-screen w-full bg-white flex flex-col justify-between items-center p-0">
+      <div className="w-full flex-1 flex flex-col">
         {/* Digital Business Card */}
         <DigitalCard
           name={card.name}
@@ -155,14 +155,14 @@ export default async function PublicCardPage({ params, searchParams }: CardPageP
           isPreview={false}
           autoSave={searchParams?.save === "1" || searchParams?.scan === "1"}
         />
+      </div>
 
-        {/* Footer for the public view (no builder links) */}
-        <div className="flex items-center justify-center py-4 text-xs text-zinc-400 sm:text-zinc-500 bg-white sm:bg-transparent">
-          <span className="inline-flex items-center gap-1">
-            <Sparkles className="w-3 h-3 text-[#1886cf]" />
-            <span>Powered by Ina SpaceWorks</span>
-          </span>
-        </div>
+      {/* Footer for the public view (no builder links) */}
+      <div className="w-full flex items-center justify-center py-4 text-xs text-zinc-400 bg-white">
+        <span className="inline-flex items-center gap-1">
+          <Sparkles className="w-3 h-3 text-[#1886cf]" />
+          <span>Powered by Ina SpaceWorks</span>
+        </span>
       </div>
     </div>
   );

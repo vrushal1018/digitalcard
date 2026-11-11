@@ -19,7 +19,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  themeColor: "#07080a",
+  themeColor: "#1886cf",
 };
 
 export default function RootLayout({
@@ -28,8 +28,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className="bg-[#07080a] text-zinc-100 min-h-screen flex flex-col selection:bg-sky-500 selection:text-zinc-950">
+    <html lang="en">
+      <body className="min-h-screen flex flex-col bg-white selection:bg-sky-500 selection:text-zinc-950">
         <main className="flex-1 flex flex-col">{children}</main>
       </body>
     </html>
