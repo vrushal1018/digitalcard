@@ -135,7 +135,7 @@ export default async function PublicCardPage({ params, searchParams }: CardPageP
 
   return (
     <div className="min-h-screen w-full bg-white sm:bg-[#0b0e14] flex flex-col justify-start sm:justify-center items-center p-0 sm:py-10 sm:px-4">
-      <div className="w-full sm:max-w-[410px] mx-auto space-y-4">
+      <div className="w-full sm:max-w-[420px] mx-auto flex-1 sm:flex-initial flex flex-col space-y-0 sm:space-y-4">
         {/* Digital Business Card */}
         <DigitalCard
           name={card.name}
