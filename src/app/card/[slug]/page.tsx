@@ -73,8 +73,9 @@ export async function generateMetadata({
   if (card.photoUrl && card.photoUrl.startsWith("http")) {
     ogParams.set("photo", card.photoUrl);
   }
-  if (card.bgUrl && card.bgUrl.startsWith("http")) {
-    ogParams.set("bg", card.bgUrl);
+  if (card.bgUrl) {
+    const fullBgUrl = card.bgUrl.startsWith("http") ? card.bgUrl : `${appUrl}${card.bgUrl}`;
+    ogParams.set("bg", fullBgUrl);
     if (card.bgFit) {
       ogParams.set("fit", card.bgFit);
     }
