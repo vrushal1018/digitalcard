@@ -57,6 +57,7 @@ describe("DigitalCard Component", () => {
         linkedinUrl="alexjordan"
         instagramUrl="@alexjordan"
         email="alex@innovativespaces.com"
+        websiteUrl="https://innovativespaces.com"
       />
     );
 
@@ -70,6 +71,10 @@ describe("DigitalCard Component", () => {
 
     const emailLink = screen.getByRole("link", { name: /email/i });
     expect(emailLink.getAttribute("href")).toBe("mailto:alex@innovativespaces.com");
+
+    const websiteLinks = screen.getAllByRole("link", { name: /website/i });
+    expect(websiteLinks.length).toBeGreaterThan(0);
+    expect(websiteLinks[0].getAttribute("href")).toBe("https://innovativespaces.com");
   });
 });
 

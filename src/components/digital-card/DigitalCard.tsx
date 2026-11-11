@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Phone, MapPin, Check, Mail } from "lucide-react";
+import { Phone, MapPin, Check, Mail, Globe } from "lucide-react";
 import { CardActionButton } from "./CardActionButton";
 import { ShareButton } from "./ShareButton";
 import {
@@ -298,19 +298,35 @@ export function DigitalCard({
                 </div>
               )}
 
-              {/* Online Social Profiles (if LinkedIn or Instagram configured) */}
-              {(linkedinHref || instagramHref) && (
+              {/* Online Social Profiles (if LinkedIn, Instagram or Website configured) */}
+              {(linkedinHref || instagramHref || websiteHref) && (
                 <div className="pt-2 border-t border-zinc-200/80">
                   <div className="text-[10px] sm:text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
                     ONLINE PROFILES
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 flex-wrap">
+                    {websiteHref && (
+                      <a
+                        href={websiteHref}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={`Visit Website (${displayWebsite})`}
+                        aria-label="Website"
+                        className="text-zinc-700 hover:text-[#1886cf] transition-colors p-1 flex items-center gap-1.5 group"
+                      >
+                        <Globe className="w-5 h-5 text-[#1886cf] transition-transform group-hover:scale-110" />
+                        <span className="text-xs font-medium text-zinc-800 group-hover:text-[#1886cf] group-hover:underline">
+                          {displayWebsite}
+                        </span>
+                      </a>
+                    )}
                     {linkedinHref && (
                       <a
                         href={linkedinHref}
                         target="_blank"
                         rel="noopener noreferrer"
                         title="Open LinkedIn Profile"
+                        aria-label="LinkedIn"
                         className="text-zinc-700 hover:text-[#0077b5] transition-colors p-1"
                       >
                         <LinkedInIcon className="w-5 h-5" />
@@ -322,6 +338,7 @@ export function DigitalCard({
                         target="_blank"
                         rel="noopener noreferrer"
                         title="Open Instagram Profile"
+                        aria-label="Instagram"
                         className="text-zinc-700 hover:text-pink-600 transition-colors p-1"
                       >
                         <InstagramIcon className="w-5 h-5" />

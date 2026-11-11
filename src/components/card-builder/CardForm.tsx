@@ -621,44 +621,38 @@ export function CardForm({
             )}
           </div>
 
-          {/* Company Website URL Field */}
-          <div>
-            <label
-              htmlFor="websiteUrl"
-              className="block text-sm font-medium text-zinc-300 mb-1.5 flex items-center justify-between"
-            >
-              <span className="flex items-center gap-1.5">
-                <Globe className="w-4 h-4 text-sky-400" />
-                <span>Company Website URL</span>
-              </span>
-              <span className="text-[11px] font-normal text-zinc-500">(Optional)</span>
-            </label>
-            <input
-              id="websiteUrl"
-              name="websiteUrl"
-              type="text"
-              value={formData.websiteUrl || ""}
-              onChange={handleInputChange}
-              placeholder="https://inaspaceworks.com"
-              className="w-full px-4 py-2.5 bg-zinc-900/90 border border-zinc-800 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 rounded-xl text-white placeholder-zinc-500 text-sm focus:outline-none transition-all"
-            />
-            <p className="text-[11px] text-zinc-500 mt-1">
-              Automatically saved to phone contacts under Website when users tap Save Contact.
-            </p>
-          </div>
-
-          {/* Social Profiles Section */}
+          {/* Online & Social Profiles Section */}
           <div className="pt-2 border-t border-zinc-800/80 space-y-3.5">
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 text-sm font-medium text-zinc-300">
-                <Share2 className="w-4 h-4 text-sky-400" />
-                <span>Social Profiles</span>
+                <Globe className="w-4 h-4 text-sky-400" />
+                <span>Online & Social Profiles</span>
                 <span className="text-[11px] font-normal text-zinc-500">(Optional)</span>
               </label>
-              <span className="text-[11px] text-zinc-500">Links appear as clickable buttons</span>
+              <span className="text-[11px] text-zinc-500">Displayed under Online Profiles & saved to contacts</span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {/* Website URL */}
+              <div>
+                <label
+                  htmlFor="websiteUrl"
+                  className="block text-xs font-medium text-zinc-300 mb-1 flex items-center gap-1.5"
+                >
+                  <Globe className="w-3.5 h-3.5 text-sky-400" />
+                  <span>Website URL</span>
+                </label>
+                <input
+                  id="websiteUrl"
+                  name="websiteUrl"
+                  type="text"
+                  value={formData.websiteUrl || ""}
+                  onChange={handleInputChange}
+                  placeholder="https://inaspaceworks.com"
+                  className="w-full px-3 py-2 bg-zinc-900/90 border border-zinc-800 focus:border-sky-500 focus:ring-1 focus:ring-sky-500/30 rounded-xl text-white placeholder-zinc-500 text-xs focus:outline-none transition-all"
+                />
+              </div>
+
               {/* LinkedIn */}
               <div>
                 <label
@@ -719,6 +713,9 @@ export function CardForm({
                 />
               </div>
             </div>
+            <p className="text-[11px] text-zinc-500">
+              Paste your website URL, LinkedIn, or Instagram profile link. Links appear under Online Profiles on the card and automatically save to phone contacts.
+            </p>
           </div>
 
           {/* Photo Upload Component */}
