@@ -304,20 +304,17 @@ export function DigitalCard({
                   <div className="text-[10px] sm:text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
                     ONLINE PROFILES
                   </div>
-                  <div className="flex items-center gap-3 flex-wrap">
+                  <div className="flex items-center gap-3">
                     {websiteHref && (
                       <a
                         href={websiteHref}
                         target="_blank"
                         rel="noopener noreferrer"
-                        title={`Visit Website (${displayWebsite})`}
+                        title="Visit Website"
                         aria-label="Website"
-                        className="text-zinc-700 hover:text-[#1886cf] transition-colors p-1 flex items-center gap-1.5 group"
+                        className="text-zinc-700 hover:text-[#1886cf] transition-colors p-1"
                       >
-                        <Globe className="w-5 h-5 text-[#1886cf] transition-transform group-hover:scale-110" />
-                        <span className="text-xs font-medium text-zinc-800 group-hover:text-[#1886cf] group-hover:underline">
-                          {displayWebsite}
-                        </span>
+                        <Globe className="w-5 h-5" />
                       </a>
                     )}
                     {linkedinHref && (
