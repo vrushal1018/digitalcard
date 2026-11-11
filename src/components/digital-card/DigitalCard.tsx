@@ -113,17 +113,17 @@ export function DigitalCard({
     : undefined;
 
   return (
-    <div className={`w-full mx-auto select-none flex-1 flex flex-col ${isPreview ? "max-w-[420px]" : ""}`}>
-      {/* Card Container: Edge-to-edge full screen */}
+    <div className={`w-full mx-auto select-none ${isPreview ? "max-w-[410px]" : "w-full sm:max-w-[410px]"}`}>
+      {/* Card Container: Edge-to-edge full screen on mobile, exact mobile preview on desktop */}
       <div
-        className={`relative overflow-hidden bg-white flex-1 flex flex-col justify-between transition-all duration-300 ${
+        className={`relative overflow-hidden bg-white transition-all duration-300 ${
           isPreview
-            ? "rounded-[32px] sm:rounded-[36px] border border-zinc-200/80 shadow-xl"
-            : "w-full min-h-screen rounded-none border-0 shadow-none"
+            ? "rounded-[32px] sm:rounded-[38px] border border-zinc-200/80 shadow-xl"
+            : "w-full min-h-screen sm:min-h-0 rounded-none sm:rounded-[38px] border-0 sm:border sm:border-zinc-200/90 shadow-none sm:shadow-2xl"
         }`}
       >
         {/* Top Vivid Blue Banner */}
-        <div className="relative w-full h-44 sm:h-52 bg-[#1886cf] overflow-hidden flex flex-col items-center justify-start text-white flex-shrink-0">
+        <div className="relative w-full h-48 bg-[#1886cf] overflow-hidden flex flex-col items-center justify-start text-white flex-shrink-0">
           {/* Custom Theme Background (if provided) */}
           {bgUrl && (
             <div className="absolute inset-0 z-0 pointer-events-none select-none">
@@ -139,10 +139,10 @@ export function DigitalCard({
         </div>
 
         {/* Foreground Content with Overlapping Avatar */}
-        <div className="relative z-10 w-full max-w-lg mx-auto px-4 sm:px-6 pb-8 bg-white text-zinc-900 flex-1 flex flex-col justify-between">
+        <div className="relative z-10 w-full px-4 sm:px-5 pb-8 bg-white text-zinc-900">
           <div className="w-full">
             {/* Overlapping Avatar Circle */}
-            <div className="relative -mt-14 sm:-mt-16 w-28 h-28 sm:w-32 sm:h-32 rounded-full border-4 sm:border-[5px] border-white shadow-md mx-auto overflow-hidden bg-[#d6cec7] flex items-center justify-center z-20">
+            <div className="relative -mt-14 w-28 h-28 rounded-full border-4 border-white shadow-md mx-auto overflow-hidden bg-[#d6cec7] flex items-center justify-center z-20">
               {photoUrl ? (
                 <img
                   src={photoUrl}
