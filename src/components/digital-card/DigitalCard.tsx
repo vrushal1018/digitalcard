@@ -134,17 +134,8 @@ export function DigitalCard({
                   bgFit === "cover" ? "object-cover" : "object-contain"
                 }`}
               />
-              <div className="absolute inset-0 bg-[#1886cf]/65 mix-blend-multiply" />
             </div>
           )}
-
-          {/* Left subtle avatar silhouette watermark */}
-          <div className="absolute -left-2 top-3 pointer-events-none select-none opacity-20 text-white z-0">
-            <svg width="120" height="120" viewBox="0 0 100 100" fill="currentColor">
-              <circle cx="50" cy="30" r="18" />
-              <path d="M12 85 C12 55, 30 50, 50 50 C70 50, 88 55, 88 85 Z" />
-            </svg>
-          </div>
 
           {/* Brand Logo in Top Center */}
           <div className="relative z-10 flex flex-col items-center text-center">
