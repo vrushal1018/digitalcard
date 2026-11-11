@@ -123,7 +123,7 @@ export function DigitalCard({
         }`}
       >
         {/* Top Vivid Blue Banner */}
-        <div className="relative w-full h-44 sm:h-52 bg-[#1886cf] overflow-hidden flex flex-col items-center justify-start pt-7 sm:pt-8 text-white flex-shrink-0">
+        <div className="relative w-full h-44 sm:h-52 bg-[#1886cf] overflow-hidden flex flex-col items-center justify-start text-white flex-shrink-0">
           {/* Custom Theme Background (if provided) */}
           {bgUrl && (
             <div className="absolute inset-0 z-0 pointer-events-none select-none">
@@ -136,21 +136,6 @@ export function DigitalCard({
               />
             </div>
           )}
-
-          {/* Brand Logo in Top Center */}
-          <div className="relative z-10 flex flex-col items-center text-center">
-            {/* "ina" logo mark */}
-            <div className="flex items-center justify-center">
-              <span className="text-white font-extrabold text-[28px] sm:text-[30px] tracking-tight leading-none lowercase">
-                ina
-              </span>
-            </div>
-            {/* "space works" subline */}
-            <div className="flex items-center gap-1 text-white/95 text-base sm:text-[17px] font-normal tracking-wide lowercase -mt-0.5">
-              <span>space</span>
-              <span className="font-semibold">works</span>
-            </div>
-          </div>
         </div>
 
         {/* Foreground Content with Overlapping Avatar */}
