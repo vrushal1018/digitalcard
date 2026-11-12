@@ -117,6 +117,8 @@ export function DigitalCard({
         name: displayName,
         phoneNumber,
         email,
+        companyName: displayCompany,
+        designation: displayDesignation,
       })
     : undefined;
 
@@ -376,29 +378,18 @@ export function DigitalCard({
           <div className="w-full my-4 sm:my-5 space-y-2.5">
             {/* Save contact button */}
             {isAndroid ? (
-              <div className="w-full space-y-1.5">
-                <a
-                  role="button"
-                  href={googleContactsHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-disabled={!phoneNumber}
-                  className={`w-full py-3.5 px-6 rounded-full bg-[#1886cf] hover:bg-[#1578bb] active:scale-[0.99] text-white font-semibold text-sm sm:text-[15px] flex items-center justify-center gap-2 shadow-sm transition-all select-none ${
-                    !phoneNumber ? "opacity-50 pointer-events-none cursor-not-allowed" : "cursor-pointer"
-                  }`}
-                >
-                  <span>Save contact</span>
-                </a>
-                <div className="text-center pt-0.5">
-                  <button
-                    type="button"
-                    onClick={handleSaveContact}
-                    className="text-[11px] text-zinc-400 hover:text-zinc-600 underline transition-colors cursor-pointer"
-                  >
-                    Or download .vcf contact file
-                  </button>
-                </div>
-              </div>
+              <a
+                role="button"
+                href={googleContactsHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-disabled={!phoneNumber}
+                className={`w-full py-3.5 px-6 rounded-full bg-[#1886cf] hover:bg-[#1578bb] active:scale-[0.99] text-white font-semibold text-sm sm:text-[15px] flex items-center justify-center gap-2 shadow-sm transition-all select-none ${
+                  !phoneNumber ? "opacity-50 pointer-events-none cursor-not-allowed" : "cursor-pointer"
+                }`}
+              >
+                <span>Save contact</span>
+              </a>
             ) : (
               <button
                 type="button"

@@ -177,23 +177,51 @@ export function downloadVCard(data: VCardData) {
 
 /**
  * Constructs a Google Contacts prefilled URL.
- * Opens Google Contacts with name, phone, and email prefilled, allowing the user
- * to simply tap "Save".
+ * Opens Google Contacts with name, company, job title, phone, and email prefilled,
+ * allowing the user to simply tap "Save".
  */
 export function getGoogleContactsUrl(data: {
   name: string;
   phoneNumber?: string;
   email?: string;
+  companyName?: string;
+  designation?: string;
 }): string {
   const parts = data.name.trim().split(/\s+/).filter(Boolean);
   const givenname = parts[0] || "";
-  const familyname = parts.slice(1).join(" ") || "";
+  let familyname = parts.slice(1).join(" ") || "";
+
+  // Append Company Name in parentheses to the family name so it appears directly
+  // in Google Contacts name and phone caller ID
+  if (data.companyName?.trim()) {
+    const cleanCompany = data.companyName.trim();
+    familyname = familyname ? `${familyname} (${cleanCompany})` : `(${cleanCompany})`;
+  }
 
   const params = new URLSearchParams();
   if (givenname) params.set("givenname", givenname);
   if (familyname) params.set("familyname", familyname);
   if (data.phoneNumber) params.set("phone", data.phoneNumber.trim());
   if (data.email) params.set("email", data.email.trim());
+
+  if (data.companyName?.trim()) {
+    params.set("company", data.companyName.trim());
+    params.set("organization", data.companyName.trim());
+    params.set("org", data.companyName.trim());
+  }
+  if (data.designation?.trim()) {
+    params.set("jobtitle", data.designation.trim());
+    params.set("title", data.designation.trim());
+  }
+
+  const noteItems: string[] = [];
+  if (data.designation?.trim()) noteItems.push(data.designation.trim());
+  if (data.companyName?.trim()) noteItems.push(data.companyName.trim());
+  if (noteItems.length > 0) {
+    const noteText = noteItems.join(" - ");
+    params.set("notes", noteText);
+    params.set("note", noteText);
+  }
 
   return `https://contacts.google.com/new?${params.toString()}`;
 }
