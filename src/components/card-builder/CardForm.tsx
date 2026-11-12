@@ -233,13 +233,14 @@ export function CardForm({
   const origin =
     process.env.NEXT_PUBLIC_APP_URL ||
     (typeof window !== "undefined" ? window.location.origin : "http://localhost:3000");
-  const cardPath = createdSlug ? `/card/${createdSlug}` : "";
+  const querySuffix = cardToken ? `?d=${cardToken}` : "";
+  const cardPath = createdSlug ? `/card/${createdSlug}${querySuffix}` : "";
   const cardFullUrl = createdSlug ? `${origin}${cardPath}` : "";
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(
     cardFullUrl
   )}`;
   const whatsappShareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(
-    `Check out ${formData.name}'s digital business card: ${cardFullUrl}`
+    `Check out ${formData.name}'s digital business card:\n${cardFullUrl}`
   )}`;
 
   const handleCopyLink = async () => {

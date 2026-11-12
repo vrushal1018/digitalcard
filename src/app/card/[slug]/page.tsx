@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import { getCardBySlug, getDeletedSlugs, decodeCardToken, saveCardToStorage } from "@/lib/cards";
 import { DigitalCard } from "@/components/digital-card/DigitalCard";
 import { Sparkles } from "lucide-react";
@@ -49,6 +50,32 @@ async function resolveCard(slug: string, token?: string) {
   return card;
 }
 
+function getAppUrl(): string {
+  if (process.env.NEXT_PUBLIC_APP_URL) {
+    return process.env.NEXT_PUBLIC_APP_URL.replace(/\/+$/, "");
+  }
+
+  try {
+    const headerList = headers();
+    const host = headerList.get("x-forwarded-host") || headerList.get("host");
+    const proto = headerList.get("x-forwarded-proto") || "https";
+    if (host) {
+      return `${proto}://${host}`.replace(/\/+$/, "");
+    }
+  } catch {
+    // ignore
+  }
+
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`.replace(/\/+$/, "");
+  }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`.replace(/\/+$/, "");
+  }
+
+  return "http://localhost:3000";
+}
+
 export async function generateMetadata({
   params,
   searchParams,
@@ -61,65 +88,66 @@ export async function generateMetadata({
     };
   }
 
-  const appUrl =
-    process.env.NEXT_PUBLIC_APP_URL ||
-    (process.env.VERCEL_PROJECT_PRODUCTION_URL
-      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : process.env.VERCEL_URL
-        ? `https://${process.env.VERCEL_URL}`
-        : "http://localhost:3000");
-
+  const appUrl = getAppUrl();
   const querySuffix = searchParams?.d ? `?d=${searchParams.d}` : "";
   const cardUrl = `${appUrl}/card/${card.slug}${querySuffix}`;
 
-  // Generate dynamic 1200x630 OpenGraph card image via /api/og
+  // Generate dynamic 1200x630 OpenGraph card image via /api/og (Split: Left photo | Right theme & info)
   const ogParams = new URLSearchParams({
     name: card.name,
     designation: card.designation,
     company: card.companyName,
   });
-  if (card.photoUrl && card.photoUrl.startsWith("http")) {
-    ogParams.set("photo", card.photoUrl);
+
+  if (card.photoUrl) {
+    const fullPhotoUrl = card.photoUrl.startsWith("http")
+      ? card.photoUrl
+      : `${appUrl}${card.photoUrl.startsWith("/") ? "" : "/"}${card.photoUrl}`;
+    ogParams.set("photo", fullPhotoUrl);
   }
+
   if (card.bgUrl) {
-    const fullBgUrl = card.bgUrl.startsWith("http") ? card.bgUrl : `${appUrl}${card.bgUrl}`;
+    const fullBgUrl = card.bgUrl.startsWith("http")
+      ? card.bgUrl
+      : `${appUrl}${card.bgUrl.startsWith("/") ? "" : "/"}${card.bgUrl}`;
     ogParams.set("bg", fullBgUrl);
     if (card.bgFit) {
       ogParams.set("fit", card.bgFit);
     }
   }
+
   const ogBannerImageUrl = `${appUrl}/api/og?${ogParams.toString()}&format=banner`;
-  const hasDirectPhoto = Boolean(card.photoUrl && card.photoUrl.startsWith("http"));
-  const primaryImage = hasDirectPhoto ? (card.photoUrl as string) : ogBannerImageUrl;
+  const pageTitle = `${card.name} — ${card.companyName}`;
+  const pageDescription = `${card.name}, ${card.designation} at ${card.companyName}. Connect via Call, WhatsApp, Location, and Share.`;
 
   return {
-    title: `${card.name} — ${card.companyName} | Digital Business Card`,
-    description: `${card.name}, ${card.designation} at ${card.companyName}. Connect via Call, WhatsApp, Location, and Share.`,
+    title: `${pageTitle} | Digital Business Card`,
+    description: pageDescription,
     alternates: {
       canonical: cardUrl,
     },
     openGraph: {
-      title: `${card.name} — ${card.companyName}`,
-      description: `${card.name}, ${card.designation} at ${card.companyName}. Connect via Call, WhatsApp, Location, and Share.`,
+      title: pageTitle,
+      description: pageDescription,
       url: cardUrl,
       siteName: "InaCard Digital Business Card",
       images: [
         {
-          url: primaryImage,
-          secureUrl: primaryImage,
-          width: 600,
-          height: 600,
-          alt: `${card.name}`,
-          type: "image/jpeg",
+          url: ogBannerImageUrl,
+          secureUrl: ogBannerImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${card.name} — ${card.companyName}`,
+          type: "image/png",
         },
       ],
       type: "website",
     },
     twitter: {
-      card: "summary",
-      title: `${card.name} — ${card.companyName}`,
+      card: "summary_large_image",
+      title: pageTitle,
       description: `${card.name}, ${card.designation} at ${card.companyName}`,
-      images: [primaryImage],
+      images: [ogBannerImageUrl],
     },
   };
 }
@@ -131,13 +159,7 @@ export default async function PublicCardPage({ params, searchParams }: CardPageP
     notFound();
   }
 
-  const appUrl =
-    process.env.NEXT_PUBLIC_APP_URL ||
-    (process.env.VERCEL_PROJECT_PRODUCTION_URL
-      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : process.env.VERCEL_URL
-        ? `https://${process.env.VERCEL_URL}`
-        : "http://localhost:3000");
+  const appUrl = getAppUrl();
   const querySuffix = searchParams?.d ? `?d=${searchParams.d}` : "";
   const shareUrl = `${appUrl}/card/${card.slug}${querySuffix}`;
 
