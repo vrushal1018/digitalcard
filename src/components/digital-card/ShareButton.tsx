@@ -36,7 +36,6 @@ export function ShareButton({
       try {
         await navigator.share({
           title: `${cardName} — Digital Business Card`,
-          text: `Connect with ${cardName}, ${designation} at ${companyName}:`,
           url,
         });
         return;
@@ -76,7 +75,7 @@ export function ShareButton({
 
   const effectiveUrl = getEffectiveUrl();
   const whatsappShareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(
-    `Connect with ${cardName}, ${designation} at ${companyName}:\n${effectiveUrl}`
+    effectiveUrl
   )}`;
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
     effectiveUrl
