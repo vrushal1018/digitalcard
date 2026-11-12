@@ -16,7 +16,6 @@ import {
 } from "@/lib/links";
 import {
   downloadVCard,
-  buildAndroidContactIntent,
   isAndroidDevice,
   VCardData,
 } from "@/lib/vcard";
@@ -112,13 +111,11 @@ export function DigitalCard({
     googleBusinessUrl: googleBusinessUrl?.trim() || undefined,
   };
 
-  const androidIntentUrl = isAndroid ? buildAndroidContactIntent(vcardPayload) : undefined;
-
   const handleSaveContact = () => {
     if (!phoneNumber) return;
     downloadVCard(vcardPayload);
     setHasSaved(true);
-    setTimeout(() => setHasSaved(false), 4000);
+    setTimeout(() => setHasSaved(false), 5000);
   };
 
   // Clean website display label without protocol
@@ -369,47 +366,21 @@ export function DigitalCard({
           {/* Bottom Action Pill Buttons */}
           <div className="w-full my-4 sm:my-5 space-y-2.5">
             {/* Save contact button */}
-            {isAndroid ? (
-              <a
-                role="button"
-                href={androidIntentUrl}
-                onClick={() => {
-                  setHasSaved(true);
-                  setTimeout(() => setHasSaved(false), 3000);
-                }}
-                aria-disabled={!phoneNumber}
-                className={`w-full py-3.5 px-6 rounded-full bg-[#1886cf] hover:bg-[#1578bb] active:scale-[0.99] text-white font-semibold text-sm sm:text-[15px] flex items-center justify-center gap-2 shadow-sm transition-all select-none ${
-                  !phoneNumber
-                    ? "opacity-50 pointer-events-none cursor-not-allowed"
-                    : "cursor-pointer"
-                }`}
-              >
-                {hasSaved ? (
-                  <>
-                    <Check className="w-4 h-4 stroke-[2.5]" />
-                    <span>Contact details saved!</span>
-                  </>
-                ) : (
-                  <span>Save contact</span>
-                )}
-              </a>
-            ) : (
-              <button
-                type="button"
-                onClick={handleSaveContact}
-                disabled={!phoneNumber}
-                className="w-full py-3.5 px-6 rounded-full bg-[#1886cf] hover:bg-[#1578bb] active:scale-[0.99] text-white font-semibold text-sm sm:text-[15px] flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed select-none"
-              >
-                {hasSaved ? (
-                  <>
-                    <Check className="w-4 h-4 stroke-[2.5]" />
-                    <span>Contact details saved!</span>
-                  </>
-                ) : (
-                  <span>Save contact</span>
-                )}
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={handleSaveContact}
+              disabled={!phoneNumber}
+              className="w-full py-3.5 px-6 rounded-full bg-[#1886cf] hover:bg-[#1578bb] active:scale-[0.99] text-white font-semibold text-sm sm:text-[15px] flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed select-none"
+            >
+              {hasSaved ? (
+                <>
+                  <Check className="w-4 h-4 stroke-[2.5]" />
+                  <span>{isAndroid ? 'Downloaded! Tap "Open" to save' : "Contact details saved!"}</span>
+                </>
+              ) : (
+                <span>Save contact</span>
+              )}
+            </button>
 
             {/* Share card button */}
             <ShareButton
