@@ -8,12 +8,14 @@ import { Sparkles, CheckCircle2 } from "lucide-react";
 interface CardPreviewProps {
   formData: CardFormData;
   createdSlug?: string | null;
+  cardToken?: string | null;
 }
 
-export function CardPreview({ formData, createdSlug }: CardPreviewProps) {
+export function CardPreview({ formData, createdSlug, cardToken }: CardPreviewProps) {
   const isLive = Boolean(createdSlug);
   const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
-  const shareUrl = createdSlug ? `${origin}/card/${createdSlug}` : undefined;
+  const querySuffix = cardToken ? `?d=${cardToken}` : "";
+  const shareUrl = createdSlug ? `${origin}/card/${createdSlug}${querySuffix}` : undefined;
 
   return (
     <div className="w-full flex flex-col items-center">

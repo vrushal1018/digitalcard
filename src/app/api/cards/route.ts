@@ -16,17 +16,25 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const slug = searchParams.get("slug");
+    const hasDb = hasDatabaseConnection();
 
     if (slug) {
       const card = await getCardBySlug(slug);
       if (!card) {
         return NextResponse.json({ error: "Card not found" }, { status: 404 });
       }
-      return NextResponse.json({ card });
+      return NextResponse.json({
+        card: { ...card, token: encodeCardToken(card) },
+        hasDatabase: hasDb,
+      });
     }
 
     const cards = await getAllCards();
-    return NextResponse.json({ cards });
+    const cardsWithToken = cards.map((c) => ({
+      ...c,
+      token: encodeCardToken(c),
+    }));
+    return NextResponse.json({ cards: cardsWithToken, hasDatabase: hasDb });
   } catch (error) {
     console.error("GET /api/cards error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

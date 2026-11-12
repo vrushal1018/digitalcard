@@ -23,13 +23,13 @@ const PRESET_THEMES = [
   {
     id: "itf-header",
     name: "ITF Header",
-    url: "/themes/ITF_digicard_header_mobile_1170x750.webp",
+    url: "/themes/ITF_digicard_header_mobile_1170x750.png",
     previewStyle: "bg-[#1886cf] border-sky-400",
   },
   {
     id: "ina-spaceworks-og",
     name: "Ina SpaceWorks OG",
-    url: "/themes/ina-spaceworks-og.webp",
+    url: "/themes/ina-spaceworks-og.png",
     previewStyle: "bg-[#0ea5e9] border-sky-400",
   },
   {

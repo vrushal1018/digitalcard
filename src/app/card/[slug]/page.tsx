@@ -107,9 +107,10 @@ export async function generateMetadata({
   }
 
   if (card.bgUrl) {
-    const fullBgUrl = card.bgUrl.startsWith("http")
-      ? card.bgUrl
-      : `${appUrl}${card.bgUrl.startsWith("/") ? "" : "/"}${card.bgUrl}`;
+    const cleanBg = card.bgUrl.replace(/\.webp$/i, ".png");
+    const fullBgUrl = cleanBg.startsWith("http")
+      ? cleanBg
+      : `${appUrl}${cleanBg.startsWith("/") ? "" : "/"}${cleanBg}`;
     ogParams.set("bg", fullBgUrl);
     if (card.bgFit) {
       ogParams.set("fit", card.bgFit);

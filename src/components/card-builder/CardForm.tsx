@@ -28,8 +28,8 @@ import {
 interface CardFormProps {
   formData: CardFormData;
   onChange: (newData: CardFormData) => void;
-  onCardCreated?: (slug: string) => void;
-  onCardUpdated?: (slug: string) => void;
+  onCardCreated?: (slug: string, token?: string | null) => void;
+  onCardUpdated?: (slug: string, token?: string | null) => void;
   editingSlug?: string | null;
   onCancelEdit?: () => void;
 }
@@ -202,7 +202,7 @@ export function CardForm({
 
       const activeSlug = data.slug || editingSlug;
       if (data.card) {
-        saveCardToLocalCache(data.card);
+        saveCardToLocalCache({ ...data.card, token: data.token });
       }
 
       setCreatedSlug(activeSlug);
@@ -215,10 +215,12 @@ export function CardForm({
         setCardToken(null);
       }
 
+      const tokenToPass = !data.hasDatabase && data.token ? data.token : null;
+
       if (editingSlug && onCardUpdated) {
-        onCardUpdated(activeSlug);
+        onCardUpdated(activeSlug, tokenToPass);
       } else if (onCardCreated) {
-        onCardCreated(activeSlug);
+        onCardCreated(activeSlug, tokenToPass);
       }
     } catch (err) {
       console.error("Submission failed:", err);

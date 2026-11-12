@@ -30,6 +30,7 @@ export default function HomePage() {
   });
 
   const [createdSlug, setCreatedSlug] = useState<string | null>(null);
+  const [createdToken, setCreatedToken] = useState<string | null>(null);
   const [editingSlug, setEditingSlug] = useState<string | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
@@ -81,6 +82,7 @@ export default function HomePage() {
     });
     setEditingSlug(card.slug);
     setCreatedSlug(null);
+    setCreatedToken((card as any).token || null);
 
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -90,6 +92,7 @@ export default function HomePage() {
   const handleCancelEdit = () => {
     setEditingSlug(null);
     setCreatedSlug(null);
+    setCreatedToken(null);
     setFormData({
       name: "",
       designation: "",
@@ -114,6 +117,7 @@ export default function HomePage() {
     }
     if (createdSlug && createdSlug.toLowerCase() === slug.toLowerCase()) {
       setCreatedSlug(null);
+      setCreatedToken(null);
     }
     setRefreshTrigger((prev) => prev + 1);
   };
@@ -196,13 +200,15 @@ export default function HomePage() {
             onChange={setFormData}
             editingSlug={editingSlug}
             onCancelEdit={handleCancelEdit}
-            onCardCreated={(slug) => {
+            onCardCreated={(slug, token) => {
               setCreatedSlug(slug);
+              setCreatedToken(token || null);
               setEditingSlug(slug);
               setRefreshTrigger((prev) => prev + 1);
             }}
-            onCardUpdated={(slug) => {
+            onCardUpdated={(slug, token) => {
               setCreatedSlug(slug);
+              setCreatedToken(token || null);
               setRefreshTrigger((prev) => prev + 1);
             }}
           />
@@ -213,6 +219,7 @@ export default function HomePage() {
           <CardPreview
             formData={formData}
             createdSlug={createdSlug || editingSlug}
+            cardToken={createdToken}
           />
         </div>
       </div>

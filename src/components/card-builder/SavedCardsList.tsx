@@ -139,7 +139,10 @@ export function SavedCardsList({
     const origin =
       process.env.NEXT_PUBLIC_APP_URL ||
       (typeof window !== "undefined" ? window.location.origin : "http://localhost:3000");
-    const url = `${origin}/card/${slug}`;
+    const targetCard = cards.find((c) => c.slug.toLowerCase() === slug.toLowerCase());
+    const token = (targetCard as any)?.token;
+    const query = token ? `?d=${token}` : "";
+    const url = `${origin}/card/${slug}${query}`;
     try {
       await navigator.clipboard.writeText(url);
       setCopiedSlug(slug);
@@ -347,7 +350,7 @@ export function SavedCardsList({
                     </button>
 
                     <a
-                      href={`/card/${c.slug}`}
+                      href={`/card/${c.slug}${(c as any).token ? `?d=${(c as any).token}` : ""}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
