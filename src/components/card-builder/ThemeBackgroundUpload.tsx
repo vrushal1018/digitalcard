@@ -21,6 +21,12 @@ const PRESET_THEMES = [
     previewStyle: "bg-zinc-950 border-zinc-800",
   },
   {
+    id: "itf-header",
+    name: "ITF Header",
+    url: "/themes/ITF_digicard_header_mobile_1170x750.webp",
+    previewStyle: "bg-[#1886cf] border-sky-400",
+  },
+  {
     id: "ina-spaceworks-og",
     name: "Ina SpaceWorks OG",
     url: "/themes/ina-spaceworks-og.webp",
@@ -141,12 +147,14 @@ export function ThemeBackgroundUpload({
       </div>
 
       {/* Preset Theme Selection Badges */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
         {PRESET_THEMES.map((theme) => {
           const isSelected =
             (!currentBgUrl && theme.id === "none") ||
             (currentBgUrl &&
               (currentBgUrl === theme.url ||
+                (theme.id === "itf-header" &&
+                  currentBgUrl.includes("ITF_digicard_header")) ||
                 (theme.id === "ina-spaceworks-og" &&
                   currentBgUrl.includes("ina-spaceworks-og")) ||
                 (theme.id === "ina-spaceworks-blue" &&
