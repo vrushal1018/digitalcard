@@ -119,7 +119,21 @@ export async function generateMetadata({
 
   const ogSquareImageUrl = `${appUrl}/api/og?${ogParams.toString()}&format=square`;
   const ogBannerImageUrl = `${appUrl}/api/og?${ogParams.toString()}&format=banner`;
-  const hasDirectPhoto = Boolean(card.photoUrl && card.photoUrl.startsWith("http"));
+
+  const rawPhoto = card.photoUrl?.trim();
+  const fullPhotoUrl = rawPhoto
+    ? rawPhoto.startsWith("http")
+      ? rawPhoto
+      : `${appUrl}${rawPhoto.startsWith("/") ? "" : "/"}${rawPhoto}`
+    : null;
+
+  let photoMimeType = "image/jpeg";
+  if (rawPhoto?.toLowerCase().endsWith(".png")) {
+    photoMimeType = "image/png";
+  } else if (rawPhoto?.toLowerCase().endsWith(".webp")) {
+    photoMimeType = "image/webp";
+  }
+
   const pageTitle = `${card.name} — ${card.companyName}`;
   const pageDescription = `${card.name}, ${card.designation} at ${card.companyName}. Connect via Call, WhatsApp, Location, and Share.`;
 
@@ -135,6 +149,20 @@ export async function generateMetadata({
       url: cardUrl,
       siteName: "InaCard Digital Business Card",
       images: [
+        // 1. Profile photo FIRST so WhatsApp and all social link unfurls show the user's actual profile pic
+        ...(fullPhotoUrl
+          ? [
+              {
+                url: fullPhotoUrl,
+                secureUrl: fullPhotoUrl,
+                width: 600,
+                height: 600,
+                alt: `${card.name}`,
+                type: photoMimeType,
+              },
+            ]
+          : []),
+        // 2. Fallback / supplementary card images
         {
           url: ogSquareImageUrl,
           secureUrl: ogSquareImageUrl,
@@ -143,18 +171,6 @@ export async function generateMetadata({
           alt: `${card.name} — ${card.companyName}`,
           type: "image/png",
         },
-        ...(hasDirectPhoto
-          ? [
-              {
-                url: card.photoUrl as string,
-                secureUrl: card.photoUrl as string,
-                width: 600,
-                height: 600,
-                alt: `${card.name}`,
-                type: "image/jpeg",
-              },
-            ]
-          : []),
         {
           url: ogBannerImageUrl,
           secureUrl: ogBannerImageUrl,
@@ -167,10 +183,10 @@ export async function generateMetadata({
       type: "website",
     },
     twitter: {
-      card: "summary_large_image",
+      card: "summary",
       title: pageTitle,
       description: `${card.name}, ${card.designation} at ${card.companyName}`,
-      images: [ogSquareImageUrl, ogBannerImageUrl],
+      images: fullPhotoUrl ? [fullPhotoUrl] : [ogSquareImageUrl],
     },
   };
 }
