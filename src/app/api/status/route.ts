@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { hasDatabaseConnection, getAllCards } from "@/lib/cards";
+import { hasDatabaseConnection, getStorageProviderName, getAllCards } from "@/lib/cards";
 
 export const dynamic = "force-dynamic";
 
@@ -7,10 +7,12 @@ export async function GET() {
   try {
     const isDbConnected = hasDatabaseConnection();
     const cards = await getAllCards();
+    const storageType = getStorageProviderName();
 
     return NextResponse.json({
       connected: isDbConnected,
-      storageType: isDbConnected ? "Vercel KV / Redis Cloud Database" : "Local & Git Storage",
+      storageType,
+      isVercel: Boolean(process.env.VERCEL),
       cardCount: cards.length,
       timestamp: new Date().toISOString(),
     });

@@ -50,6 +50,20 @@ export function CardForm({
   const [cardToken, setCardToken] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
   const [showQr, setShowQr] = useState(false);
+  const [dbStatus, setDbStatus] = useState<{
+    connected: boolean;
+    storageType: string;
+    isVercel?: boolean;
+  } | null>(null);
+
+  React.useEffect(() => {
+    fetch("/api/status")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) setDbStatus(data);
+      })
+      .catch(() => {});
+  }, []);
 
   type ProfileKey = "website" | "googleBusiness" | "linkedin" | "instagram" | "facebook";
 
@@ -258,6 +272,30 @@ export function CardForm({
             ? "Make changes below and update. Your existing URL, QR code, and saved link stay the same."
             : "Fill in your details below to generate a shareable, interactive card."}
         </p>
+
+        {/* Live Cloud Sync / Storage Status Badge */}
+        {dbStatus && (
+          <div
+            className={`mt-4 p-3 rounded-xl text-xs border flex items-center justify-between gap-2 transition-all ${
+              dbStatus.connected
+                ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
+                : "bg-amber-500/10 border-amber-500/30 text-amber-200"
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <span
+                className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                  dbStatus.connected ? "bg-emerald-400 animate-pulse" : "bg-amber-400"
+                }`}
+              />
+              <span className="font-medium">
+                {dbStatus.connected
+                  ? `Live Cloud Storage Active (${dbStatus.storageType}): Any change here saves immediately across all live cards.`
+                  : "Live Cloud Storage (Vercel KV): Connect Vercel KV in 1 click (Storage → Create Database → KV) to enable instant live saving directly from this hosted form."}
+              </span>
+            </div>
+          </div>
+        )}
       </div>
 
       {errors.general && (

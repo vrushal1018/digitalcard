@@ -31,8 +31,63 @@ export function getRedisClient(): Redis | null {
 export function hasDatabaseConnection(): boolean {
   return Boolean(
     (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) ||
-    (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN)
+    (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) ||
+    process.env.BLOB_READ_WRITE_TOKEN ||
+    process.env.GITHUB_TOKEN ||
+    process.env.GH_TOKEN
   );
+}
+
+export function getStorageProviderName(): string {
+  if (process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL) {
+    return "Vercel KV / Upstash Redis";
+  }
+  if (process.env.BLOB_READ_WRITE_TOKEN) {
+    return "Vercel Blob Storage";
+  }
+  if (process.env.GITHUB_TOKEN || process.env.GH_TOKEN) {
+    return "GitHub API Direct Push";
+  }
+  return "Local Git Storage";
+}
+
+async function syncToGitHubApi(cards: DigitalCard[]): Promise<boolean> {
+  const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
+  if (!token) return false;
+
+  const repo = "vrushal1018/digitalcard";
+  const filePath = "data/cards.json";
+  try {
+    const getRes = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/vnd.github.v3+json",
+      },
+    });
+    if (!getRes.ok) return false;
+    const getData = await getRes.json();
+    const sha = getData.sha;
+
+    const content = Buffer.from(JSON.stringify(cards, null, 2), "utf-8").toString("base64");
+    const putRes = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/vnd.github.v3+json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        message: "chore: sync card update from hosted form",
+        content,
+        sha,
+        branch: "main",
+      }),
+    });
+    return putRes.ok;
+  } catch (err) {
+    console.warn("GitHub API sync notice:", err);
+    return false;
+  }
 }
 
 const isTestEnv = process.env.NODE_ENV === "test" || Boolean(process.env.VITEST);
@@ -331,6 +386,8 @@ export async function saveCardToStorage(card: DigitalCard): Promise<void> {
       console.warn("Failed to persist cards to Redis:", e);
     }
   }
+
+  syncToGitHubApi(cards).catch(() => {});
 }
 
 export async function updateCard(
@@ -386,6 +443,7 @@ export async function updateCard(
   }
 
   triggerGitSync(`update ${slug}`);
+  syncToGitHubApi(cards).catch(() => {});
 
   return updatedCard;
 }
@@ -434,6 +492,7 @@ export async function createCard(formData: CardFormData): Promise<DigitalCard> {
   }
 
   triggerGitSync(`create ${slug}`);
+  syncToGitHubApi(cards).catch(() => {});
 
   return newCard;
 }
@@ -482,6 +541,7 @@ export async function deleteCard(slug: string): Promise<boolean> {
   }
 
   triggerGitSync(`delete ${slug}`);
+  syncToGitHubApi(filtered).catch(() => {});
 
   return true;
 }
