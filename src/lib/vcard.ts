@@ -189,14 +189,7 @@ export function getGoogleContactsUrl(data: {
 }): string {
   const parts = data.name.trim().split(/\s+/).filter(Boolean);
   const givenname = parts[0] || "";
-  let familyname = parts.slice(1).join(" ") || "";
-
-  // Append Company Name in parentheses to the family name so it appears directly
-  // in Google Contacts name and phone caller ID
-  if (data.companyName?.trim()) {
-    const cleanCompany = data.companyName.trim();
-    familyname = familyname ? `${familyname} (${cleanCompany})` : `(${cleanCompany})`;
-  }
+  const familyname = parts.slice(1).join(" ") || "";
 
   const params = new URLSearchParams();
   if (givenname) params.set("givenname", givenname);
@@ -205,13 +198,18 @@ export function getGoogleContactsUrl(data: {
   if (data.email) params.set("email", data.email.trim());
 
   if (data.companyName?.trim()) {
-    params.set("company", data.companyName.trim());
-    params.set("organization", data.companyName.trim());
-    params.set("org", data.companyName.trim());
+    const comp = data.companyName.trim();
+    params.set("company", comp);
+    params.set("organization", comp);
+    params.set("org", comp);
+    params.set("companyname", comp);
   }
   if (data.designation?.trim()) {
-    params.set("jobtitle", data.designation.trim());
-    params.set("title", data.designation.trim());
+    const desig = data.designation.trim();
+    params.set("jobtitle", desig);
+    params.set("job_title", desig);
+    params.set("title", desig);
+    params.set("occupation", desig);
   }
 
   const noteItems: string[] = [];
