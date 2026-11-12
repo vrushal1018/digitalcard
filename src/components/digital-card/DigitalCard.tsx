@@ -16,6 +16,7 @@ import {
 } from "@/lib/links";
 import {
   downloadVCard,
+  saveContact,
   isAndroidDevice,
   VCardData,
 } from "@/lib/vcard";
@@ -112,15 +113,21 @@ export function DigitalCard({
     googleBusinessUrl: googleBusinessUrl?.trim() || undefined,
   };
 
-  const handleSaveContact = () => {
+  const handleSaveContact = async () => {
     if (!phoneNumber) return;
 
-    downloadVCard(vcardPayload);
-    setHasSaved(true);
-    if (isAndroid) {
-      setShowAndroidHelp(true);
+    try {
+      await saveContact(vcardPayload);
+      setHasSaved(true);
+      setTimeout(() => setHasSaved(false), 4000);
+    } catch {
+      downloadVCard(vcardPayload);
+      setHasSaved(true);
+      if (isAndroid) {
+        setShowAndroidHelp(true);
+      }
+      setTimeout(() => setHasSaved(false), 4000);
     }
-    setTimeout(() => setHasSaved(false), 4000);
   };
 
   useEffect(() => {

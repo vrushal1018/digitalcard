@@ -177,18 +177,45 @@ export function downloadVCard(data: VCardData) {
 
 /**
  * Universal save contact handler.
- * On Android (Chrome / Samsung Internet): opens native Contacts app directly.
+ * On Android: triggers native Android system popup (via Web Share API File)
+ * which immediately opens Contacts (Google Contacts / Samsung Contacts)
+ * with all fields automatically filled in so the user can just tap Save.
  * On iOS / Desktop: triggers standard .vcf import.
  */
-export function saveContact(data: VCardData, options?: { fallbackUrl?: string }) {
+export async function saveContact(data: VCardData): Promise<void> {
   if (typeof window === "undefined") return;
 
-  if (isAndroidDevice() && !isInAppBrowser()) {
-    const intentUrl = buildAndroidContactIntent(data, options?.fallbackUrl);
-    window.location.href = intentUrl;
-    return;
+  const vcardText = generateVCard(data);
+  const safeFilename =
+    data.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-") || "contact";
+
+  // On Android, use the native system popup via Web Share API with File
+  if (isAndroidDevice() && typeof File !== "undefined" && typeof navigator !== "undefined") {
+    try {
+      let file: File | null = null;
+      try {
+        file = new File([vcardText], `${safeFilename}.vcf`, { type: "text/vcard" });
+      } catch {
+        file = new File([vcardText], `${safeFilename}.vcf`, { type: "text/x-vcard" });
+      }
+
+      if (navigator.canShare && file && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: data.name,
+        });
+        return;
+      }
+    } catch (err: any) {
+      if (err?.name === "AbortError") {
+        // User closed or dismissed the system popup
+        return;
+      }
+      console.warn("Native contact share failed, falling back to download:", err);
+    }
   }
 
+  // iOS Safari (where download natively opens Add to Contacts) or desktop fallback:
   downloadVCard(data);
 }
 
