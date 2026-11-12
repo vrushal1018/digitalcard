@@ -8,6 +8,7 @@ import {
   getAllCards,
   getCardBySlug,
   encodeCardToken,
+  hasDatabaseConnection,
 } from "@/lib/cards";
 import { CardFormData } from "@/types/card";
 
@@ -56,6 +57,7 @@ export async function POST(request: NextRequest) {
         card: newCard,
         slug: newCard.slug,
         token,
+        hasDatabase: hasDatabaseConnection(),
       },
       { status: 201 }
     );
@@ -107,6 +109,7 @@ export async function PUT(request: NextRequest) {
       card: updatedCard,
       slug: updatedCard.slug,
       token,
+      hasDatabase: hasDatabaseConnection(),
     });
   } catch (error) {
     console.error("PUT /api/cards error:", error);

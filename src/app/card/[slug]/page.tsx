@@ -29,11 +29,19 @@ async function resolveCard(slug: string, token?: string) {
   if (token) {
     const decoded = decodeCardToken(token);
     if (decoded && decoded.slug.toLowerCase() === slug.toLowerCase()) {
-      const cardTime = card?.updatedAt ? new Date(card.updatedAt).getTime() : 0;
-      const tokenTime = decoded.updatedAt ? new Date(decoded.updatedAt).getTime() : 0;
-      if (!card || tokenTime >= cardTime) {
+      if (!card) {
+        // Recovery fallback if card does not exist in storage
         card = decoded;
         await saveCardToStorage(decoded);
+      } else {
+        // If card already exists in storage, only allow token if it is strictly NEWER
+        // Legacy shared tokens without timestamp (epoch 0) will never revert newer card edits
+        const cardTime = card.updatedAt ? new Date(card.updatedAt).getTime() : 0;
+        const tokenTime = decoded.updatedAt ? new Date(decoded.updatedAt).getTime() : 0;
+        if (tokenTime > cardTime) {
+          card = decoded;
+          await saveCardToStorage(decoded);
+        }
       }
     }
   }

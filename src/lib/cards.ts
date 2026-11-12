@@ -1,6 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 import crypto from "crypto";
+import { Redis } from "@upstash/redis";
 import { DigitalCard, CardFormData } from "../types/card";
 import { normalizePhoneForCall } from "./phone";
 
@@ -14,6 +15,24 @@ if (!globalThis.__INACARD_STORE__) {
 }
 if (!globalThis.__INACARD_DELETED__) {
   globalThis.__INACARD_DELETED__ = new Set<string>();
+}
+
+export function getRedisClient(): Redis | null {
+  const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) return null;
+  try {
+    return new Redis({ url, token });
+  } catch {
+    return null;
+  }
+}
+
+export function hasDatabaseConnection(): boolean {
+  return Boolean(
+    (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) ||
+    (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN)
+  );
 }
 
 const isTestEnv = process.env.NODE_ENV === "test" || Boolean(process.env.VITEST);
@@ -44,6 +63,7 @@ export interface CompactCardData {
   em?: string; // email
   w?: string; // websiteUrl
   s: string; // slug
+  t?: number; // timestamp in ms of creation or update
 }
 
 /**
@@ -83,6 +103,11 @@ export function encodeCardToken(card: DigitalCard): string {
   if (card.websiteUrl) {
     compact.w = card.websiteUrl;
   }
+  if (card.updatedAt || card.createdAt) {
+    compact.t = new Date(card.updatedAt || card.createdAt).getTime();
+  } else {
+    compact.t = Date.now();
+  }
   return Buffer.from(JSON.stringify(compact)).toString("base64url");
 }
 
@@ -91,6 +116,13 @@ export function decodeCardToken(token: string): DigitalCard | null {
     const raw = Buffer.from(token, "base64url").toString("utf-8");
     const parsed = JSON.parse(raw) as CompactCardData;
     if (!parsed.n || !parsed.s) return null;
+
+    // If timestamp was encoded, preserve it; if legacy token with no timestamp, use epoch 0
+    // so legacy links with old snapshots will NEVER override newer edits to existing cards.
+    const timeStr = parsed.t
+      ? new Date(parsed.t).toISOString()
+      : new Date(0).toISOString();
+
     return {
       id: crypto.randomUUID(),
       slug: parsed.s,
@@ -107,8 +139,8 @@ export function decodeCardToken(token: string): DigitalCard | null {
       facebookUrl: parsed.fb || "",
       email: parsed.em || "",
       websiteUrl: parsed.w || "",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: timeStr,
+      updatedAt: timeStr,
     };
   } catch {
     return null;
@@ -179,6 +211,18 @@ export async function getDeletedSlugs(): Promise<Set<string>> {
   for (const s of localDeleted) memoryDeleted.add(s.toLowerCase());
   for (const s of tmpDeleted) memoryDeleted.add(s.toLowerCase());
 
+  const redis = getRedisClient();
+  if (redis) {
+    try {
+      const redisDeleted = (await redis.smembers("inacard:deleted")) as string[];
+      if (Array.isArray(redisDeleted)) {
+        for (const s of redisDeleted) memoryDeleted.add(s.toLowerCase());
+      }
+    } catch (e) {
+      console.warn("Failed to fetch deleted slugs from Redis:", e);
+    }
+  }
+
   globalThis.__INACARD_DELETED__ = memoryDeleted;
   return memoryDeleted;
 }
@@ -189,28 +233,52 @@ export async function getAllCards(): Promise<DigitalCard[]> {
   const localCards = await readCardsFromFile(LOCAL_CARDS_FILE);
   const tmpCards = await readCardsFromFile(TMP_CARDS_FILE);
 
+  let redisCards: DigitalCard[] = [];
+  const redis = getRedisClient();
+  if (redis) {
+    try {
+      const fetched = await redis.get<DigitalCard[]>("inacard:cards");
+      if (Array.isArray(fetched) && fetched.length > 0) {
+        redisCards = fetched;
+      } else if (localCards.length > 0) {
+        // Seed Redis with local cards if Redis is empty
+        await redis.set("inacard:cards", localCards);
+      }
+    } catch (e) {
+      console.warn("Failed to fetch cards from Redis:", e);
+    }
+  }
+
+  // Deduplicate by slug, keeping the newest updatedAt record for each card
   const map = new Map<string, DigitalCard>();
-  for (const c of localCards) {
-    if (c.slug && !deletedSlugs.has(c.slug.toLowerCase())) {
-      map.set(c.id, c);
+  const addCard = (c: DigitalCard) => {
+    if (!c.slug) return;
+    const slugKey = c.slug.toLowerCase().trim();
+    if (deletedSlugs.has(slugKey)) return;
+
+    const existing = map.get(slugKey);
+    if (!existing) {
+      map.set(slugKey, c);
+    } else {
+      const existingTime = new Date(existing.updatedAt || existing.createdAt || 0).getTime();
+      const newTime = new Date(c.updatedAt || c.createdAt || 0).getTime();
+      if (newTime >= existingTime) {
+        map.set(slugKey, c);
+      }
     }
-  }
-  for (const c of tmpCards) {
-    if (c.slug && !deletedSlugs.has(c.slug.toLowerCase())) {
-      map.set(c.id, c);
-    }
-  }
-  for (const c of memoryCards) {
-    if (c.slug && !deletedSlugs.has(c.slug.toLowerCase())) {
-      map.set(c.id, c);
-    }
-  }
+  };
+
+  for (const c of localCards) addCard(c);
+  for (const c of tmpCards) addCard(c);
+  for (const c of memoryCards) addCard(c);
+  for (const c of redisCards) addCard(c);
 
   const all = Array.from(map.values()).sort((a, b) => {
     const timeA = new Date(a.updatedAt || a.createdAt || 0).getTime();
     const timeB = new Date(b.updatedAt || b.createdAt || 0).getTime();
     return timeB - timeA;
   });
+
   globalThis.__INACARD_STORE__ = all;
   return all;
 }
@@ -238,7 +306,7 @@ export async function saveCardToStorage(card: DigitalCard): Promise<void> {
     cards[existingIndex] = {
       ...cards[existingIndex],
       ...card,
-      updatedAt: new Date().toISOString(),
+      updatedAt: card.updatedAt || new Date().toISOString(),
     };
   } else {
     cards.push(card);
@@ -248,6 +316,15 @@ export async function saveCardToStorage(card: DigitalCard): Promise<void> {
   const localSuccess = await writeCardsToFile(LOCAL_DATA_DIR, LOCAL_CARDS_FILE, cards);
   if (!localSuccess) {
     await writeCardsToFile(TMP_DATA_DIR, TMP_CARDS_FILE, cards);
+  }
+
+  const redis = getRedisClient();
+  if (redis) {
+    try {
+      await redis.set("inacard:cards", cards);
+    } catch (e) {
+      console.warn("Failed to persist cards to Redis:", e);
+    }
   }
 }
 
@@ -293,6 +370,15 @@ export async function updateCard(
     await writeCardsToFile(TMP_DATA_DIR, TMP_CARDS_FILE, cards);
   }
 
+  const redis = getRedisClient();
+  if (redis) {
+    try {
+      await redis.set("inacard:cards", cards);
+    } catch (e) {
+      console.warn("Failed to update card in Redis:", e);
+    }
+  }
+
   return updatedCard;
 }
 
@@ -329,6 +415,15 @@ export async function createCard(formData: CardFormData): Promise<DigitalCard> {
     await writeCardsToFile(TMP_DATA_DIR, TMP_CARDS_FILE, cards);
   }
 
+  const redis = getRedisClient();
+  if (redis) {
+    try {
+      await redis.set("inacard:cards", cards);
+    } catch (e) {
+      console.warn("Failed to write new card to Redis:", e);
+    }
+  }
+
   return newCard;
 }
 
@@ -351,12 +446,29 @@ export async function deleteCard(slug: string): Promise<boolean> {
   await writeDeletedSlugsToFile(LOCAL_DATA_DIR, LOCAL_DELETED_FILE, deletedList);
   await writeDeletedSlugsToFile(TMP_DATA_DIR, TMP_DELETED_FILE, deletedList);
 
+  const redis = getRedisClient();
+  if (redis) {
+    try {
+      await redis.sadd("inacard:deleted", normalizedSlug);
+    } catch (e) {
+      console.warn("Failed to add deleted slug to Redis:", e);
+    }
+  }
+
   // 2. Remove from active cards
   const filtered = cards.filter((c) => c.slug.toLowerCase() !== normalizedSlug);
   globalThis.__INACARD_STORE__ = filtered;
 
   await writeCardsToFile(LOCAL_DATA_DIR, LOCAL_CARDS_FILE, filtered);
   await writeCardsToFile(TMP_DATA_DIR, TMP_CARDS_FILE, filtered);
+
+  if (redis) {
+    try {
+      await redis.set("inacard:cards", filtered);
+    } catch (e) {
+      console.warn("Failed to delete card from Redis:", e);
+    }
+  }
 
   return true;
 }

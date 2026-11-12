@@ -182,8 +182,7 @@ export function CardForm({
   const origin =
     process.env.NEXT_PUBLIC_APP_URL ||
     (typeof window !== "undefined" ? window.location.origin : "http://localhost:3000");
-  const queryPart = cardToken ? `?d=${cardToken}` : "";
-  const cardPath = createdSlug ? `/card/${createdSlug}${queryPart}` : "";
+  const cardPath = createdSlug ? `/card/${createdSlug}` : "";
   const cardFullUrl = createdSlug ? `${origin}${cardPath}` : "";
   const qrAutoSaveUrl = `${cardFullUrl}${cardFullUrl.includes("?") ? "&" : "?"}scan=1`;
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(

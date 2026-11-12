@@ -141,6 +141,43 @@ describe("Card storage and slug generation", () => {
     expect(decoded?.bgFit).toBe("contain");
   });
 
+  it("preserves card update timestamps in tokens and defaults legacy tokens to epoch 0", () => {
+    const card = {
+      id: "test-id-2",
+      slug: "alex-jordan-5678",
+      name: "Alex Jordan",
+      designation: "VP",
+      companyName: "Innovative Spaces",
+      phoneNumber: "+919876543210",
+      officeLocation: "BKC, Mumbai",
+      photoUrl: "https://example.com/new-avatar.jpg",
+      createdAt: "2026-11-10T10:00:00.000Z",
+      updatedAt: "2026-11-11T12:00:00.000Z",
+    };
+
+    const token = encodeCardToken(card);
+    const decoded = decodeCardToken(token);
+    expect(decoded?.updatedAt).toBe("2026-11-11T12:00:00.000Z");
+
+    // Legacy token with no 't' field
+    const legacyCompact = {
+      n: "Alex Jordan",
+      d: "Old VP",
+      c: "Innovative Spaces",
+      p: "+919876543210",
+      l: "BKC, Mumbai",
+      u: "https://example.com/old-avatar.jpg",
+      s: "alex-jordan-5678",
+    };
+    const legacyToken = Buffer.from(JSON.stringify(legacyCompact)).toString("base64url");
+    const legacyDecoded = decodeCardToken(legacyToken);
+    expect(legacyDecoded?.updatedAt).toBe(new Date(0).toISOString());
+    // Legacy token date is in 1970, so it will never be newer than an updated card
+    expect(new Date(legacyDecoded!.updatedAt).getTime()).toBeLessThan(
+      new Date(card.updatedAt).getTime()
+    );
+  });
+
   it("returns null for non-existent slug", async () => {
     const result = await getCardBySlug("non-existent-slug-xyz");
     expect(result).toBeNull();
