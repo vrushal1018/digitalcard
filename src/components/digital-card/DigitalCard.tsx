@@ -17,8 +17,6 @@ import {
 import {
   downloadVCard,
   isAndroidDevice,
-  isInAppBrowser,
-  buildAndroidContactIntent,
   VCardData,
 } from "@/lib/vcard";
 import {
@@ -92,11 +90,10 @@ export function DigitalCard({
   const googleBusinessHref = getGoogleBusinessLink(googleBusinessUrl);
 
   const [isAndroid, setIsAndroid] = useState(false);
-  const [inAppBrowser, setInAppBrowser] = useState(false);
+  const [showAndroidHelp, setShowAndroidHelp] = useState(false);
 
   useEffect(() => {
     setIsAndroid(isAndroidDevice());
-    setInAppBrowser(isInAppBrowser());
   }, []);
 
   const vcardPayload: VCardData = {
@@ -115,27 +112,15 @@ export function DigitalCard({
     googleBusinessUrl: googleBusinessUrl?.trim() || undefined,
   };
 
-  const androidIntentUrl =
-    isAndroid && !inAppBrowser ? buildAndroidContactIntent(vcardPayload) : undefined;
-
-  const handleSaveContact = (e?: React.MouseEvent) => {
+  const handleSaveContact = () => {
     if (!phoneNumber) return;
 
-    if (isAndroid && !inAppBrowser) {
-      if (!androidIntentUrl || !e || e.defaultPrevented) {
-        window.location.href = buildAndroidContactIntent(vcardPayload);
-      }
-      setHasSaved(true);
-      setTimeout(() => setHasSaved(false), 3500);
-      return;
-    }
-
-    if (e) {
-      e.preventDefault();
-    }
     downloadVCard(vcardPayload);
     setHasSaved(true);
-    setTimeout(() => setHasSaved(false), 3500);
+    if (isAndroid) {
+      setShowAndroidHelp(true);
+    }
+    setTimeout(() => setHasSaved(false), 4000);
   };
 
   useEffect(() => {
@@ -395,37 +380,41 @@ export function DigitalCard({
           {/* Bottom Action Pill Buttons */}
           <div className="w-full my-4 sm:my-5 space-y-2.5">
             {/* Save contact button */}
-            <a
-              role="button"
-              href={androidIntentUrl || "#"}
+            <button
+              type="button"
               onClick={handleSaveContact}
-              aria-disabled={!phoneNumber}
-              className={`w-full py-3.5 px-6 rounded-full bg-[#1886cf] hover:bg-[#1578bb] active:scale-[0.99] text-white font-semibold text-sm sm:text-[15px] flex items-center justify-center gap-2 shadow-sm transition-all select-none ${
-                !phoneNumber
-                  ? "opacity-50 pointer-events-none cursor-not-allowed"
-                  : "cursor-pointer"
-              }`}
+              disabled={!phoneNumber}
+              className="w-full py-3.5 px-6 rounded-full bg-[#1886cf] hover:bg-[#1578bb] active:scale-[0.99] text-white font-semibold text-sm sm:text-[15px] flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed select-none"
             >
               {hasSaved ? (
                 <>
                   <Check className="w-4 h-4 stroke-[2.5]" />
-                  <span>{isAndroid ? "Opening Contacts..." : "Contact details saved!"}</span>
+                  <span>Contact details saved!</span>
                 </>
               ) : (
                 <span>Save contact</span>
               )}
-            </a>
+            </button>
 
-            {/* Android direct file download fallback option */}
-            {isAndroid && !isPreview && phoneNumber && (
-              <div className="text-center pt-0.5">
-                <button
-                  type="button"
-                  onClick={() => downloadVCard(vcardPayload)}
-                  className="text-[11px] text-zinc-400 hover:text-zinc-600 underline transition-colors cursor-pointer"
-                >
-                  Download .vcf file instead
-                </button>
+            {/* Android step-by-step guidance banner */}
+            {showAndroidHelp && (
+              <div className="p-3.5 rounded-2xl bg-sky-50/90 border border-sky-200 text-sky-950 text-xs sm:text-[13px] animate-fade-in space-y-1.5 shadow-sm text-left">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 font-semibold text-[#1886cf]">
+                    <Check className="w-4 h-4 stroke-[2.5]" />
+                    <span>Contact ready to import</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowAndroidHelp(false)}
+                    className="text-zinc-400 hover:text-zinc-600 text-xs font-bold px-1"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <p className="text-zinc-700 leading-relaxed">
+                  Tap <strong>&ldquo;Open&rdquo;</strong> on the download alert on your screen (or from your notification bar) to add <strong>{displayName}</strong> directly into your phone&apos;s Contacts app.
+                </p>
               </div>
             )}
 
