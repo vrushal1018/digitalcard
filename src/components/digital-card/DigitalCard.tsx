@@ -113,10 +113,10 @@ export function DigitalCard({
     : undefined;
 
   return (
-    <div className={`w-full mx-auto select-none flex-1 flex flex-col ${isPreview ? "max-w-[420px]" : "w-full sm:max-w-[420px]"}`}>
+    <div className={`w-full mx-auto select-none flex-1 flex flex-col font-poppins ${isPreview ? "max-w-[420px]" : "w-full sm:max-w-[420px]"}`}>
       {/* Card Container: Edge-to-edge full screen on mobile, exact mobile preview on desktop */}
       <div
-        className={`relative overflow-hidden bg-white flex-1 flex flex-col justify-between transition-all duration-300 ${
+        className={`relative overflow-hidden bg-white flex-1 flex flex-col justify-between transition-all duration-300 font-poppins ${
           isPreview
             ? "rounded-[32px] sm:rounded-[38px] border border-zinc-200/80 shadow-xl"
             : "w-full min-h-screen sm:min-h-0 rounded-none sm:rounded-[38px] border-0 sm:border sm:border-zinc-200/90 shadow-none sm:shadow-2xl"
@@ -158,7 +158,7 @@ export function DigitalCard({
 
             {/* Identity: Name, Designation & Company */}
             <div className="text-center mt-3 sm:mt-3.5">
-              <h1 className="text-2xl sm:text-[26px] tracking-tight text-zinc-950 font-sans">
+              <h1 className="text-2xl sm:text-[26px] tracking-tight text-zinc-950 font-poppins">
                 {lastName ? (
                   <>
                     <span className="font-bold">{firstName}</span>{" "}

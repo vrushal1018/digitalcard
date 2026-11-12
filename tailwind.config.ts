@@ -8,6 +8,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        poppins: ["Poppins", "var(--font-poppins)", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
+      },
       colors: {
         card: {
           bg: "#0d0f12",
@@ -22,4 +25,3 @@ const config: Config = {
   plugins: [],
 };
 export default config;
-
