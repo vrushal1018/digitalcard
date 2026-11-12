@@ -176,6 +176,29 @@ export function downloadVCard(data: VCardData) {
 }
 
 /**
+ * Constructs a Google Contacts prefilled URL.
+ * Opens Google Contacts with name, phone, and email prefilled, allowing the user
+ * to simply tap "Save".
+ */
+export function getGoogleContactsUrl(data: {
+  name: string;
+  phoneNumber?: string;
+  email?: string;
+}): string {
+  const parts = data.name.trim().split(/\s+/).filter(Boolean);
+  const givenname = parts[0] || "";
+  const familyname = parts.slice(1).join(" ") || "";
+
+  const params = new URLSearchParams();
+  if (givenname) params.set("givenname", givenname);
+  if (familyname) params.set("familyname", familyname);
+  if (data.phoneNumber) params.set("phone", data.phoneNumber.trim());
+  if (data.email) params.set("email", data.email.trim());
+
+  return `https://contacts.google.com/new?${params.toString()}`;
+}
+
+/**
  * Universal save contact handler.
  * On Android: triggers native Android system popup (via Web Share API File)
  * which immediately opens Contacts (Google Contacts / Samsung Contacts)

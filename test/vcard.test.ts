@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   generateVCard,
   buildAndroidContactIntent,
+  getGoogleContactsUrl,
   isAndroidDevice,
 } from "../src/lib/vcard";
 
@@ -64,6 +65,20 @@ describe("vCard generation", () => {
     expect(intentUri).toContain("S.postal=Pune%2C%20Maharashtra");
     expect(intentUri).toContain("S.notes=");
     expect(intentUri.endsWith(";end;")).toBe(true);
+  });
+
+  it("builds a valid Google Contacts prefilled URL", () => {
+    const url = getGoogleContactsUrl({
+      name: "Jaisalil Shilewant",
+      phoneNumber: "+919579732585",
+      email: "jaisalil.s@inaspaceworks.com",
+    });
+
+    expect(url.startsWith("https://contacts.google.com/new?")).toBe(true);
+    expect(url).toContain("givenname=Jaisalil");
+    expect(url).toContain("familyname=Shilewant");
+    expect(url).toContain("phone=%2B919579732585");
+    expect(url).toContain("email=jaisalil.s%40inaspaceworks.com");
   });
 });
 
