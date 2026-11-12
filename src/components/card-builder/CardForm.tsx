@@ -235,9 +235,8 @@ export function CardForm({
     (typeof window !== "undefined" ? window.location.origin : "http://localhost:3000");
   const cardPath = createdSlug ? `/card/${createdSlug}` : "";
   const cardFullUrl = createdSlug ? `${origin}${cardPath}` : "";
-  const qrAutoSaveUrl = `${cardFullUrl}${cardFullUrl.includes("?") ? "&" : "?"}scan=1`;
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(
-    qrAutoSaveUrl
+    cardFullUrl
   )}`;
   const whatsappShareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(
     `Check out ${formData.name}'s digital business card: ${cardFullUrl}`

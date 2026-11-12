@@ -91,7 +91,6 @@ export function DigitalCard({
   const googleBusinessHref = getGoogleBusinessLink(googleBusinessUrl);
 
   const [isAndroid, setIsAndroid] = useState(false);
-  const [showAndroidHelp, setShowAndroidHelp] = useState(false);
 
   useEffect(() => {
     setIsAndroid(isAndroidDevice());
@@ -123,21 +122,9 @@ export function DigitalCard({
     } catch {
       downloadVCard(vcardPayload);
       setHasSaved(true);
-      if (isAndroid) {
-        setShowAndroidHelp(true);
-      }
       setTimeout(() => setHasSaved(false), 4000);
     }
   };
-
-  useEffect(() => {
-    if (autoSave && !isPreview && phoneNumber) {
-      const timer = setTimeout(() => {
-        handleSaveContact();
-      }, 800);
-      return () => clearTimeout(timer);
-    }
-  }, [autoSave, isPreview, phoneNumber]);
 
   // Clean website display label without protocol
   const displayWebsite = websiteUrl
@@ -402,28 +389,6 @@ export function DigitalCard({
                 <span>Save contact</span>
               )}
             </button>
-
-            {/* Android step-by-step guidance banner */}
-            {showAndroidHelp && (
-              <div className="p-3.5 rounded-2xl bg-sky-50/90 border border-sky-200 text-sky-950 text-xs sm:text-[13px] animate-fade-in space-y-1.5 shadow-sm text-left">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-1.5 font-semibold text-[#1886cf]">
-                    <Check className="w-4 h-4 stroke-[2.5]" />
-                    <span>Contact ready to import</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setShowAndroidHelp(false)}
-                    className="text-zinc-400 hover:text-zinc-600 text-xs font-bold px-1"
-                  >
-                    ✕
-                  </button>
-                </div>
-                <p className="text-zinc-700 leading-relaxed">
-                  Tap <strong>&ldquo;Open&rdquo;</strong> on the download alert on your screen (or from your notification bar) to add <strong>{displayName}</strong> directly into your phone&apos;s Contacts app.
-                </p>
-              </div>
-            )}
 
             {/* Share card button */}
             <ShareButton
