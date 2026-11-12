@@ -53,7 +53,7 @@ describe("vCard generation", () => {
       googleBusinessUrl: "https://share.google/vAs5vkjSyINd2SOoA",
     });
 
-    expect(intentUri.startsWith("intent://#Intent;")).toBe(true);
+    expect(intentUri.startsWith("intent:#Intent;")).toBe(true);
     expect(intentUri).toContain("action=android.intent.action.INSERT");
     expect(intentUri).toContain("type=vnd.android.cursor.dir/contact");
     expect(intentUri).toContain("S.name=Jaisalil%20Shilewant");

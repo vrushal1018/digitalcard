@@ -152,7 +152,7 @@ export function buildAndroidContactIntent(data: VCardData, fallbackUrl?: string)
   }
 
   parts.push("end");
-  return `intent://#Intent;${parts.join(";")};`;
+  return `intent:#Intent;${parts.join(";")};`;
 }
 
 /**
