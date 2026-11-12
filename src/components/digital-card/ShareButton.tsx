@@ -35,7 +35,6 @@ export function ShareButton({
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
         await navigator.share({
-          title: `${cardName} — Digital Business Card`,
           url,
         });
         return;
