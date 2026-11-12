@@ -78,7 +78,7 @@ describe("vCard generation", () => {
 
     expect(url.startsWith("https://contacts.google.com/new?")).toBe(true);
     expect(url).toContain("givenname=Jaisalil");
-    expect(url).toContain("familyname=Shilewant");
+    expect(url).toContain("familyname=Shilewant+%28INA+Spaceworks+-+Founder+%26+Principal+Architect%29");
     expect(url).toContain("phone=%2B919579732585");
     expect(url).toContain("email=jaisalil.s%40inaspaceworks.com");
     expect(url).toContain("company=INA+Spaceworks");

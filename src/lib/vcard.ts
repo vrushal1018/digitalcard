@@ -189,7 +189,18 @@ export function getGoogleContactsUrl(data: {
 }): string {
   const parts = data.name.trim().split(/\s+/).filter(Boolean);
   const givenname = parts[0] || "";
-  const familyname = parts.slice(1).join(" ") || "";
+  let familyname = parts.slice(1).join(" ") || "";
+
+  // Combine company and job title into the visible surname field so Google Contacts
+  // displays and saves them directly
+  const orgParts: string[] = [];
+  if (data.companyName?.trim()) orgParts.push(data.companyName.trim());
+  if (data.designation?.trim()) orgParts.push(data.designation.trim());
+
+  if (orgParts.length > 0) {
+    const orgLabel = orgParts.join(" - ");
+    familyname = familyname ? `${familyname} (${orgLabel})` : `(${orgLabel})`;
+  }
 
   const params = new URLSearchParams();
   if (givenname) params.set("givenname", givenname);
