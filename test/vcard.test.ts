@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { generateVCard } from "../src/lib/vcard";
+import {
+  generateVCard,
+  buildAndroidContactIntent,
+  isAndroidDevice,
+} from "../src/lib/vcard";
 
 describe("vCard generation", () => {
   it("generates a valid vCard 3.0 payload with contact fields", () => {
@@ -35,5 +39,32 @@ describe("vCard generation", () => {
     expect(vcard).toContain("PHOTO;VALUE=URI:https://i.ibb.co/photo.jpg");
     expect(vcard).toContain("END:VCARD");
   });
+
+  it("builds a valid Android Contacts Intent URI that opens native Contacts app", () => {
+    const intentUri = buildAndroidContactIntent({
+      name: "Jaisalil Shilewant",
+      designation: "Founder & Principal Architect",
+      companyName: "INA Spaceworks",
+      phoneNumber: "+919579732585",
+      officeLocation: "Pune, Maharashtra",
+      email: "contact@inaspaceworks.com",
+      websiteUrl: "https://inaspaceworks.com",
+      cardUrl: "https://inadigitalcard.vercel.app/card/jaisalil-shilewant",
+      googleBusinessUrl: "https://share.google/vAs5vkjSyINd2SOoA",
+    });
+
+    expect(intentUri.startsWith("intent://#Intent;")).toBe(true);
+    expect(intentUri).toContain("action=android.intent.action.INSERT");
+    expect(intentUri).toContain("type=vnd.android.cursor.dir/contact");
+    expect(intentUri).toContain("S.name=Jaisalil%20Shilewant");
+    expect(intentUri).toContain("S.phone=%2B919579732585");
+    expect(intentUri).toContain("S.company=INA%20Spaceworks");
+    expect(intentUri).toContain("S.job_title=Founder%20%26%20Principal%20Architect");
+    expect(intentUri).toContain("S.email=contact%40inaspaceworks.com");
+    expect(intentUri).toContain("S.postal=Pune%2C%20Maharashtra");
+    expect(intentUri).toContain("S.notes=");
+    expect(intentUri.endsWith(";end;")).toBe(true);
+  });
 });
+
 

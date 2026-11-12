@@ -87,13 +87,82 @@ export function generateVCard(data: VCardData): string {
 }
 
 /**
+ * Detects whether the current client is running Android
+ */
+export function isAndroidDevice(): boolean {
+  if (typeof navigator === "undefined") return false;
+  const ua = navigator.userAgent || "";
+  return /Android/i.test(ua);
+}
+
+/**
+ * Detects in-app webview browsers (e.g. Instagram, WhatsApp, LinkedIn, Facebook)
+ * which may have restricted intent handling.
+ */
+export function isInAppBrowser(): boolean {
+  if (typeof navigator === "undefined") return false;
+  const ua = navigator.userAgent || "";
+  return /FBAN|FBAV|Instagram|WhatsApp|LinkedInApp|Line|MicroMessenger/i.test(ua);
+}
+
+/**
+ * Constructs an Android Intent URI that directly opens the native Contacts / People app
+ * to the "New Contact" creation screen with pre-filled details.
+ * Prevents Android Chrome from dumping a .vcf file into the Downloads folder.
+ */
+export function buildAndroidContactIntent(data: VCardData, fallbackUrl?: string): string {
+  const parts: string[] = [
+    "action=android.intent.action.INSERT",
+    "type=vnd.android.cursor.dir/contact",
+  ];
+
+  if (data.name?.trim()) {
+    parts.push(`S.name=${encodeURIComponent(data.name.trim())}`);
+  }
+  if (data.phoneNumber?.trim()) {
+    parts.push(`S.phone=${encodeURIComponent(data.phoneNumber.trim())}`);
+  }
+  if (data.companyName?.trim()) {
+    parts.push(`S.company=${encodeURIComponent(data.companyName.trim())}`);
+  }
+  if (data.designation?.trim()) {
+    parts.push(`S.job_title=${encodeURIComponent(data.designation.trim())}`);
+  }
+  if (data.email?.trim()) {
+    parts.push(`S.email=${encodeURIComponent(data.email.trim())}`);
+  }
+  if (data.officeLocation?.trim()) {
+    parts.push(`S.postal=${encodeURIComponent(data.officeLocation.trim())}`);
+  }
+
+  const notesList: string[] = [];
+  if (data.websiteUrl?.trim()) notesList.push(`Website: ${data.websiteUrl.trim()}`);
+  if (data.cardUrl?.trim()) notesList.push(`Digital Card: ${data.cardUrl.trim()}`);
+  if (data.googleBusinessUrl?.trim()) notesList.push(`Google Business: ${data.googleBusinessUrl.trim()}`);
+  if (data.linkedinUrl?.trim()) notesList.push(`LinkedIn: ${data.linkedinUrl.trim()}`);
+  if (data.instagramUrl?.trim()) notesList.push(`Instagram: ${data.instagramUrl.trim()}`);
+  if (data.facebookUrl?.trim()) notesList.push(`Facebook: ${data.facebookUrl.trim()}`);
+
+  if (notesList.length > 0) {
+    parts.push(`S.notes=${encodeURIComponent(notesList.join("\n"))}`);
+  }
+
+  if (fallbackUrl?.trim()) {
+    parts.push(`S.browser_fallback_url=${encodeURIComponent(fallbackUrl.trim())}`);
+  }
+
+  parts.push("end");
+  return `intent://#Intent;${parts.join(";")};`;
+}
+
+/**
  * Client-side download trigger for .vcf contact card
  */
 export function downloadVCard(data: VCardData) {
   if (typeof window === "undefined") return;
 
   const vcardText = generateVCard(data);
-  const blob = new Blob([vcardText], { type: "text/vcard;charset=utf-8" });
+  const blob = new Blob([vcardText], { type: "text/x-vcard;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
@@ -104,5 +173,22 @@ export function downloadVCard(data: VCardData) {
   link.click();
   document.body.removeChild(link);
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/**
+ * Universal save contact handler.
+ * On Android (Chrome / Samsung Internet): opens native Contacts app directly.
+ * On iOS / Desktop: triggers standard .vcf import.
+ */
+export function saveContact(data: VCardData, options?: { fallbackUrl?: string }) {
+  if (typeof window === "undefined") return;
+
+  if (isAndroidDevice() && !isInAppBrowser()) {
+    const intentUrl = buildAndroidContactIntent(data, options?.fallbackUrl);
+    window.location.href = intentUrl;
+    return;
+  }
+
+  downloadVCard(data);
 }
 

@@ -14,7 +14,13 @@ import {
   getEmailLink,
   getGoogleBusinessLink,
 } from "@/lib/links";
-import { downloadVCard } from "@/lib/vcard";
+import {
+  downloadVCard,
+  isAndroidDevice,
+  isInAppBrowser,
+  buildAndroidContactIntent,
+  VCardData,
+} from "@/lib/vcard";
 import {
   LinkedInIcon,
   InstagramIcon,
@@ -85,25 +91,51 @@ export function DigitalCard({
   const emailHref = getEmailLink(email);
   const googleBusinessHref = getGoogleBusinessLink(googleBusinessUrl);
 
-  const handleSaveContact = () => {
+  const [isAndroid, setIsAndroid] = useState(false);
+  const [inAppBrowser, setInAppBrowser] = useState(false);
+
+  useEffect(() => {
+    setIsAndroid(isAndroidDevice());
+    setInAppBrowser(isInAppBrowser());
+  }, []);
+
+  const vcardPayload: VCardData = {
+    name: displayName,
+    designation: displayDesignation,
+    companyName: displayCompany,
+    phoneNumber,
+    officeLocation,
+    photoUrl,
+    cardUrl: shareUrl,
+    linkedinUrl: linkedinHref || undefined,
+    instagramUrl: instagramHref || undefined,
+    facebookUrl: facebookUrl || undefined,
+    email: email?.trim() || undefined,
+    websiteUrl: websiteUrl?.trim() || undefined,
+    googleBusinessUrl: googleBusinessUrl?.trim() || undefined,
+  };
+
+  const androidIntentUrl =
+    isAndroid && !inAppBrowser ? buildAndroidContactIntent(vcardPayload) : undefined;
+
+  const handleSaveContact = (e?: React.MouseEvent) => {
     if (!phoneNumber) return;
-    downloadVCard({
-      name: displayName,
-      designation: displayDesignation,
-      companyName: displayCompany,
-      phoneNumber,
-      officeLocation,
-      photoUrl,
-      cardUrl: shareUrl,
-      linkedinUrl: linkedinHref || undefined,
-      instagramUrl: instagramHref || undefined,
-      facebookUrl: facebookUrl || undefined,
-      email: email?.trim() || undefined,
-      websiteUrl: websiteUrl?.trim() || undefined,
-      googleBusinessUrl: googleBusinessUrl?.trim() || undefined,
-    });
+
+    if (isAndroid && !inAppBrowser) {
+      if (!androidIntentUrl || !e || e.defaultPrevented) {
+        window.location.href = buildAndroidContactIntent(vcardPayload);
+      }
+      setHasSaved(true);
+      setTimeout(() => setHasSaved(false), 3500);
+      return;
+    }
+
+    if (e) {
+      e.preventDefault();
+    }
+    downloadVCard(vcardPayload);
     setHasSaved(true);
-    setTimeout(() => setHasSaved(false), 3000);
+    setTimeout(() => setHasSaved(false), 3500);
   };
 
   useEffect(() => {
@@ -363,21 +395,39 @@ export function DigitalCard({
           {/* Bottom Action Pill Buttons */}
           <div className="w-full my-4 sm:my-5 space-y-2.5">
             {/* Save contact button */}
-            <button
-              type="button"
+            <a
+              role="button"
+              href={androidIntentUrl || "#"}
               onClick={handleSaveContact}
-              disabled={!phoneNumber}
-              className="w-full py-3.5 px-6 rounded-full bg-[#1886cf] hover:bg-[#1578bb] active:scale-[0.99] text-white font-semibold text-sm sm:text-[15px] flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-disabled={!phoneNumber}
+              className={`w-full py-3.5 px-6 rounded-full bg-[#1886cf] hover:bg-[#1578bb] active:scale-[0.99] text-white font-semibold text-sm sm:text-[15px] flex items-center justify-center gap-2 shadow-sm transition-all select-none ${
+                !phoneNumber
+                  ? "opacity-50 pointer-events-none cursor-not-allowed"
+                  : "cursor-pointer"
+              }`}
             >
               {hasSaved ? (
                 <>
                   <Check className="w-4 h-4 stroke-[2.5]" />
-                  <span>Contact details saved!</span>
+                  <span>{isAndroid ? "Opening Contacts..." : "Contact details saved!"}</span>
                 </>
               ) : (
                 <span>Save contact</span>
               )}
-            </button>
+            </a>
+
+            {/* Android direct file download fallback option */}
+            {isAndroid && !isPreview && phoneNumber && (
+              <div className="text-center pt-0.5">
+                <button
+                  type="button"
+                  onClick={() => downloadVCard(vcardPayload)}
+                  className="text-[11px] text-zinc-400 hover:text-zinc-600 underline transition-colors cursor-pointer"
+                >
+                  Download .vcf file instead
+                </button>
+              </div>
+            )}
 
             {/* Share card button */}
             <ShareButton
