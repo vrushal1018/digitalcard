@@ -62,6 +62,7 @@ export interface CompactCardData {
   fb?: string; // facebook
   em?: string; // email
   w?: string; // websiteUrl
+  gb?: string; // googleBusinessUrl
   s: string; // slug
   t?: number; // timestamp in ms of creation or update
 }
@@ -103,6 +104,9 @@ export function encodeCardToken(card: DigitalCard): string {
   if (card.websiteUrl) {
     compact.w = card.websiteUrl;
   }
+  if (card.googleBusinessUrl) {
+    compact.gb = card.googleBusinessUrl;
+  }
   if (card.updatedAt || card.createdAt) {
     compact.t = new Date(card.updatedAt || card.createdAt).getTime();
   } else {
@@ -139,6 +143,7 @@ export function decodeCardToken(token: string): DigitalCard | null {
       facebookUrl: parsed.fb || "",
       email: parsed.em || "",
       websiteUrl: parsed.w || "",
+      googleBusinessUrl: parsed.gb || "",
       createdAt: timeStr,
       updatedAt: timeStr,
     };
@@ -359,6 +364,7 @@ export async function updateCard(
     facebookUrl: (formData.facebookUrl || "").trim(),
     email: (formData.email || "").trim(),
     websiteUrl: (formData.websiteUrl || "").trim(),
+    googleBusinessUrl: (formData.googleBusinessUrl || "").trim(),
     updatedAt: now,
   };
 
@@ -402,6 +408,7 @@ export async function createCard(formData: CardFormData): Promise<DigitalCard> {
     facebookUrl: (formData.facebookUrl || "").trim(),
     email: (formData.email || "").trim(),
     websiteUrl: (formData.websiteUrl || "").trim(),
+    googleBusinessUrl: (formData.googleBusinessUrl || "").trim(),
     createdAt: now,
     updatedAt: now,
   };

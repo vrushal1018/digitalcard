@@ -48,6 +48,13 @@ export function getEmailLink(input?: string): string | null {
   return `mailto:${clean}`;
 }
 
+export function getGoogleBusinessLink(input?: string): string | null {
+  if (!input || !input.trim()) return null;
+  const val = input.trim();
+  if (val.startsWith("http://") || val.startsWith("https://")) return val;
+  return `https://${val}`;
+}
+
 export function getCardUrl(slug: string, baseUrl?: string): string {
   if (baseUrl) {
     const cleanBase = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;

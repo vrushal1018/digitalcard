@@ -58,6 +58,7 @@ describe("DigitalCard Component", () => {
         instagramUrl="@alexjordan"
         email="alex@innovativespaces.com"
         websiteUrl="https://innovativespaces.com"
+        googleBusinessUrl="https://maps.app.goo.gl/sample"
       />
     );
 
@@ -75,6 +76,9 @@ describe("DigitalCard Component", () => {
     const websiteLinks = screen.getAllByRole("link", { name: /website/i });
     expect(websiteLinks.length).toBeGreaterThan(0);
     expect(websiteLinks[0].getAttribute("href")).toBe("https://innovativespaces.com");
+
+    const googleBusinessLink = screen.getByTitle("Google Business Profile");
+    expect(googleBusinessLink.getAttribute("href")).toBe("https://maps.app.goo.gl/sample");
   });
 });
 

@@ -14,6 +14,7 @@ export interface DigitalCard {
   facebookUrl?: string;
   email?: string;
   websiteUrl?: string;
+  googleBusinessUrl?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -32,6 +33,7 @@ export interface CardFormData {
   facebookUrl?: string;
   email?: string;
   websiteUrl?: string;
+  googleBusinessUrl?: string;
 }
 
 export interface FormErrors {

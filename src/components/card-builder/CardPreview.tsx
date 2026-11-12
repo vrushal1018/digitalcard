@@ -55,6 +55,7 @@ export function CardPreview({ formData, createdSlug }: CardPreviewProps) {
           facebookUrl={formData.facebookUrl}
           email={formData.email}
           websiteUrl={formData.websiteUrl}
+          googleBusinessUrl={formData.googleBusinessUrl}
           slug={createdSlug || undefined}
           shareUrl={shareUrl}
           isPreview={!isLive}

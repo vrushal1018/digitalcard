@@ -10,10 +10,18 @@ import {
   getGoogleMapsLink,
   getLinkedInLink,
   getInstagramLink,
+  getFacebookLink,
   getEmailLink,
+  getGoogleBusinessLink,
 } from "@/lib/links";
 import { downloadVCard } from "@/lib/vcard";
-import { LinkedInIcon, InstagramIcon, WhatsAppIcon } from "./SocialIcons";
+import {
+  LinkedInIcon,
+  InstagramIcon,
+  WhatsAppIcon,
+  FacebookIcon,
+  GoogleBusinessIcon,
+} from "./SocialIcons";
 
 export interface DigitalCardProps {
   name: string;
@@ -29,6 +37,7 @@ export interface DigitalCardProps {
   facebookUrl?: string;
   email?: string;
   websiteUrl?: string;
+  googleBusinessUrl?: string;
   slug?: string;
   shareUrl?: string;
   isPreview?: boolean;
@@ -49,6 +58,7 @@ export function DigitalCard({
   facebookUrl,
   email,
   websiteUrl,
+  googleBusinessUrl,
   shareUrl,
   isPreview = false,
   autoSave = false,
@@ -71,7 +81,9 @@ export function DigitalCard({
   const mapsHref = getGoogleMapsLink(officeLocation);
   const linkedinHref = getLinkedInLink(linkedinUrl);
   const instagramHref = getInstagramLink(instagramUrl);
+  const facebookHref = getFacebookLink(facebookUrl);
   const emailHref = getEmailLink(email);
+  const googleBusinessHref = getGoogleBusinessLink(googleBusinessUrl);
 
   const handleSaveContact = () => {
     if (!phoneNumber) return;
@@ -88,6 +100,7 @@ export function DigitalCard({
       facebookUrl: facebookUrl || undefined,
       email: email?.trim() || undefined,
       websiteUrl: websiteUrl?.trim() || undefined,
+      googleBusinessUrl: googleBusinessUrl?.trim() || undefined,
     });
     setHasSaved(true);
     setTimeout(() => setHasSaved(false), 3000);
@@ -274,8 +287,8 @@ export function DigitalCard({
                 </div>
               )}
 
-              {/* Online Social Profiles (if LinkedIn, Instagram or Website configured) */}
-              {(linkedinHref || instagramHref || websiteHref) && (
+              {/* Online Social Profiles (if LinkedIn, Instagram, Website, Google Business or Facebook configured) */}
+              {(linkedinHref || instagramHref || websiteHref || googleBusinessHref || facebookHref) && (
                 <div className="pt-2 border-t border-zinc-200/80">
                   <div className="text-[10px] sm:text-[11px] font-normal text-zinc-500 uppercase tracking-wider mb-1.5">
                     ONLINE PROFILES
@@ -291,6 +304,18 @@ export function DigitalCard({
                         className="text-zinc-700 hover:text-[#1886cf] transition-colors p-1"
                       >
                         <Globe className="w-5 h-5" />
+                      </a>
+                    )}
+                    {googleBusinessHref && (
+                      <a
+                        href={googleBusinessHref}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="Google Business Profile"
+                        aria-label="Google Business Profile"
+                        className="text-zinc-700 hover:opacity-80 transition-opacity p-1 flex items-center justify-center"
+                      >
+                        <GoogleBusinessIcon className="w-5 h-5" />
                       </a>
                     )}
                     {linkedinHref && (
@@ -315,6 +340,18 @@ export function DigitalCard({
                         className="text-zinc-700 hover:text-pink-600 transition-colors p-1"
                       >
                         <InstagramIcon className="w-5 h-5" />
+                      </a>
+                    )}
+                    {facebookHref && (
+                      <a
+                        href={facebookHref}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="Open Facebook Profile"
+                        aria-label="Facebook"
+                        className="text-zinc-700 hover:text-[#1877f2] transition-colors p-1"
+                      >
+                        <FacebookIcon className="w-5 h-5" />
                       </a>
                     )}
                   </div>

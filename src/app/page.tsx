@@ -26,6 +26,7 @@ export default function HomePage() {
     facebookUrl: "",
     email: "",
     websiteUrl: "",
+    googleBusinessUrl: "",
   });
 
   const [createdSlug, setCreatedSlug] = useState<string | null>(null);
@@ -76,6 +77,7 @@ export default function HomePage() {
       facebookUrl: card.facebookUrl || "",
       email: card.email || "",
       websiteUrl: card.websiteUrl || "",
+      googleBusinessUrl: card.googleBusinessUrl || "",
     });
     setEditingSlug(card.slug);
     setCreatedSlug(null);
@@ -102,6 +104,7 @@ export default function HomePage() {
       facebookUrl: "",
       email: "",
       websiteUrl: "",
+      googleBusinessUrl: "",
     });
   };
 

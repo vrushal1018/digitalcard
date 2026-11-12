@@ -6,7 +6,7 @@ import { CardFormData, FormErrors } from "@/types/card";
 import { PhotoUpload } from "./PhotoUpload";
 import { ThemeBackgroundUpload } from "./ThemeBackgroundUpload";
 import { validateCardForm } from "@/lib/validation";
-import { LinkedInIcon, InstagramIcon, FacebookIcon } from "../digital-card/SocialIcons";
+import { LinkedInIcon, InstagramIcon, FacebookIcon, GoogleBusinessIcon } from "../digital-card/SocialIcons";
 import {
   Sparkles,
   Loader2,
@@ -50,6 +50,43 @@ export function CardForm({
   const [cardToken, setCardToken] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
   const [showQr, setShowQr] = useState(false);
+
+  type ProfileKey = "website" | "googleBusiness" | "linkedin" | "instagram" | "facebook";
+
+  const [enabledProfiles, setEnabledProfiles] = useState<Record<ProfileKey, boolean>>({
+    website: Boolean(formData.websiteUrl),
+    googleBusiness: Boolean(formData.googleBusinessUrl),
+    linkedin: Boolean(formData.linkedinUrl),
+    instagram: Boolean(formData.instagramUrl),
+    facebook: Boolean(formData.facebookUrl),
+  });
+
+  React.useEffect(() => {
+    setEnabledProfiles((prev) => ({
+      website: prev.website || Boolean(formData.websiteUrl),
+      googleBusiness: prev.googleBusiness || Boolean(formData.googleBusinessUrl),
+      linkedin: prev.linkedin || Boolean(formData.linkedinUrl),
+      instagram: prev.instagram || Boolean(formData.instagramUrl),
+      facebook: prev.facebook || Boolean(formData.facebookUrl),
+    }));
+  }, [
+    formData.websiteUrl,
+    formData.googleBusinessUrl,
+    formData.linkedinUrl,
+    formData.instagramUrl,
+    formData.facebookUrl,
+  ]);
+
+  const toggleProfile = (key: ProfileKey, field: keyof CardFormData) => {
+    const nextState = !enabledProfiles[key];
+    setEnabledProfiles((prev) => ({ ...prev, [key]: nextState }));
+    if (!nextState) {
+      onChange({
+        ...formData,
+        [field]: "",
+      });
+    }
+  };
 
   const saveCardToLocalCache = (card: any) => {
     if (typeof window === "undefined" || !card?.slug) return;
@@ -622,99 +659,288 @@ export function CardForm({
 
           {/* Online & Social Profiles Section */}
           <div className="pt-2 border-t border-zinc-800/80 space-y-3.5">
-            <div className="flex items-center justify-between">
-              <label className="flex items-center gap-2 text-sm font-medium text-zinc-300">
-                <Globe className="w-4 h-4 text-sky-400" />
-                <span>Online & Social Profiles</span>
-                <span className="text-[11px] font-normal text-zinc-500">(Optional)</span>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+              <div>
+                <label className="flex items-center gap-2 text-sm font-medium text-zinc-200">
+                  <Globe className="w-4 h-4 text-sky-400" />
+                  <span>Online & Social Profiles</span>
+                  <span className="text-[11px] font-normal text-zinc-500">(Optional)</span>
+                </label>
+                <p className="text-[11px] text-zinc-400 mt-0.5">
+                  Choose which profiles to display under Online Profiles on your card:
+                </p>
+              </div>
+              <span className="text-[11px] text-zinc-500 font-mono">
+                {
+                  [
+                    formData.websiteUrl,
+                    formData.googleBusinessUrl,
+                    formData.linkedinUrl,
+                    formData.instagramUrl,
+                    formData.facebookUrl,
+                  ].filter(Boolean).length
+                }{" "}
+                displayed
+              </span>
+            </div>
+
+            {/* Platform Selection Buttons */}
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              {[
+                {
+                  key: "website" as ProfileKey,
+                  label: "Website",
+                  field: "websiteUrl" as keyof CardFormData,
+                  icon: Globe,
+                },
+                {
+                  key: "googleBusiness" as ProfileKey,
+                  label: "Google Business",
+                  field: "googleBusinessUrl" as keyof CardFormData,
+                  icon: GoogleBusinessIcon,
+                },
+                {
+                  key: "linkedin" as ProfileKey,
+                  label: "LinkedIn",
+                  field: "linkedinUrl" as keyof CardFormData,
+                  icon: LinkedInIcon,
+                },
+                {
+                  key: "instagram" as ProfileKey,
+                  label: "Instagram",
+                  field: "instagramUrl" as keyof CardFormData,
+                  icon: InstagramIcon,
+                },
+                {
+                  key: "facebook" as ProfileKey,
+                  label: "Facebook",
+                  field: "facebookUrl" as keyof CardFormData,
+                  icon: FacebookIcon,
+                },
+              ].map((p) => {
+                const isSelected = Boolean(enabledProfiles[p.key]);
+                const Icon = p.icon;
+                return (
+                  <button
+                    key={p.key}
+                    type="button"
+                    onClick={() => toggleProfile(p.key, p.field)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer border ${
+                      isSelected
+                        ? "bg-sky-500/15 border-sky-500/50 text-sky-300 shadow-sm shadow-sky-500/10"
+                        : "bg-zinc-900/80 border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700"
+                    }`}
+                  >
+                    <Icon className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span>{p.label}</span>
+                    {isSelected ? (
+                      <Check className="w-3 h-3 text-sky-400 stroke-[2.5]" />
+                    ) : (
+                      <span className="text-zinc-500 text-[11px] leading-none">+</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Dynamic Inputs for Selected Platforms */}
+            {Object.values(enabledProfiles).some(Boolean) ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                {enabledProfiles.website && (
+                  <div className="p-3 bg-zinc-900/60 rounded-xl border border-zinc-800/80 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label
+                        htmlFor="websiteUrl"
+                        className="text-xs font-medium text-zinc-300 flex items-center gap-1.5"
+                      >
+                        <Globe className="w-3.5 h-3.5 text-sky-400" />
+                        <span>Website URL</span>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => toggleProfile("website", "websiteUrl")}
+                        className="text-[10px] text-zinc-500 hover:text-rose-400 transition-colors"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    <input
+                      id="websiteUrl"
+                      name="websiteUrl"
+                      type="text"
+                      value={formData.websiteUrl || ""}
+                      onChange={handleInputChange}
+                      placeholder="https://inaspaceworks.com"
+                      className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 focus:border-sky-500 focus:ring-1 focus:ring-sky-500/30 rounded-xl text-white placeholder-zinc-500 text-xs focus:outline-none transition-all"
+                    />
+                    <p className="text-[10px] text-zinc-500">
+                      Company website displayed as Globe icon on card.
+                    </p>
+                  </div>
+                )}
+
+                {enabledProfiles.googleBusiness && (
+                  <div className="p-3 bg-zinc-900/60 rounded-xl border border-zinc-800/80 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label
+                        htmlFor="googleBusinessUrl"
+                        className="text-xs font-medium text-zinc-300 flex items-center gap-1.5"
+                      >
+                        <GoogleBusinessIcon className="w-3.5 h-3.5" />
+                        <span>Google Business Profile</span>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => toggleProfile("googleBusiness", "googleBusinessUrl")}
+                        className="text-[10px] text-zinc-500 hover:text-rose-400 transition-colors"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    <input
+                      id="googleBusinessUrl"
+                      name="googleBusinessUrl"
+                      type="text"
+                      value={formData.googleBusinessUrl || ""}
+                      onChange={handleInputChange}
+                      placeholder="https://maps.app.goo.gl/... or https://g.page/..."
+                      className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 focus:border-sky-500 focus:ring-1 focus:ring-sky-500/30 rounded-xl text-white placeholder-zinc-500 text-xs focus:outline-none transition-all"
+                    />
+                    <p className="text-[10px] text-zinc-500">
+                      Google Business link (opens reviews/business profile when tapped).
+                    </p>
+                  </div>
+                )}
+
+                {enabledProfiles.linkedin && (
+                  <div className="p-3 bg-zinc-900/60 rounded-xl border border-zinc-800/80 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label
+                        htmlFor="linkedinUrl"
+                        className="text-xs font-medium text-zinc-300 flex items-center gap-1.5"
+                      >
+                        <LinkedInIcon className="w-3.5 h-3.5 text-[#0077b5]" />
+                        <span>LinkedIn Profile</span>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => toggleProfile("linkedin", "linkedinUrl")}
+                        className="text-[10px] text-zinc-500 hover:text-rose-400 transition-colors"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    <input
+                      id="linkedinUrl"
+                      name="linkedinUrl"
+                      type="text"
+                      value={formData.linkedinUrl || ""}
+                      onChange={handleInputChange}
+                      placeholder="username or https://linkedin.com/in/username"
+                      className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 focus:border-sky-500 focus:ring-1 focus:ring-sky-500/30 rounded-xl text-white placeholder-zinc-500 text-xs focus:outline-none transition-all"
+                    />
+                    <p className="text-[10px] text-zinc-500">
+                      LinkedIn profile or company page.
+                    </p>
+                  </div>
+                )}
+
+                {enabledProfiles.instagram && (
+                  <div className="p-3 bg-zinc-900/60 rounded-xl border border-zinc-800/80 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label
+                        htmlFor="instagramUrl"
+                        className="text-xs font-medium text-zinc-300 flex items-center gap-1.5"
+                      >
+                        <InstagramIcon className="w-3.5 h-3.5 text-pink-500" />
+                        <span>Instagram Profile</span>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => toggleProfile("instagram", "instagramUrl")}
+                        className="text-[10px] text-zinc-500 hover:text-rose-400 transition-colors"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    <input
+                      id="instagramUrl"
+                      name="instagramUrl"
+                      type="text"
+                      value={formData.instagramUrl || ""}
+                      onChange={handleInputChange}
+                      placeholder="@username or https://instagram.com/username"
+                      className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 focus:border-sky-500 focus:ring-1 focus:ring-sky-500/30 rounded-xl text-white placeholder-zinc-500 text-xs focus:outline-none transition-all"
+                    />
+                    <p className="text-[10px] text-zinc-500">
+                      Instagram handle or profile link.
+                    </p>
+                  </div>
+                )}
+
+                {enabledProfiles.facebook && (
+                  <div className="p-3 bg-zinc-900/60 rounded-xl border border-zinc-800/80 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label
+                        htmlFor="facebookUrl"
+                        className="text-xs font-medium text-zinc-300 flex items-center gap-1.5"
+                      >
+                        <FacebookIcon className="w-3.5 h-3.5 text-[#1877f2]" />
+                        <span>Facebook Profile</span>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => toggleProfile("facebook", "facebookUrl")}
+                        className="text-[10px] text-zinc-500 hover:text-rose-400 transition-colors"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    <input
+                      id="facebookUrl"
+                      name="facebookUrl"
+                      type="text"
+                      value={formData.facebookUrl || ""}
+                      onChange={handleInputChange}
+                      placeholder="username or https://facebook.com/username"
+                      className="w-full px-3 py-2 bg-zinc-950 border border-zinc-800 focus:border-sky-500 focus:ring-1 focus:ring-sky-500/30 rounded-xl text-white placeholder-zinc-500 text-xs focus:outline-none transition-all"
+                    />
+                    <p className="text-[10px] text-zinc-500">
+                      Facebook profile or public page.
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="p-3 bg-zinc-900/40 rounded-xl border border-zinc-800/60 text-center">
+                <p className="text-xs text-zinc-400">
+                  Select any profile above (e.g. <strong className="text-zinc-300">Website</strong>, <strong className="text-zinc-300">Google Business</strong>, or <strong className="text-zinc-300">LinkedIn</strong>) to display its icon link on your card.
+                </p>
+              </div>
+            )}
+
+            {/* Email Address */}
+            <div className="pt-2 border-t border-zinc-800/80">
+              <label
+                htmlFor="email"
+                className="block text-xs font-medium text-zinc-300 mb-1 flex items-center gap-1.5"
+              >
+                <Mail className="w-3.5 h-3.5 text-sky-400" />
+                <span>Email Address (Optional)</span>
               </label>
-              <span className="text-[11px] text-zinc-500">Displayed under Online Profiles & saved to contacts</span>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email || ""}
+                onChange={handleInputChange}
+                placeholder="name@inaspaceworks.com"
+                className="w-full px-3 py-2 bg-zinc-900/90 border border-zinc-800 focus:border-sky-500 focus:ring-1 focus:ring-sky-500/30 rounded-xl text-white placeholder-zinc-500 text-xs focus:outline-none transition-all"
+              />
+              <p className="text-[10px] text-zinc-500 mt-1">
+                Displayed in contact details and enables one-tap email action.
+              </p>
             </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              {/* Website URL */}
-              <div>
-                <label
-                  htmlFor="websiteUrl"
-                  className="block text-xs font-medium text-zinc-300 mb-1 flex items-center gap-1.5"
-                >
-                  <Globe className="w-3.5 h-3.5 text-sky-400" />
-                  <span>Website URL</span>
-                </label>
-                <input
-                  id="websiteUrl"
-                  name="websiteUrl"
-                  type="text"
-                  value={formData.websiteUrl || ""}
-                  onChange={handleInputChange}
-                  placeholder="https://inaspaceworks.com"
-                  className="w-full px-3 py-2 bg-zinc-900/90 border border-zinc-800 focus:border-sky-500 focus:ring-1 focus:ring-sky-500/30 rounded-xl text-white placeholder-zinc-500 text-xs focus:outline-none transition-all"
-                />
-              </div>
-
-              {/* LinkedIn */}
-              <div>
-                <label
-                  htmlFor="linkedinUrl"
-                  className="block text-xs font-medium text-zinc-300 mb-1 flex items-center gap-1.5"
-                >
-                  <LinkedInIcon className="w-3.5 h-3.5 text-white" />
-                  <span>LinkedIn</span>
-                </label>
-                <input
-                  id="linkedinUrl"
-                  name="linkedinUrl"
-                  type="text"
-                  value={formData.linkedinUrl || ""}
-                  onChange={handleInputChange}
-                  placeholder="username or URL"
-                  className="w-full px-3 py-2 bg-zinc-900/90 border border-zinc-800 focus:border-sky-500 focus:ring-1 focus:ring-sky-500/30 rounded-xl text-white placeholder-zinc-500 text-xs focus:outline-none transition-all"
-                />
-              </div>
-
-              {/* Instagram */}
-              <div>
-                <label
-                  htmlFor="instagramUrl"
-                  className="block text-xs font-medium text-zinc-300 mb-1 flex items-center gap-1.5"
-                >
-                  <InstagramIcon className="w-3.5 h-3.5 text-white" />
-                  <span>Instagram</span>
-                </label>
-                <input
-                  id="instagramUrl"
-                  name="instagramUrl"
-                  type="text"
-                  value={formData.instagramUrl || ""}
-                  onChange={handleInputChange}
-                  placeholder="@username or URL"
-                  className="w-full px-3 py-2 bg-zinc-900/90 border border-zinc-800 focus:border-sky-500 focus:ring-1 focus:ring-sky-500/30 rounded-xl text-white placeholder-zinc-500 text-xs focus:outline-none transition-all"
-                />
-              </div>
-
-              {/* Email */}
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-xs font-medium text-zinc-300 mb-1 flex items-center gap-1.5"
-                >
-                  <Mail className="w-3.5 h-3.5 text-white" />
-                  <span>Email Address</span>
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email || ""}
-                  onChange={handleInputChange}
-                  placeholder="name@example.com"
-                  className="w-full px-3 py-2 bg-zinc-900/90 border border-zinc-800 focus:border-sky-500 focus:ring-1 focus:ring-sky-500/30 rounded-xl text-white placeholder-zinc-500 text-xs focus:outline-none transition-all"
-                />
-              </div>
-            </div>
-            <p className="text-[11px] text-zinc-500">
-              Paste your website URL, LinkedIn, or Instagram profile link. Links appear under Online Profiles on the card and automatically save to phone contacts.
-            </p>
           </div>
 
           {/* Photo Upload Component */}

@@ -11,6 +11,7 @@ export interface VCardData {
   facebookUrl?: string;
   email?: string;
   websiteUrl?: string;
+  googleBusinessUrl?: string;
 }
 
 /**
@@ -66,6 +67,10 @@ export function generateVCard(data: VCardData): string {
 
   if (data.facebookUrl?.trim()) {
     lines.push(`X-SOCIALPROFILE;TYPE=facebook:${data.facebookUrl.trim()}`);
+  }
+
+  if (data.googleBusinessUrl?.trim()) {
+    lines.push(`X-SOCIALPROFILE;TYPE=googlebusiness:${data.googleBusinessUrl.trim()}`);
   }
 
   if (data.email?.trim()) {
