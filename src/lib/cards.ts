@@ -385,6 +385,8 @@ export async function updateCard(
     }
   }
 
+  triggerGitSync(`update ${slug}`);
+
   return updatedCard;
 }
 
@@ -430,6 +432,8 @@ export async function createCard(formData: CardFormData): Promise<DigitalCard> {
       console.warn("Failed to write new card to Redis:", e);
     }
   }
+
+  triggerGitSync(`create ${slug}`);
 
   return newCard;
 }
@@ -477,5 +481,27 @@ export async function deleteCard(slug: string): Promise<boolean> {
     }
   }
 
+  triggerGitSync(`delete ${slug}`);
+
   return true;
+}
+
+export function triggerGitSync(reason = "card update") {
+  if (process.env.NODE_ENV === "test" || Boolean(process.env.VITEST)) return;
+  if (!process.env.VERCEL) {
+    try {
+      import("child_process").then(({ exec }) => {
+        exec(
+          `git add data/cards.json ; git commit -m "chore: auto-sync ${reason} to live deployment" ; git push origin main`,
+          (err) => {
+            if (err) {
+              console.warn("Auto-sync git notice:", err.message);
+            } else {
+              console.log(`Auto-synced ${reason} to GitHub successfully!`);
+            }
+          }
+        );
+      });
+    } catch {}
+  }
 }
