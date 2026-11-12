@@ -3,30 +3,6 @@ import { NextRequest } from "next/server";
 
 export const runtime = "edge";
 
-async function fetchImageSafe(url: string | null): Promise<string | null> {
-  if (!url || !url.startsWith("http")) return null;
-  try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 3500);
-    const res = await fetch(url, { signal: controller.signal });
-    clearTimeout(timer);
-    if (!res.ok) return null;
-    const contentType = res.headers.get("content-type") || "image/jpeg";
-    const arrayBuffer = await res.arrayBuffer();
-    let binary = "";
-    const bytes = new Uint8Array(arrayBuffer);
-    const len = bytes.byteLength;
-    for (let i = 0; i < len; i++) {
-      binary += String.fromCharCode(bytes[i]);
-    }
-    const base64 = btoa(binary);
-    return `data:${contentType};base64,${base64}`;
-  } catch (err) {
-    console.warn("OG image prefetch fallback:", url, err);
-    return null;
-  }
-}
-
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -38,12 +14,6 @@ export async function GET(request: NextRequest) {
     const bg = searchParams.get("bg");
     const fit = searchParams.get("fit") === "cover" ? "cover" : "contain";
     const format = searchParams.get("format") || "banner";
-
-    // Safely pre-fetch external images into data URLs so Satori never fails with 500
-    const [safePhoto, safeBg] = await Promise.all([
-      fetchImageSafe(photo),
-      fetchImageSafe(bg),
-    ]);
 
     // 1. Dedicated Square 600x600 layout (used for WhatsApp left-side thumbnail)
     if (format === "square") {
@@ -65,9 +35,9 @@ export async function GET(request: NextRequest) {
             }}
           >
             {/* Theme Background Image filling the entire square */}
-            {safeBg ? (
+            {bg && bg.startsWith("http") ? (
               <img
-                src={safeBg}
+                src={bg}
                 alt="theme-bg"
                 style={{
                   position: "absolute",
@@ -120,9 +90,9 @@ export async function GET(request: NextRequest) {
                 overflow: "hidden",
               }}
             >
-              {safePhoto ? (
+              {photo && photo.startsWith("http") ? (
                 <img
-                  src={safePhoto}
+                  src={photo}
                   alt={name}
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
@@ -257,9 +227,9 @@ export async function GET(request: NextRequest) {
                 overflow: "hidden",
               }}
             >
-              {safePhoto ? (
+              {photo && photo.startsWith("http") ? (
                 <img
-                  src={safePhoto}
+                  src={photo}
                   alt={name}
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
@@ -285,9 +255,9 @@ export async function GET(request: NextRequest) {
               }}
             >
               {/* Theme Wallpaper on the right side */}
-              {safeBg ? (
+              {bg && bg.startsWith("http") ? (
                 <img
-                  src={safeBg}
+                  src={bg}
                   alt="theme-bg"
                   style={{
                     position: "absolute",

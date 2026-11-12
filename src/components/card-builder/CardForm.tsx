@@ -240,7 +240,7 @@ export function CardForm({
     cardFullUrl
   )}`;
   const whatsappShareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(
-    `Check out ${formData.name}'s digital business card:\n${cardFullUrl}`
+    `Connect with ${formData.name}, ${formData.designation} at ${formData.companyName}:\n${cardFullUrl}`
   )}`;
 
   const handleCopyLink = async () => {

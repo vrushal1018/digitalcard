@@ -116,7 +116,9 @@ export async function generateMetadata({
     }
   }
 
+  const ogSquareImageUrl = `${appUrl}/api/og?${ogParams.toString()}&format=square`;
   const ogBannerImageUrl = `${appUrl}/api/og?${ogParams.toString()}&format=banner`;
+  const hasDirectPhoto = Boolean(card.photoUrl && card.photoUrl.startsWith("http"));
   const pageTitle = `${card.name} — ${card.companyName}`;
   const pageDescription = `${card.name}, ${card.designation} at ${card.companyName}. Connect via Call, WhatsApp, Location, and Share.`;
 
@@ -133,6 +135,26 @@ export async function generateMetadata({
       siteName: "InaCard Digital Business Card",
       images: [
         {
+          url: ogSquareImageUrl,
+          secureUrl: ogSquareImageUrl,
+          width: 600,
+          height: 600,
+          alt: `${card.name} — ${card.companyName}`,
+          type: "image/png",
+        },
+        ...(hasDirectPhoto
+          ? [
+              {
+                url: card.photoUrl as string,
+                secureUrl: card.photoUrl as string,
+                width: 600,
+                height: 600,
+                alt: `${card.name}`,
+                type: "image/jpeg",
+              },
+            ]
+          : []),
+        {
           url: ogBannerImageUrl,
           secureUrl: ogBannerImageUrl,
           width: 1200,
@@ -147,7 +169,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: pageTitle,
       description: `${card.name}, ${card.designation} at ${card.companyName}`,
-      images: [ogBannerImageUrl],
+      images: [ogSquareImageUrl, ogBannerImageUrl],
     },
   };
 }
