@@ -213,12 +213,12 @@ export function DigitalCard({
               {/* Phone field */}
               {phoneNumber && (
                 <div>
-                  <div className="text-[10px] sm:text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-0.5">
+                  <div className="text-[10px] sm:text-[11px] font-normal text-zinc-500 uppercase tracking-wider mb-0.5">
                     PHONE
                   </div>
                   <a
                     href={isPreview ? undefined : callHref || undefined}
-                    className="text-sm sm:text-[15px] font-medium text-zinc-900 hover:text-[#1886cf] transition-colors"
+                    className="text-sm sm:text-[15px] font-normal text-zinc-800 hover:text-[#1886cf] transition-colors"
                   >
                     {phoneNumber}
                   </a>
@@ -228,12 +228,12 @@ export function DigitalCard({
               {/* Email field */}
               {email && (
                 <div>
-                  <div className="text-[10px] sm:text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-0.5">
+                  <div className="text-[10px] sm:text-[11px] font-normal text-zinc-500 uppercase tracking-wider mb-0.5">
                     EMAIL
                   </div>
                   <a
                     href={isPreview ? undefined : emailHref || undefined}
-                    className="text-sm sm:text-[15px] font-medium text-zinc-900 hover:text-[#1886cf] transition-colors break-all"
+                    className="text-sm sm:text-[15px] font-normal text-zinc-800 hover:text-[#1886cf] transition-colors break-all"
                   >
                     {email}
                   </a>
@@ -243,14 +243,14 @@ export function DigitalCard({
               {/* Website field */}
               {websiteUrl && (
                 <div>
-                  <div className="text-[10px] sm:text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-0.5">
+                  <div className="text-[10px] sm:text-[11px] font-normal text-zinc-500 uppercase tracking-wider mb-0.5">
                     WEBSITE
                   </div>
                   <a
                     href={websiteHref}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm sm:text-[15px] font-medium text-zinc-900 hover:text-[#1886cf] transition-colors break-all"
+                    className="text-sm sm:text-[15px] font-normal text-zinc-800 hover:text-[#1886cf] transition-colors break-all"
                   >
                     {displayWebsite}
                   </a>
@@ -260,14 +260,14 @@ export function DigitalCard({
               {/* Address field */}
               {officeLocation && (
                 <div>
-                  <div className="text-[10px] sm:text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-0.5">
+                  <div className="text-[10px] sm:text-[11px] font-normal text-zinc-500 uppercase tracking-wider mb-0.5">
                     ADDRESS
                   </div>
                   <a
                     href={isPreview ? undefined : mapsHref || undefined}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs sm:text-[13.5px] font-medium text-zinc-900 hover:text-[#1886cf] transition-colors leading-relaxed block"
+                    className="text-xs sm:text-[13.5px] font-normal text-zinc-800 hover:text-[#1886cf] transition-colors leading-relaxed block"
                   >
                     {officeLocation}
                   </a>
@@ -277,7 +277,7 @@ export function DigitalCard({
               {/* Online Social Profiles (if LinkedIn, Instagram or Website configured) */}
               {(linkedinHref || instagramHref || websiteHref) && (
                 <div className="pt-2 border-t border-zinc-200/80">
-                  <div className="text-[10px] sm:text-[11px] font-bold text-zinc-500 uppercase tracking-wider mb-1.5">
+                  <div className="text-[10px] sm:text-[11px] font-normal text-zinc-500 uppercase tracking-wider mb-1.5">
                     ONLINE PROFILES
                   </div>
                   <div className="flex items-center gap-3">
