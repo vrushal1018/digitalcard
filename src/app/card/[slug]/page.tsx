@@ -117,7 +117,6 @@ export async function generateMetadata({
     }
   }
 
-  const ogSquareImageUrl = `${appUrl}/api/og?${ogParams.toString()}&format=square`;
   const ogBannerImageUrl = `${appUrl}/api/og?${ogParams.toString()}&format=banner`;
 
   const rawPhoto = card.photoUrl?.trim();
@@ -127,12 +126,14 @@ export async function generateMetadata({
       : `${appUrl}${rawPhoto.startsWith("/") ? "" : "/"}${rawPhoto}`
     : null;
 
-  let photoMimeType = "image/jpeg";
-  if (rawPhoto?.toLowerCase().endsWith(".png")) {
-    photoMimeType = "image/png";
-  } else if (rawPhoto?.toLowerCase().endsWith(".webp")) {
-    photoMimeType = "image/webp";
-  }
+  const primaryImage = fullPhotoUrl || ogBannerImageUrl;
+  const imageType = fullPhotoUrl?.toLowerCase().endsWith(".png")
+    ? "image/png"
+    : fullPhotoUrl?.toLowerCase().endsWith(".webp")
+      ? "image/webp"
+      : fullPhotoUrl
+        ? "image/jpeg"
+        : "image/png";
 
   const pageTitle = `${card.name} — ${card.companyName}`;
   const pageDescription = `${card.name}, ${card.designation} at ${card.companyName}. Connect via Call, WhatsApp, Location, and Share.`;
@@ -149,35 +150,13 @@ export async function generateMetadata({
       url: cardUrl,
       siteName: "InaCard Digital Business Card",
       images: [
-        // 1. Profile photo FIRST so WhatsApp and all social link unfurls show the user's actual profile pic
-        ...(fullPhotoUrl
-          ? [
-              {
-                url: fullPhotoUrl,
-                secureUrl: fullPhotoUrl,
-                width: 600,
-                height: 600,
-                alt: `${card.name}`,
-                type: photoMimeType,
-              },
-            ]
-          : []),
-        // 2. Fallback / supplementary card images
         {
-          url: ogSquareImageUrl,
-          secureUrl: ogSquareImageUrl,
+          url: primaryImage,
+          secureUrl: primaryImage,
           width: 600,
           height: 600,
-          alt: `${card.name} — ${card.companyName}`,
-          type: "image/png",
-        },
-        {
-          url: ogBannerImageUrl,
-          secureUrl: ogBannerImageUrl,
-          width: 1200,
-          height: 630,
-          alt: `${card.name} — ${card.companyName}`,
-          type: "image/png",
+          alt: `${card.name}`,
+          type: imageType,
         },
       ],
       type: "website",
@@ -185,8 +164,8 @@ export async function generateMetadata({
     twitter: {
       card: "summary",
       title: pageTitle,
-      description: `${card.name}, ${card.designation} at ${card.companyName}`,
-      images: fullPhotoUrl ? [fullPhotoUrl] : [ogSquareImageUrl],
+      description: pageDescription,
+      images: [primaryImage],
     },
   };
 }
