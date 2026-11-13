@@ -80,5 +80,23 @@ describe("DigitalCard Component", () => {
     const googleBusinessLink = screen.getByTitle("Google Business Profile");
     expect(googleBusinessLink.getAttribute("href")).toBe("https://maps.app.goo.gl/sample");
   });
+
+  it("renders clickable Ina SpaceWorks logo hotspot when inaxspaceworks theme is selected", () => {
+    render(
+      <DigitalCard
+        name="Jaisalil Shilewant"
+        designation="Vice President"
+        companyName="Ina SpaceWorks"
+        phoneNumber="+919156802555"
+        officeLocation="Thane, Maharashtra"
+        bgUrl="/themes/inaxspaceworks.webp"
+      />
+    );
+
+    const logoLink = screen.getByRole("link", { name: /ina spaceworks website/i });
+    expect(logoLink).toBeDefined();
+    expect(logoLink.getAttribute("href")).toBe("https://inaspaceworks.com");
+    expect(logoLink.getAttribute("target")).toBe("_blank");
+  });
 });
 

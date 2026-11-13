@@ -92,6 +92,10 @@ export function DigitalCard({
 
   const [isAndroid, setIsAndroid] = useState(false);
 
+  const isInaXSpaceworks = Boolean(
+    bgUrl && (bgUrl.includes("inaxspaceworks") || bgUrl.includes("ina-spaceworks-x"))
+  );
+
   useEffect(() => {
     setIsAndroid(isAndroidDevice());
   }, []);
@@ -153,14 +157,25 @@ export function DigitalCard({
         <div className="relative w-full h-44 sm:h-52 bg-[#1886cf] overflow-hidden flex flex-col items-center justify-start text-white flex-shrink-0">
           {/* Custom Theme Background (if provided) */}
           {bgUrl && (
-            <div className="absolute inset-0 z-0 pointer-events-none select-none">
+            <div className="absolute inset-0 z-0 select-none">
               <img
                 src={bgUrl}
                 alt="Header Theme"
-                className={`w-full h-full transition-all duration-300 ${
+                className={`w-full h-full transition-all duration-300 pointer-events-none ${
                   bgFit === "cover" ? "object-cover" : "object-contain"
                 }`}
               />
+              {/* Clickable Ina SpaceWorks logo hotspot for inaxspaceworks theme */}
+              {isInaXSpaceworks && (
+                <a
+                  href="https://inaspaceworks.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Visit Ina SpaceWorks (inaspaceworks.com)"
+                  aria-label="Ina SpaceWorks Website"
+                  className="absolute right-0 bottom-0 w-[42%] h-[50%] z-10 cursor-pointer rounded-tl-xl hover:bg-white/5 active:bg-white/10 transition-colors"
+                />
+              )}
             </div>
           )}
         </div>
