@@ -33,6 +33,12 @@ const PRESET_THEMES = [
     previewStyle: "bg-[#0ea5e9] border-sky-400",
   },
   {
+    id: "inaxspaceworks",
+    name: "Ina x SpaceWorks",
+    url: "/themes/inaxspaceworks.png",
+    previewStyle: "bg-[#0284c7] border-sky-400",
+  },
+  {
     id: "ina-spaceworks-blue",
     name: "Ina SpaceWorks",
     url: "https://i.ibb.co/Q78FpTR8/82956cac0b1e.jpg",
@@ -147,7 +153,7 @@ export function ThemeBackgroundUpload({
       </div>
 
       {/* Preset Theme Selection Badges */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-9 gap-2">
         {PRESET_THEMES.map((theme) => {
           const isSelected =
             (!currentBgUrl && theme.id === "none") ||
@@ -157,6 +163,8 @@ export function ThemeBackgroundUpload({
                   currentBgUrl.includes("ITF_digicard_header")) ||
                 (theme.id === "ina-spaceworks-og" &&
                   currentBgUrl.includes("ina-spaceworks-og")) ||
+                (theme.id === "inaxspaceworks" &&
+                  currentBgUrl.includes("inaxspaceworks")) ||
                 (theme.id === "ina-spaceworks-blue" &&
                   (currentBgUrl.includes("82956cac0b1e") ||
                     currentBgUrl.includes("ina-spaceworks-blue")))));
